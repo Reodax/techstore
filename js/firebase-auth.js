@@ -26,7 +26,6 @@ async function registerWithFirebase(email, password, name) {
             updatedAt: firebase.firestore.FieldValue.serverTimestamp()
         });
 
-        console.log('✅ Пользователь зарегистрирован:', user.uid);
         return { success: true, user: user, message: 'Регистрация успешна' };
     } catch (error) {
         console.error('❌ Ошибка регистрации:', error);
@@ -52,7 +51,6 @@ async function loginWithFirebase(email, password) {
         const userCredential = await firebase.auth().signInWithEmailAndPassword(email, password);
         const user = userCredential.user;
 
-        console.log('✅ Пользователь вошел:', user.uid);
         return { success: true, user: user, message: 'Вход выполнен успешно' };
     } catch (error) {
         console.error('❌ Ошибка входа:', error);
@@ -94,10 +92,8 @@ async function loginWithGoogle() {
                 createdAt: firebase.firestore.FieldValue.serverTimestamp(),
                 updatedAt: firebase.firestore.FieldValue.serverTimestamp()
             });
-            console.log('✅ Профиль создан для нового пользователя:', userName);
         }
 
-        console.log('✅ Вход через Google выполнен:', user.uid);
         return { success: true, user: user, message: 'Вход выполнен успешно' };
     } catch (error) {
         console.error('❌ Ошибка входа через Google:', error);
@@ -128,7 +124,6 @@ async function createGoogleUserProfile(userId, email, name) {
             updatedAt: firebase.firestore.FieldValue.serverTimestamp()
         });
         
-        console.log('✅ Профиль Google пользователя создан');
         return { success: true };
     } catch (error) {
         console.error('❌ Ошибка создания профиля:', error);
@@ -142,7 +137,6 @@ async function createGoogleUserProfile(userId, email, name) {
 async function logoutFromFirebase() {
     try {
         await firebase.auth().signOut();
-        console.log('✅ Пользователь вышел');
         return { success: true };
     } catch (error) {
         console.error('❌ Ошибка выхода:', error);
@@ -216,7 +210,6 @@ async function updateFirebaseUserData(name, email, newPassword = null) {
             updatedAt: firebase.firestore.FieldValue.serverTimestamp()
         });
 
-        console.log('✅ Данные пользователя обновлены');
         return { success: true, message: 'Данные успешно обновлены' };
     } catch (error) {
         console.error('❌ Ошибка обновления данных:', error);
@@ -251,7 +244,6 @@ async function saveUserCartToFirebase(cartItems) {
             cart: cartItems,
             updatedAt: firebase.firestore.FieldValue.serverTimestamp()
         });
-        console.log('✅ Корзина сохранена в Firebase');
     } catch (error) {
         console.error('❌ Ошибка сохранения корзины:', error);
     }
@@ -293,7 +285,6 @@ async function getAllFirebaseUsers() {
             users.push({ id: doc.id, ...doc.data() });
         });
         
-        console.log(`✅ Загружено пользователей: ${users.length}`);
         return users;
     } catch (error) {
         console.error('❌ Ошибка загрузки пользователей:', error);
@@ -312,7 +303,6 @@ async function deleteFirebaseUser(userId) {
         // Примечание: Удаление из Firebase Auth требует Admin SDK на сервере
         // Здесь мы удаляем только данные из Firestore
         
-        console.log('✅ Пользователь удален из Firestore');
         return { success: true };
     } catch (error) {
         console.error('❌ Ошибка удаления пользователя:', error);

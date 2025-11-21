@@ -9,19 +9,19 @@ class Auth {
     // Инициализация Firebase Auth
     async initializeAuth() {
         return new Promise((resolve) => {
-            firebase.auth().onAuthStateChanged(async (user) => {
+            // Подписываемся на изменения состояния авторизации один раз
+            const unsubscribe = firebase.auth().onAuthStateChanged(async (user) => {
                 if (user) {
                     // Пользователь авторизован
                     const userData = await getCurrentUserData();
                     this.currentUser = userData;
-                    console.log('✅ Пользователь авторизован:', user.email);
                 } else {
                     // Пользователь не авторизован
                     this.currentUser = null;
-                    console.log('ℹ️ Пользователь не авторизован');
                 }
                 this.isFirebaseReady = true;
                 resolve();
+                // Не отписываемся, чтобы отслеживать изменения в реальном времени
             });
         });
     }
@@ -136,6 +136,7 @@ class Cart {
         this.auth = auth;
         this.items = [];
         this.isInitialized = false;
+        this.userInfoUpdated = false;
         this.initCart();
     }
 
@@ -189,19 +190,82 @@ class Cart {
         const loginButtons = document.querySelectorAll('.login-btn');
         const logoutButtons = document.querySelectorAll('.logout-btn');
         
+        // Используем анимацию только при первой инициализации
+        const useAnimation = !this.userInfoUpdated;
+        this.userInfoUpdated = true;
+        
         if (this.auth.isLoggedIn()) {
             userInfoElements.forEach(element => {
                 element.textContent = this.auth.getUserName();
+                if (useAnimation) {
+                    element.style.opacity = '0';
+                }
                 element.style.display = 'inline';
+                if (useAnimation) {
+                    setTimeout(() => {
+                        element.style.transition = 'opacity 0.3s ease';
+                        element.style.opacity = '1';
+                    }, 10);
+                } else {
+                    element.style.opacity = '1';
+                }
             });
-            loginButtons.forEach(btn => btn.style.display = 'none');
-            logoutButtons.forEach(btn => btn.style.display = 'inline');
+            loginButtons.forEach(btn => {
+                if (useAnimation) {
+                    btn.style.transition = 'opacity 0.3s ease';
+                    btn.style.opacity = '0';
+                    setTimeout(() => btn.style.display = 'none', 300);
+                } else {
+                    btn.style.display = 'none';
+                }
+            });
+            logoutButtons.forEach(btn => {
+                if (useAnimation) {
+                    btn.style.opacity = '0';
+                }
+                btn.style.display = 'inline';
+                if (useAnimation) {
+                    setTimeout(() => {
+                        btn.style.transition = 'opacity 0.3s ease';
+                        btn.style.opacity = '1';
+                    }, 10);
+                } else {
+                    btn.style.opacity = '1';
+                }
+            });
         } else {
             userInfoElements.forEach(element => {
-                element.style.display = 'none';
+                if (useAnimation) {
+                    element.style.transition = 'opacity 0.3s ease';
+                    element.style.opacity = '0';
+                    setTimeout(() => element.style.display = 'none', 300);
+                } else {
+                    element.style.display = 'none';
+                }
             });
-            loginButtons.forEach(btn => btn.style.display = 'inline');
-            logoutButtons.forEach(btn => btn.style.display = 'none');
+            loginButtons.forEach(btn => {
+                if (useAnimation) {
+                    btn.style.opacity = '0';
+                }
+                btn.style.display = 'inline';
+                if (useAnimation) {
+                    setTimeout(() => {
+                        btn.style.transition = 'opacity 0.3s ease';
+                        btn.style.opacity = '1';
+                    }, 10);
+                } else {
+                    btn.style.opacity = '1';
+                }
+            });
+            logoutButtons.forEach(btn => {
+                if (useAnimation) {
+                    btn.style.transition = 'opacity 0.3s ease';
+                    btn.style.opacity = '0';
+                    setTimeout(() => btn.style.display = 'none', 300);
+                } else {
+                    btn.style.display = 'none';
+                }
+            });
         }
     }
 
