@@ -15,6 +15,29 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.1);
             width: 100%;
             box-sizing: border-box;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .profile-container.loaded {
+            opacity: 1;
+        }
+
+        .profile-loading {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-color);
+        }
+
+        .profile-loading::after {
+            content: '...';
+            animation: dots 1.5s infinite;
+        }
+
+        @keyframes dots {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60%, 100% { content: '...'; }
         }
 
         .profile-header {
@@ -760,13 +783,36 @@
     <script>
         // Инициализация страницы профиля
         document.addEventListener('DOMContentLoaded', function() {
+            let authChecked = false;
+            let checkTimeout = null;
+            
+            // Таймаут на случай если Firebase не ответит
+            checkTimeout = setTimeout(() => {
+                if (!authChecked) {
+                    console.warn('Firebase Auth timeout, redirecting to login');
+                    window.location.href = 'login.html';
+                }
+            }, 5000);
+            
             // Используем onAuthStateChanged для правильной проверки авторизации
-            firebase.auth().onAuthStateChanged(async (firebaseUser) => {
+            const unsubscribe = firebase.auth().onAuthStateChanged(async (firebaseUser) => {
+                // Защита от множественных вызовов
+                if (authChecked) return;
+                authChecked = true;
+                
+                // Очищаем таймаут
+                if (checkTimeout) {
+                    clearTimeout(checkTimeout);
+                }
+                
                 // Проверяем авторизацию
                 if (!firebaseUser) {
                     window.location.href = 'login.html';
                     return;
                 }
+                
+                // Отписываемся от дальнейших обновлений на этой странице
+                unsubscribe();
 
                 // Загружаем данные пользователя из Firestore
                 const userData = await getCurrentUserData();
@@ -795,6 +841,9 @@
 
                 // Загружаем заказы пользователя
                 loadUserOrders();
+
+                // Показываем контент после загрузки данных
+                document.querySelector('.profile-container').classList.add('loaded');
 
                 // Обработчик кнопки выхода
                 document.getElementById('logout-btn').addEventListener('click', async function() {
