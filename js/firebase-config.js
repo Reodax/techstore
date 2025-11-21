@@ -12,12 +12,18 @@ const firebaseConfig = {
 };
 
 // Инициализация Firebase
+let app;
+let db;
+
 try {
     // Инициализируем Firebase
-    const app = firebase.initializeApp(firebaseConfig);
+    app = firebase.initializeApp(firebaseConfig);
     
     // Получаем ссылку на Firestore
-    const db = firebase.firestore();
+    db = firebase.firestore();
+    
+    // Делаем db доступной глобально
+    window.db = db;
     
     console.log('✅ Firebase инициализирован успешно!');
     console.log('📊 Firestore подключен');
