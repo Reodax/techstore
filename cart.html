@@ -1158,9 +1158,9 @@
                 setInterval(updateCheckoutButton, 1000); // Проверяем каждую секунду
             }
 
-            clearCartBtn.addEventListener('click', function() {
+            clearCartBtn.addEventListener('click', async function() {
                 if (confirm('Вы уверены, что хотите очистить корзину?')) {
-                    cart.clearCart();
+                    await cart.clearCart();
                     renderCart();
                 }
             });
@@ -1180,16 +1180,16 @@
         });
 
         // Функция для изменения количества товара (кнопки +/-)
-        function changeItemQuantity(productId, change) {
+        async function changeItemQuantity(productId, change) {
             const item = cart.items.find(item => item.id == productId);
             if (!item) return;
             
             const newQuantity = item.quantity + change;
             
             if (newQuantity <= 0) {
-                cart.removeProduct(productId);
+                await cart.removeProduct(productId);
             } else {
-                cart.updateQuantity(productId, newQuantity);
+                await cart.updateQuantity(productId, newQuantity);
             }
             
             // Перерисовываем корзину
@@ -1199,11 +1199,11 @@
         }
 
         // Функция для установки количества товара (input)
-        function setItemQuantity(productId, quantity) {
+        async function setItemQuantity(productId, quantity) {
             if (quantity <= 0) {
-                cart.removeProduct(productId);
+                await cart.removeProduct(productId);
             } else {
-                cart.updateQuantity(productId, quantity);
+                await cart.updateQuantity(productId, quantity);
             }
             
             // Перерисовываем корзину
@@ -1325,7 +1325,7 @@
                         const order = await cart.createOrder(formData);
                         
                         // Показываем сообщение об успехе
-                        showOrderSuccess(order);
+                        await showOrderSuccess(order);
                     } catch (error) {
                         alert('Ошибка при создании заказа: ' + error.message);
                     }
@@ -1343,7 +1343,7 @@
             }
         });
 
-        function showOrderSuccess(order) {
+        async function showOrderSuccess(order) {
             const formContainer = document.getElementById('checkout-form-container');
             const successMessage = document.getElementById('success-message');
             const orderNumberDisplay = document.getElementById('order-number-display');
@@ -1353,7 +1353,7 @@
             if (orderNumberDisplay) orderNumberDisplay.textContent = order.id;
             
             // Очищаем корзину
-            cart.clearCart();
+            await cart.clearCart();
             if (window.renderCart) {
                 window.renderCart();
             }

@@ -280,7 +280,19 @@ class Cart {
     }
 
     // Добавление товара в корзину
-    addItem(productId, name, price, image = '', quantity = 1) {
+    async addItem(productId, name, price, image = '', quantity = 1) {
+        // Ждем инициализации корзины
+        if (!this.isInitialized) {
+            await new Promise(resolve => {
+                const checkInit = setInterval(() => {
+                    if (this.isInitialized) {
+                        clearInterval(checkInit);
+                        resolve();
+                    }
+                }, 50);
+            });
+        }
+
         const existingItem = this.items.find(item => item.id == productId);
 
         if (existingItem) {
@@ -295,33 +307,33 @@ class Cart {
             });
         }
 
-        this.saveCart();
+        await this.saveCart();
         this.showAddToCartNotification(name);
     }
 
     // Удаление товара из корзины
-    removeItem(productId) {
+    async removeItem(productId) {
         this.items = this.items.filter(item => item.id != productId);
-        this.saveCart();
+        await this.saveCart();
     }
 
     // Изменение количества товара
-    updateQuantity(productId, quantity) {
+    async updateQuantity(productId, quantity) {
         const item = this.items.find(item => item.id == productId);
         if (item) {
             if (quantity <= 0) {
-                this.removeItem(productId);
+                await this.removeItem(productId);
             } else {
                 item.quantity = quantity;
-                this.saveCart();
+                await this.saveCart();
             }
         }
     }
 
     // Очистка корзины
-    clearCart() {
+    async clearCart() {
         this.items = [];
-        this.saveCart();
+        await this.saveCart();
     }
 
     // Получение всех товаров
@@ -1499,14 +1511,14 @@ function initializeCartButtons() {
             return;
         }
 
-        button.addEventListener('click', function() {
+        button.addEventListener('click', async function() {
             const productId = this.getAttribute('data-id');
             const productName = this.getAttribute('data-name');
             const productPrice = parseInt(this.getAttribute('data-price'));
             const productCard = this.closest('.product-card');
             const productImage = productCard ? productCard.querySelector('.product-image').src : '';
 
-            cart.addItem(productId, productName, productPrice, productImage, 1);
+            await cart.addItem(productId, productName, productPrice, productImage, 1);
             
             const originalText = this.textContent;
             this.textContent = 'Добавлено!';
@@ -1537,9 +1549,9 @@ function initializeAuthButtons() {
 function initializeCartPage() {
     cart.updateCartDisplay();
     
-    document.getElementById('clear-cart')?.addEventListener('click', function() {
+    document.getElementById('clear-cart')?.addEventListener('click', async function() {
         if (confirm('Вы уверены, что хотите очистить корзину?')) {
-            cart.clearCart();
+            await cart.clearCart();
         }
     });
 
@@ -1656,12 +1668,12 @@ function initializeProfilePage() {
 }
 
 // Глобальные функции для вызова из HTML
-window.updateCartQuantity = function(productId, quantity) {
-    cart.updateQuantity(productId, quantity);
+window.updateCartQuantity = async function(productId, quantity) {
+    await cart.updateQuantity(productId, quantity);
 };
 
-window.removeCartItem = function(productId) {
-    cart.removeItem(productId);
+window.removeCartItem = async function(productId) {
+    await cart.removeItem(productId);
 };
 
 // Проверка админ авторизации для страницы админ панели
