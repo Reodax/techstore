@@ -759,7 +759,11 @@
     <script src="js/mobile-menu.js"></script>
     <script>
         // Инициализация страницы профиля
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Ждем инициализации Firebase Auth
+            await auth.initPromise;
+            
+            // Проверяем авторизацию
             if (!auth.isLoggedIn()) {
                 window.location.href = 'login.html';
                 return;
