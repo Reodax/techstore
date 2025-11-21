@@ -16,11 +16,15 @@ let app;
 let db;
 
 try {
+    console.log('🚀 Начало инициализации Firebase...');
+    
     // Инициализируем Firebase
     app = firebase.initializeApp(firebaseConfig);
+    console.log('✅ Firebase App инициализирован');
     
     // Получаем ссылку на Firestore
     db = firebase.firestore();
+    console.log('✅ Firestore подключен');
     
     // Делаем db доступной глобально
     window.db = db;
@@ -28,11 +32,20 @@ try {
     // Устанавливаем persistence для сохранения сессии между перезагрузками
     firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL)
         .then(() => {
-            console.log('✅ Firebase Auth persistence установлен');
+            console.log('✅ Firebase Auth persistence установлен (LOCAL)');
         })
         .catch((error) => {
             console.error('❌ Ошибка установки persistence:', error);
         });
+    
+    // Проверяем текущего пользователя сразу
+    firebase.auth().onAuthStateChanged((user) => {
+        if (user) {
+            console.log('👤 Firebase Auth: Пользователь загружен -', user.email);
+        } else {
+            console.log('👤 Firebase Auth: Пользователь не авторизован');
+        }
+    });
     
     console.log('✅ Firebase инициализирован успешно!');
     console.log('📊 Firestore подключен');

@@ -783,29 +783,51 @@
     <script>
         // Инициализация страницы профиля
         document.addEventListener('DOMContentLoaded', async function() {
+            console.log('🔍 Profile: Начало загрузки страницы профиля');
+            
             // Ждем инициализации cart и auth
-            while (!cart || !cart.isInitialized || !auth || !auth.isFirebaseReady) {
+            let attempts = 0;
+            while ((!cart || !cart.isInitialized || !auth || !auth.isFirebaseReady) && attempts < 50) {
+                console.log(`⏳ Ожидание инициализации... попытка ${attempts + 1}`);
                 await new Promise(resolve => setTimeout(resolve, 100));
+                attempts++;
             }
+            
+            console.log('✅ Cart инициализирован:', cart?.isInitialized);
+            console.log('✅ Auth готов:', auth?.isFirebaseReady);
             
             // Проверяем текущего пользователя
             const firebaseUser = firebase.auth().currentUser;
+            console.log('👤 Firebase User:', firebaseUser ? firebaseUser.email : 'НЕТ');
+            console.log('👤 Auth.currentUser:', auth?.currentUser);
             
             if (!firebaseUser) {
-                // Если не авторизован, перенаправляем
+                console.warn('❌ Пользователь не авторизован, перенаправление на login.html');
+                // Небольшая задержка перед редиректом
+                await new Promise(resolve => setTimeout(resolve, 500));
                 window.location.href = 'login.html';
                 return;
             }
+            
+            console.log('✅ Пользователь авторизован:', firebaseUser.email);
 
             // Загружаем данные пользователя из Firestore
+            console.log('📥 Загрузка данных пользователя из Firestore...');
             const userData = await getCurrentUserData();
+            console.log('📊 Данные из Firestore:', userData);
+            
             if (userData) {
                 auth.currentUser = userData;
             }
 
             // Заполняем информацию о пользователе
-            document.getElementById('user-name').textContent = auth.getUserName() || firebaseUser.displayName || 'Пользователь';
-            document.getElementById('user-email').textContent = auth.getUserEmail() || firebaseUser.email || '';
+            const userName = auth.getUserName() || firebaseUser.displayName || 'Пользователь';
+            const userEmail = auth.getUserEmail() || firebaseUser.email || '';
+            
+            console.log('📝 Заполнение UI - Имя:', userName, 'Email:', userEmail);
+            
+            document.getElementById('user-name').textContent = userName;
+            document.getElementById('user-email').textContent = userEmail;
             
             // Дата регистрации
             let regDate = 'Не указана';
@@ -823,10 +845,13 @@
             document.getElementById('cart-count-profile').textContent = cartCount;
 
             // Загружаем заказы пользователя
+            console.log('📦 Загрузка заказов пользователя...');
             loadUserOrders();
 
             // Показываем контент после загрузки данных
+            console.log('🎨 Показываем профиль');
             document.querySelector('.profile-container').classList.add('loaded');
+            console.log('✅ Профиль загружен полностью!');
 
                 // Обработчик кнопки выхода
                 document.getElementById('logout-btn').addEventListener('click', async function() {

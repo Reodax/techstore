@@ -8,18 +8,23 @@ class Auth {
 
     // Инициализация Firebase Auth
     async initializeAuth() {
+        console.log('🔐 Auth: Начало инициализации...');
         return new Promise((resolve) => {
             // Подписываемся на изменения состояния авторизации один раз
             const unsubscribe = firebase.auth().onAuthStateChanged(async (user) => {
+                console.log('🔐 Auth: onAuthStateChanged вызван, пользователь:', user ? user.email : 'НЕТ');
                 if (user) {
                     // Пользователь авторизован
+                    console.log('🔐 Auth: Загрузка данных пользователя из Firestore...');
                     const userData = await getCurrentUserData();
                     this.currentUser = userData;
+                    console.log('🔐 Auth: Данные пользователя загружены:', userData ? 'ДА' : 'НЕТ');
                 } else {
                     // Пользователь не авторизован
                     this.currentUser = null;
                 }
                 this.isFirebaseReady = true;
+                console.log('✅ Auth: Инициализация завершена');
                 resolve();
                 // Не отписываемся, чтобы отслеживать изменения в реальном времени
             });
@@ -141,9 +146,12 @@ class Cart {
 
     // Инициализация корзины
     async initCart() {
+        console.log('🛒 Cart: Начало инициализации корзины...');
         await this.auth.initPromise;
+        console.log('🛒 Cart: Auth готов, загрузка товаров...');
         this.items = await this.loadCart();
         this.isInitialized = true;
+        console.log('✅ Cart: Корзина инициализирована, товаров:', this.items.length);
         this.updateCartCount();
         this.updateUserInfo();
     }
