@@ -189,32 +189,28 @@ class Cart {
         const loginButtons = document.querySelectorAll('.login-btn');
         const logoutButtons = document.querySelectorAll('.logout-btn');
         
-        // Сначала убираем класс initialized, чтобы избежать мигания
-        const allElements = [...userInfoElements, ...loginButtons, ...logoutButtons];
-        allElements.forEach(el => el.classList.add('initialized'));
-        
         if (this.auth.isLoggedIn()) {
             // Показываем элементы для авторизованного пользователя
             userInfoElements.forEach(element => {
                 element.textContent = this.auth.getUserName();
-                element.classList.add('visible');
+                element.style.display = 'inline';
             });
             loginButtons.forEach(btn => {
-                btn.classList.remove('visible');
+                btn.style.display = 'none';
             });
             logoutButtons.forEach(btn => {
-                btn.classList.add('visible');
+                btn.style.display = 'inline';
             });
         } else {
             // Показываем элементы для гостя
             userInfoElements.forEach(element => {
-                element.classList.remove('visible');
+                element.style.display = 'none';
             });
             loginButtons.forEach(btn => {
-                btn.classList.add('visible');
+                btn.style.display = 'inline';
             });
             logoutButtons.forEach(btn => {
-                btn.classList.remove('visible');
+                btn.style.display = 'none';
             });
         }
     }
