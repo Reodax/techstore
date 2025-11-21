@@ -214,5 +214,39 @@
     <script src="js/categories.js"></script>
     <script src="js/dropdown.js"></script>
     <script src="js/mobile-menu.js"></script>
+    
+    <script>
+        // Переключение между формами входа и регистрации
+        document.addEventListener('DOMContentLoaded', function() {
+            const loginForm = document.getElementById('login-form');
+            const registerForm = document.getElementById('register-form');
+            const showRegister = document.getElementById('show-register');
+            const showLogin = document.getElementById('show-login');
+            const authTitle = document.getElementById('auth-title');
+            const loginSwitchText = document.getElementById('login-switch-text');
+
+            // Показать форму регистрации
+            showRegister.addEventListener('click', function(e) {
+                e.preventDefault();
+                loginForm.style.display = 'none';
+                registerForm.style.display = 'block';
+                showRegister.style.display = 'none';
+                showLogin.style.display = 'inline';
+                authTitle.textContent = 'Регистрация';
+                loginSwitchText.textContent = 'Уже есть аккаунт? ';
+            });
+
+            // Показать форму входа
+            showLogin.addEventListener('click', function(e) {
+                e.preventDefault();
+                registerForm.style.display = 'none';
+                loginForm.style.display = 'block';
+                showLogin.style.display = 'none';
+                showRegister.style.display = 'inline';
+                authTitle.textContent = 'Вход в аккаунт';
+                loginSwitchText.textContent = 'Нет аккаунта? ';
+            });
+        });
+    </script>
 </body>
 </html>
