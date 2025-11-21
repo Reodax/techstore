@@ -345,9 +345,12 @@ body.dark-theme .header {
     border-left: 2px solid #3498db;
     font-weight: 600;
     position: relative;
+    transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+
+.nav .user-info:not(.visible) {
     opacity: 0;
     visibility: hidden;
-    transition: opacity 0.2s ease, visibility 0.2s ease;
 }
 
 .nav .user-info.visible {
@@ -367,14 +370,12 @@ body.dark-theme .header {
     background: rgba(46, 204, 113, 0.15);
     border-left: 2px solid #2ecc71;
     font-weight: 600;
-    opacity: 0;
-    visibility: hidden;
     transition: opacity 0.2s ease, visibility 0.2s ease;
 }
 
-.nav .login-btn.visible {
-    opacity: 1;
-    visibility: visible;
+.nav .login-btn.initialized:not(.visible) {
+    opacity: 0;
+    visibility: hidden;
 }
 
 .nav .login-btn:hover {
@@ -385,9 +386,12 @@ body.dark-theme .header {
     background: rgba(231, 76, 60, 0.2);
     border-left: 2px solid #e74c3c;
     font-weight: 600;
+    transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+
+.nav .logout-btn:not(.visible) {
     opacity: 0;
     visibility: hidden;
-    transition: opacity 0.2s ease, visibility 0.2s ease;
 }
 
 .nav .logout-btn.visible {

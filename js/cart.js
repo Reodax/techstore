@@ -189,6 +189,10 @@ class Cart {
         const loginButtons = document.querySelectorAll('.login-btn');
         const logoutButtons = document.querySelectorAll('.logout-btn');
         
+        // Сначала убираем класс initialized, чтобы избежать мигания
+        const allElements = [...userInfoElements, ...loginButtons, ...logoutButtons];
+        allElements.forEach(el => el.classList.add('initialized'));
+        
         if (this.auth.isLoggedIn()) {
             // Показываем элементы для авторизованного пользователя
             userInfoElements.forEach(element => {
