@@ -1277,8 +1277,8 @@
         }
 
         // ===== УПРАВЛЕНИЕ ПОЛЬЗОВАТЕЛЯМИ =====
-        function loadUsers() {
-            const users = JSON.parse(localStorage.getItem('techstore_users') || '[]');
+        async function loadUsers() {
+            const users = await getAllFirebaseUsers();
             const userList = document.getElementById('user-list');
             
             if (users.length === 0) {
@@ -1286,28 +1286,47 @@
                 return;
             }
             
-            userList.innerHTML = users.map(user => `
-                <div class="user-item">
-                    <div>
-                        <strong>${user.name}</strong><br>
-                        <small>${user.email}</small>
+            userList.innerHTML = users.map(user => {
+                const regDate = user.registrationDate && user.registrationDate.toDate 
+                    ? user.registrationDate.toDate().toLocaleDateString('ru-RU')
+                    : new Date(user.createdAt || Date.now()).toLocaleDateString('ru-RU');
+                
+                return `
+                    <div class="user-item">
+                        <div>
+                            <strong>${user.name || 'Без имени'}</strong><br>
+                            <small>${user.email}</small>
+                        </div>
+                        <div>
+                            <small>${regDate}</small>
+                        </div>
+                        <div>
+                            <button class="delete-user-btn" onclick="deleteUserFromList('${user.uid}')" 
+                                    style="background: #e74c3c; color: white; border: none; padding: 0.5rem 1rem; border-radius: 5px; cursor: pointer;">
+                                Удалить
+                            </button>
+                        </div>
                     </div>
-                    <div>
-                        <small>${new Date(user.registrationDate).toLocaleDateString('ru-RU')}</small>
-                    </div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
             
             updateStats();
         }
 
-        function clearAllUsers() {
-            if (confirm('Вы уверены, что хотите удалить всех пользователей? Это действие нельзя отменить!')) {
-                localStorage.removeItem('techstore_users');
-                localStorage.removeItem('techstore_current_user');
-                loadUsers();
-                alert('Все пользователи удалены!');
+        async function deleteUserFromList(userId) {
+            if (confirm('Вы уверены, что хотите удалить этого пользователя?')) {
+                const result = await deleteFirebaseUser(userId);
+                if (result.success) {
+                    alert('Пользователь удален!');
+                    loadUsers();
+                } else {
+                    alert('Ошибка удаления пользователя');
+                }
             }
+        }
+
+        function clearAllUsers() {
+            alert('Массовое удаление пользователей отключено для безопасности.\nУдаляйте пользователей по одному.');
         }
 
         // ===== УПРАВЛЕНИЕ ТОВАРАМИ =====
@@ -1800,17 +1819,15 @@
         }
 
         // ===== СТАТИСТИКА =====
-        function updateStats() {
-            const users = JSON.parse(localStorage.getItem('techstore_users') || '[]');
+        async function updateStats() {
+            const users = await getAllFirebaseUsers();
             const products = JSON.parse(localStorage.getItem('techstore_products') || '[]');
-            const orders = JSON.parse(localStorage.getItem('techstore_orders') || '[]');
+            const stats = await getOrdersStatistics();
             
             document.getElementById('total-users').textContent = users.length;
             document.getElementById('total-products').textContent = products.length;
-            document.getElementById('total-orders').textContent = orders.length;
-            
-            const revenue = orders.reduce((total, order) => total + (order.total || 0), 0);
-            document.getElementById('total-revenue').textContent = revenue + ' ₽';
+            document.getElementById('total-orders').textContent = stats.totalOrders;
+            document.getElementById('total-revenue').textContent = stats.totalRevenue.toLocaleString() + ' ₽';
         }
 
         // ===== ВКЛАДКИ =====
@@ -1860,8 +1877,8 @@
         }
 
         // ===== ЗАКАЗЫ =====
-        function loadOrders() {
-            const orders = JSON.parse(localStorage.getItem('techstore_orders') || '[]');
+        async function loadOrders() {
+            const orders = await getAllFirebaseOrders();
             const ordersList = document.getElementById('orders-list');
             
             if (orders.length === 0) {
@@ -1930,22 +1947,19 @@
             }).join('');
         }
 
-        function updateOrderStatus(orderId, newStatus) {
-            const orders = JSON.parse(localStorage.getItem('techstore_orders') || '[]');
-            const orderIndex = orders.findIndex(o => o.id === orderId);
-            
-            if (orderIndex !== -1) {
-                orders[orderIndex].status = newStatus;
-                orders[orderIndex].updatedAt = new Date().toISOString();
-                localStorage.setItem('techstore_orders', JSON.stringify(orders));
+        async function updateOrderStatus(orderId, newStatus) {
+            const result = await updateFirebaseOrderStatus(orderId, newStatus);
+            if (result.success) {
                 loadOrders();
                 updateStats();
+            } else {
+                alert('Ошибка обновления статуса заказа');
             }
         }
 
         // ===== ВЫВОД СРЕДСТВ =====
-        function updateWithdrawalStats() {
-            const orders = JSON.parse(localStorage.getItem('techstore_orders') || '[]');
+        async function updateWithdrawalStats() {
+            const orders = await getAllFirebaseOrders();
             const withdrawals = JSON.parse(localStorage.getItem('techstore_withdrawals') || '[]');
             
             // Рассчитываем доступные средства (только доставленные заказы)
@@ -2180,9 +2194,8 @@
             }
         }
 
-        function showOrderDetails(orderId) {
-            const orders = JSON.parse(localStorage.getItem('techstore_orders') || '[]');
-            const order = orders.find(o => o.id === orderId);
+        async function showOrderDetails(orderId) {
+            const order = await getFirebaseOrderById(orderId);
             
             if (!order) {
                 alert('Заказ не найден');

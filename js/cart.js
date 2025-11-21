@@ -1,79 +1,60 @@
 // js/cart.js
 class Auth {
     constructor() {
-        this.currentUser = this.loadCurrentUser();
-        this.users = this.loadUsers();
+        this.currentUser = null;
+        this.isFirebaseReady = false;
+        this.initPromise = this.initializeAuth();
     }
 
-    // Загрузка пользователей из localStorage
-    loadUsers() {
-        const savedUsers = localStorage.getItem('techstore_users');
-        return savedUsers ? JSON.parse(savedUsers) : [];
-    }
-
-    // Загрузка текущего пользователя
-    loadCurrentUser() {
-        const savedUser = localStorage.getItem('techstore_current_user');
-        return savedUser ? JSON.parse(savedUser) : null;
-    }
-
-    // Сохранение пользователей
-    saveUsers() {
-        localStorage.setItem('techstore_users', JSON.stringify(this.users));
-    }
-
-    // Сохранение текущего пользователя
-    saveCurrentUser() {
-        if (this.currentUser) {
-            localStorage.setItem('techstore_current_user', JSON.stringify(this.currentUser));
-        } else {
-            localStorage.removeItem('techstore_current_user');
-        }
+    // Инициализация Firebase Auth
+    async initializeAuth() {
+        return new Promise((resolve) => {
+            firebase.auth().onAuthStateChanged(async (user) => {
+                if (user) {
+                    // Пользователь авторизован
+                    const userData = await getCurrentUserData();
+                    this.currentUser = userData;
+                    console.log('✅ Пользователь авторизован:', user.email);
+                } else {
+                    // Пользователь не авторизован
+                    this.currentUser = null;
+                    console.log('ℹ️ Пользователь не авторизован');
+                }
+                this.isFirebaseReady = true;
+                resolve();
+            });
+        });
     }
 
     // Регистрация нового пользователя
-    register(email, password, name) {
-        if (this.users.find(user => user.email === email)) {
-            return { success: false, message: 'Пользователь с таким email уже существует' };
+    async register(email, password, name) {
+        const result = await registerWithFirebase(email, password, name);
+        if (result.success) {
+            // Обновляем текущего пользователя
+            this.currentUser = await getCurrentUserData();
         }
-
-        const newUser = {
-            id: Date.now().toString(),
-            email: email,
-            password: password,
-            name: name,
-            cart: [],
-            registrationDate: new Date().toISOString()
-        };
-
-        this.users.push(newUser);
-        this.saveUsers();
-        
-        return { success: true, message: 'Регистрация успешна' };
+        return result;
     }
 
     // Вход пользователя
-    login(email, password) {
-        const user = this.users.find(user => user.email === email && user.password === password);
-        
-        if (user) {
-            this.currentUser = user;
-            this.saveCurrentUser();
-            return { success: true, message: 'Вход выполнен успешно' };
-        } else {
-            return { success: false, message: 'Неверный email или пароль' };
+    async login(email, password) {
+        const result = await loginWithFirebase(email, password);
+        if (result.success) {
+            // Данные обновятся через onAuthStateChanged
+            await this.initPromise;
         }
+        return result;
     }
 
     // Выход пользователя
-    logout() {
+    async logout() {
         // Сохраняем корзину перед выходом
         if (this.currentUser && cart) {
-            this.saveUserCart(cart.getItems());
+            await this.saveUserCart(cart.getItems());
         }
         
+        await logoutFromFirebase();
         this.currentUser = null;
-        this.saveCurrentUser();
         
         // Очищаем корзину для гостя
         if (cart) {
@@ -82,93 +63,96 @@ class Auth {
     }
 
     // Сохранение корзины пользователя
-    saveUserCart(cartItems) {
+    async saveUserCart(cartItems) {
         if (this.currentUser) {
-            const userIndex = this.users.findIndex(user => user.id === this.currentUser.id);
-            if (userIndex !== -1) {
-                this.users[userIndex].cart = cartItems;
-                this.saveUsers();
-                
-                // Обновляем текущего пользователя
-                this.currentUser.cart = cartItems;
-                this.saveCurrentUser();
-            }
+            await saveUserCartToFirebase(cartItems);
+            // Обновляем локальные данные
+            this.currentUser.cart = cartItems;
         }
     }
 
     // Загрузка корзины пользователя
-    loadUserCart() {
-        return this.currentUser ? this.currentUser.cart : [];
+    async loadUserCart() {
+        if (!this.currentUser) {
+            return [];
+        }
+        
+        const cart = await loadUserCartFromFirebase();
+        if (this.currentUser) {
+            this.currentUser.cart = cart;
+        }
+        return cart;
     }
 
     // Проверка авторизации
     isLoggedIn() {
-        return this.currentUser !== null;
+        return this.currentUser !== null && firebase.auth().currentUser !== null;
     }
 
     // Получение имени пользователя
     getUserName() {
-        return this.currentUser ? this.currentUser.name : 'Гость';
+        if (this.currentUser && this.currentUser.name) {
+            return this.currentUser.name;
+        }
+        const firebaseUser = firebase.auth().currentUser;
+        return firebaseUser && firebaseUser.displayName ? firebaseUser.displayName : 'Гость';
     }
 
     // Получение email пользователя
     getUserEmail() {
-        return this.currentUser ? this.currentUser.email : '';
+        if (this.currentUser && this.currentUser.email) {
+            return this.currentUser.email;
+        }
+        const firebaseUser = firebase.auth().currentUser;
+        return firebaseUser ? firebaseUser.email : '';
+    }
+
+    // Получение ID пользователя
+    getUserId() {
+        const firebaseUser = firebase.auth().currentUser;
+        return firebaseUser ? firebaseUser.uid : null;
     }
 
     // Обновление данных пользователя
-    updateUser(name, email, newPassword = null) {
+    async updateUser(name, email, newPassword = null) {
         if (!this.currentUser) {
             return { success: false, message: 'Пользователь не авторизован' };
         }
 
-        const userIndex = this.users.findIndex(user => user.id === this.currentUser.id);
-        if (userIndex === -1) {
-            return { success: false, message: 'Пользователь не найден' };
+        const result = await updateFirebaseUserData(name, email, newPassword);
+        
+        if (result.success) {
+            // Обновляем локальные данные
+            this.currentUser.name = name;
+            this.currentUser.email = email;
         }
 
-        // Проверяем, не занят ли email другим пользователем
-        if (email !== this.currentUser.email) {
-            const emailExists = this.users.find(user => user.email === email && user.id !== this.currentUser.id);
-            if (emailExists) {
-                return { success: false, message: 'Пользователь с таким email уже существует' };
-            }
-        }
-
-        // Обновляем данные
-        this.users[userIndex].name = name;
-        this.users[userIndex].email = email;
-        if (newPassword && newPassword.trim() !== '') {
-            this.users[userIndex].password = newPassword;
-        }
-
-        // Обновляем текущего пользователя
-        this.currentUser.name = name;
-        this.currentUser.email = email;
-        if (newPassword && newPassword.trim() !== '') {
-            this.currentUser.password = newPassword;
-        }
-
-        this.saveUsers();
-        this.saveCurrentUser();
-
-        return { success: true, message: 'Данные успешно обновлены' };
+        return result;
     }
 }
 
 class Cart {
     constructor(auth) {
         this.auth = auth;
-        this.items = this.loadCart();
+        this.items = [];
+        this.isInitialized = false;
+        this.initCart();
+    }
+
+    // Инициализация корзины
+    async initCart() {
+        await this.auth.initPromise;
+        this.items = await this.loadCart();
+        this.isInitialized = true;
         this.updateCartCount();
         this.updateUserInfo();
     }
 
     // Загрузка корзины
-    loadCart() {
+    async loadCart() {
         if (this.auth.isLoggedIn()) {
-            // Загружаем корзину пользователя
-            return this.auth.loadUserCart();
+            // Загружаем корзину пользователя из Firebase
+            return await this.auth.loadUserCart();
         } else {
             // Загружаем корзину гостя из localStorage
             const savedCart = localStorage.getItem('techstore_guest_cart');
@@ -177,10 +161,10 @@ class Cart {
     }
 
     // Сохранение корзины
-    saveCart() {
+    async saveCart() {
         if (this.auth.isLoggedIn()) {
-            // Сохраняем корзину пользователя
-            this.auth.saveUserCart(this.items);
+            // Сохраняем корзину пользователя в Firebase
+            await this.auth.saveUserCart(this.items);
         } else {
             // Сохраняем корзину гостя в localStorage
             localStorage.setItem('techstore_guest_cart', JSON.stringify(this.items));
@@ -380,7 +364,7 @@ class Cart {
     }
 
     // Создание заказа
-    createOrder(customerData) {
+    async createOrder(customerData) {
         if (this.items.length === 0) {
             throw new Error('Корзина пуста');
         }
@@ -390,9 +374,7 @@ class Cart {
             throw new Error('Для оформления заказа необходимо авторизоваться. Пожалуйста, войдите в систему.');
         }
 
-        const order = {
-            id: this.generateOrderId(),
-            userId: this.auth.isLoggedIn() ? this.auth.currentUser.id : null,
+        const orderData = {
             items: this.items.map(item => ({
                 id: item.id,
                 name: item.name,
@@ -408,51 +390,35 @@ class Cart {
                 address: customerData.address,
                 addressDetails: customerData.addressDetails || null,
                 comment: customerData.comment || ''
-            },
-            status: 'pending', // pending, processing, shipped, delivered, cancelled
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString()
+            }
         };
 
-        // Сохраняем заказ
-        this.saveOrder(order);
+        // Сохраняем заказ в Firebase
+        const result = await createFirebaseOrder(orderData);
+        
+        if (!result.success) {
+            throw new Error(result.message || 'Ошибка создания заказа');
+        }
 
-        return order;
+        return result.order;
     }
 
-    // Генерация уникального ID заказа
-    generateOrderId() {
-        const timestamp = Date.now();
-        const random = Math.floor(Math.random() * 1000);
-        return `ORD-${timestamp}-${random}`;
-    }
-
-    // Сохранение заказа
-    saveOrder(order) {
-        const orders = this.loadOrders();
-        orders.push(order);
-        localStorage.setItem('techstore_orders', JSON.stringify(orders));
-    }
-
-    // Загрузка всех заказов
-    loadOrders() {
-        const savedOrders = localStorage.getItem('techstore_orders');
-        return savedOrders ? JSON.parse(savedOrders) : [];
+    // Загрузка всех заказов (используется в старом коде для совместимости)
+    async loadOrders() {
+        return await getAllFirebaseOrders();
     }
 
     // Получение заказов пользователя
-    getUserOrders() {
+    async getUserOrders() {
         if (!this.auth.isLoggedIn()) {
             return [];
         }
-        const allOrders = this.loadOrders();
-        return allOrders.filter(order => order.userId === this.auth.currentUser.id);
+        return await getUserFirebaseOrders();
     }
 
     // Получение заказа по ID
-    getOrderById(orderId) {
-        const orders = this.loadOrders();
-        return orders.find(order => order.id === orderId);
+    async getOrderById(orderId) {
+        return await getFirebaseOrderById(orderId);
     }
 
     // Удаление товара из корзины (алиас для совместимости)
@@ -1495,9 +1461,9 @@ function initializeCartButtons() {
 // Инициализация кнопок авторизации
 function initializeAuthButtons() {
     document.querySelectorAll('.logout-btn').forEach(button => {
-        button.addEventListener('click', function(e) {
+        button.addEventListener('click', async function(e) {
             e.preventDefault();
-            auth.logout();
+            await auth.logout();
             window.location.href = 'index.html';
         });
     });
@@ -1554,12 +1520,12 @@ function initializeLoginPage() {
     });
 
     // Обработчик формы входа
-    document.getElementById('login-btn')?.addEventListener('click', function(e) {
+    document.getElementById('login-btn')?.addEventListener('click', async function(e) {
         e.preventDefault();
         const email = document.getElementById('login-email').value;
         const password = document.getElementById('login-password').value;
 
-        const result = auth.login(email, password);
+        const result = await auth.login(email, password);
         
         if (result.success) {
             // Переносим корзину гостя в аккаунт пользователя
@@ -1577,7 +1543,7 @@ function initializeLoginPage() {
     });
 
     // Обработчик формы регистрации
-    document.getElementById('register-btn')?.addEventListener('click', function(e) {
+    document.getElementById('register-btn')?.addEventListener('click', async function(e) {
         e.preventDefault();
         const name = document.getElementById('register-name').value;
         const email = document.getElementById('register-email').value;
@@ -1594,7 +1560,7 @@ function initializeLoginPage() {
             return;
         }
 
-        const result = auth.register(email, password, name);
+        const result = await auth.register(email, password, name);
         
         if (result.success) {
             alert('Регистрация успешна! Теперь вы можете войти.');

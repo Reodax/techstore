@@ -741,6 +741,17 @@
         </div>
     </div>
 
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    
+    <!-- Firebase Configuration -->
+    <script src="js/firebase-config.js"></script>
+    <script src="js/firebase-categories.js"></script>
+    <script src="js/firebase-auth.js"></script>
+    <script src="js/firebase-orders.js"></script>
+    
     <script src="js/cart.js"></script>
     <script src="js/theme.js"></script>
     <script src="js/categories.js"></script>
@@ -767,8 +778,8 @@
             loadUserOrders();
 
             // Обработчик кнопки выхода
-            document.getElementById('logout-btn').addEventListener('click', function() {
-                auth.logout();
+            document.getElementById('logout-btn').addEventListener('click', async function() {
+                await auth.logout();
                 window.location.href = 'index.html';
             });
 
@@ -795,7 +806,7 @@
             });
 
             // Обработчик отправки формы редактирования
-            editForm.addEventListener('submit', function(e) {
+            editForm.addEventListener('submit', async function(e) {
                 e.preventDefault();
                 
                 const name = document.getElementById('edit-name').value.trim();
@@ -814,7 +825,7 @@
                 }
 
                 // Обновляем данные пользователя
-                const result = auth.updateUser(name, email, newPassword);
+                const result = await auth.updateUser(name, email, newPassword);
 
                 if (result.success) {
                     alert('Данные успешно обновлены!');
@@ -839,13 +850,12 @@
         });
 
         // Загрузка заказов пользователя
-        function loadUserOrders() {
+        async function loadUserOrders() {
             if (!auth.isLoggedIn()) {
                 return;
             }
 
-            const allOrders = JSON.parse(localStorage.getItem('techstore_orders') || '[]');
-            const userOrders = allOrders.filter(order => order.userId === auth.currentUser.id);
+            const userOrders = await getUserFirebaseOrders();
             const ordersList = document.getElementById('orders-list');
 
             if (userOrders.length === 0) {
@@ -912,9 +922,8 @@
         }
 
         // Показать детали заказа
-        function showOrderDetails(orderId) {
-            const allOrders = JSON.parse(localStorage.getItem('techstore_orders') || '[]');
-            const order = allOrders.find(o => o.id === orderId);
+        async function showOrderDetails(orderId) {
+            const order = await getFirebaseOrderById(orderId);
 
             if (!order) {
                 alert('Заказ не найден');

@@ -1031,6 +1031,17 @@
         </div>
     </div>
 
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    
+    <!-- Firebase Configuration -->
+    <script src="js/firebase-config.js"></script>
+    <script src="js/firebase-categories.js"></script>
+    <script src="js/firebase-auth.js"></script>
+    <script src="js/firebase-orders.js"></script>
+    
     <script src="js/cart.js"></script>
     <script src="js/theme.js"></script>
     <script src="js/categories.js"></script>
@@ -1267,7 +1278,7 @@
             // Обработчик отправки формы заказа
             const checkoutForm = document.getElementById('checkout-form');
             if (checkoutForm) {
-                checkoutForm.addEventListener('submit', function(e) {
+                checkoutForm.addEventListener('submit', async function(e) {
                     e.preventDefault();
                     
                     // Проверка авторизации перед оформлением заказа
@@ -1311,7 +1322,7 @@
                     
                     // Создаем заказ
                     try {
-                        const order = cart.createOrder(formData);
+                        const order = await cart.createOrder(formData);
                         
                         // Показываем сообщение об успехе
                         showOrderSuccess(order);
