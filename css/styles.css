@@ -659,17 +659,22 @@ body.dark-theme .header {
     /* Адаптивность для выпадающих меню на мобильных */
     .nav-dropdown .dropdown-menu {
         position: static;
-        opacity: 1;
-        visibility: visible;
+        opacity: 0;
+        visibility: hidden;
         transform: none;
         box-shadow: none;
         border: none;
         background: #34495e;
-        display: none;
+        display: block;
+        max-height: 0;
+        overflow: hidden;
+        transition: opacity 0.3s ease, max-height 0.3s ease, visibility 0.3s ease;
     }
     
-    .nav-dropdown:hover .dropdown-menu {
-        display: block;
+    .nav-dropdown.active .dropdown-menu {
+        opacity: 1;
+        visibility: visible;
+        max-height: 500px;
     }
 
 /* Стили для корзины */
