@@ -759,114 +759,113 @@
     <script src="js/mobile-menu.js"></script>
     <script>
         // Инициализация страницы профиля
-        document.addEventListener('DOMContentLoaded', async function() {
-            // Ждем инициализации Firebase Auth
-            await auth.initPromise;
-            
-            // Проверяем авторизацию через Firebase Auth напрямую
-            const firebaseUser = firebase.auth().currentUser;
-            if (!firebaseUser) {
-                window.location.href = 'login.html';
-                return;
-            }
+        document.addEventListener('DOMContentLoaded', function() {
+            // Используем onAuthStateChanged для правильной проверки авторизации
+            firebase.auth().onAuthStateChanged(async (firebaseUser) => {
+                // Проверяем авторизацию
+                if (!firebaseUser) {
+                    window.location.href = 'login.html';
+                    return;
+                }
 
-            // Загружаем данные пользователя из Firestore
-            if (!auth.currentUser) {
+                // Загружаем данные пользователя из Firestore
                 const userData = await getCurrentUserData();
-                auth.currentUser = userData;
-            }
-
-            // Заполняем информацию о пользователе
-            document.getElementById('user-name').textContent = auth.getUserName();
-            document.getElementById('user-email').textContent = auth.getUserEmail();
-            
-            // Дата регистрации
-            let regDate = 'Не указана';
-            if (auth.currentUser && auth.currentUser.registrationDate) {
-                if (auth.currentUser.registrationDate.toDate) {
-                    regDate = auth.currentUser.registrationDate.toDate().toLocaleDateString('ru-RU');
-                } else {
-                    regDate = new Date(auth.currentUser.registrationDate).toLocaleDateString('ru-RU');
+                if (userData) {
+                    auth.currentUser = userData;
                 }
-            }
-            document.getElementById('registration-date').textContent = regDate;
-            
-            // Обновляем счетчик корзины
-            const cartCount = cart.getTotalCount();
-            document.getElementById('cart-count-profile').textContent = cartCount;
 
-            // Загружаем заказы пользователя
-            loadUserOrders();
-
-            // Обработчик кнопки выхода
-            document.getElementById('logout-btn').addEventListener('click', async function() {
-                await auth.logout();
-                window.location.href = 'index.html';
-            });
-
-            // Обработчик кнопки редактирования профиля
-            const editBtn = document.getElementById('edit-profile-btn');
-            const editForm = document.getElementById('edit-profile-form');
-            const cancelBtn = document.getElementById('cancel-edit-btn');
-
-            editBtn.addEventListener('click', function() {
-                editForm.classList.add('active');
-                editBtn.style.display = 'none';
+                // Заполняем информацию о пользователе
+                document.getElementById('user-name').textContent = auth.getUserName();
+                document.getElementById('user-email').textContent = auth.getUserEmail();
                 
-                // Заполняем форму текущими данными
-                document.getElementById('edit-name').value = auth.getUserName();
-                document.getElementById('edit-email').value = auth.getUserEmail();
-                document.getElementById('edit-password').value = '';
-            });
-
-            cancelBtn.addEventListener('click', function() {
-                editForm.classList.remove('active');
-                editBtn.style.display = 'inline-block';
-                // Очищаем форму
-                document.getElementById('edit-profile-form').reset();
-            });
-
-            // Обработчик отправки формы редактирования
-            editForm.addEventListener('submit', async function(e) {
-                e.preventDefault();
+                // Дата регистрации
+                let regDate = 'Не указана';
+                if (auth.currentUser && auth.currentUser.registrationDate) {
+                    if (auth.currentUser.registrationDate.toDate) {
+                        regDate = auth.currentUser.registrationDate.toDate().toLocaleDateString('ru-RU');
+                    } else {
+                        regDate = new Date(auth.currentUser.registrationDate).toLocaleDateString('ru-RU');
+                    }
+                }
+                document.getElementById('registration-date').textContent = regDate;
                 
-                const name = document.getElementById('edit-name').value.trim();
-                const email = document.getElementById('edit-email').value.trim();
-                const newPassword = document.getElementById('edit-password').value.trim();
+                // Обновляем счетчик корзины
+                const cartCount = cart.getTotalCount();
+                document.getElementById('cart-count-profile').textContent = cartCount;
 
-                // Валидация
-                if (!name || !email) {
-                    alert('Пожалуйста, заполните все обязательные поля');
-                    return;
-                }
+                // Загружаем заказы пользователя
+                loadUserOrders();
 
-                if (newPassword && newPassword.length < 6) {
-                    alert('Пароль должен содержать минимум 6 символов');
-                    return;
-                }
+                // Обработчик кнопки выхода
+                document.getElementById('logout-btn').addEventListener('click', async function() {
+                    await auth.logout();
+                    window.location.href = 'index.html';
+                });
 
-                // Обновляем данные пользователя
-                const result = await auth.updateUser(name, email, newPassword);
+                // Обработчик кнопки редактирования профиля
+                const editBtn = document.getElementById('edit-profile-btn');
+                const editForm = document.getElementById('edit-profile-form');
+                const cancelBtn = document.getElementById('cancel-edit-btn');
 
-                if (result.success) {
-                    alert('Данные успешно обновлены!');
+                editBtn.addEventListener('click', function() {
+                    editForm.classList.add('active');
+                    editBtn.style.display = 'none';
                     
-                    // Обновляем отображение данных
-                    document.getElementById('user-name').textContent = auth.getUserName();
-                    document.getElementById('user-email').textContent = auth.getUserEmail();
-                    
-                    // Обновляем имя пользователя в шапке
-                    cart.updateUserInfo();
-                    
-                    // Скрываем форму
+                    // Заполняем форму текущими данными
+                    document.getElementById('edit-name').value = auth.getUserName();
+                    document.getElementById('edit-email').value = auth.getUserEmail();
+                    document.getElementById('edit-password').value = '';
+                });
+
+                cancelBtn.addEventListener('click', function() {
                     editForm.classList.remove('active');
                     editBtn.style.display = 'inline-block';
-                    
                     // Очищаем форму
-                    editForm.reset();
-                } else {
-                    alert(result.message);
-                }
+                    document.getElementById('edit-profile-form').reset();
+                });
+
+                // Обработчик отправки формы редактирования
+                editForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    
+                    const name = document.getElementById('edit-name').value.trim();
+                    const email = document.getElementById('edit-email').value.trim();
+                    const newPassword = document.getElementById('edit-password').value.trim();
+
+                    // Валидация
+                    if (!name || !email) {
+                        alert('Пожалуйста, заполните все обязательные поля');
+                        return;
+                    }
+
+                    if (newPassword && newPassword.length < 6) {
+                        alert('Пароль должен содержать минимум 6 символов');
+                        return;
+                    }
+
+                    // Обновляем данные пользователя
+                    const result = await auth.updateUser(name, email, newPassword);
+
+                    if (result.success) {
+                        alert('Данные успешно обновлены!');
+                        
+                        // Обновляем отображение данных
+                        document.getElementById('user-name').textContent = auth.getUserName();
+                        document.getElementById('user-email').textContent = auth.getUserEmail();
+                        
+                        // Обновляем имя пользователя в шапке
+                        cart.updateUserInfo();
+                        
+                        // Скрываем форму
+                        editForm.classList.remove('active');
+                        editBtn.style.display = 'inline-block';
+                        
+                        // Очищаем форму
+                        editForm.reset();
+                    } else {
+                        alert(result.message);
+                    }
+                });
             });
         });
 
