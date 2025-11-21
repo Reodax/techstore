@@ -80,21 +80,25 @@ async function loginWithGoogle() {
         const user = result.user;
 
         // Проверяем, есть ли пользователь в Firestore
-        const userDoc = await db.collection('users').doc(user.uid).get();
+        const userDoc = await window.db.collection('users').doc(user.uid).get();
         
         if (!userDoc.exists) {
-            // Новый пользователь - вернем флаг isNewUser
-            console.log('✅ Новый пользователь через Google:', user.uid);
-            return { 
-                success: true, 
-                user: user, 
-                isNewUser: true,
-                message: 'Вход выполнен успешно' 
-            };
+            // Автоматически создаем профиль с именем из Google
+            const userName = user.displayName || 'Пользователь';
+            await window.db.collection('users').doc(user.uid).set({
+                uid: user.uid,
+                email: user.email,
+                name: userName,
+                cart: [],
+                registrationDate: firebase.firestore.FieldValue.serverTimestamp(),
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            console.log('✅ Профиль создан для нового пользователя:', userName);
         }
 
         console.log('✅ Вход через Google выполнен:', user.uid);
-        return { success: true, user: user, isNewUser: false, message: 'Вход выполнен успешно' };
+        return { success: true, user: user, message: 'Вход выполнен успешно' };
     } catch (error) {
         console.error('❌ Ошибка входа через Google:', error);
         

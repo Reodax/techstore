@@ -351,20 +351,15 @@
                     const result = await loginWithGoogle();
                     
                     if (result.success) {
-                        // Если новый пользователь - запрашиваем имя
-                        if (result.isNewUser) {
-                            showNameModal(result.user);
-                        } else {
-                            // Переносим корзину гостя в аккаунт пользователя
-                            const guestCart = JSON.parse(localStorage.getItem('techstore_guest_cart') || '[]');
-                            if (guestCart.length > 0) {
-                                cart.mergeGuestCart(guestCart);
-                                localStorage.removeItem('techstore_guest_cart');
-                            }
-                            
-                            alert('Вход через Google выполнен успешно!');
-                            window.location.href = 'index.html';
+                        // Переносим корзину гостя в аккаунт пользователя
+                        const guestCart = JSON.parse(localStorage.getItem('techstore_guest_cart') || '[]');
+                        if (guestCart.length > 0) {
+                            cart.mergeGuestCart(guestCart);
+                            localStorage.removeItem('techstore_guest_cart');
                         }
+                        
+                        alert('Вход через Google выполнен успешно!');
+                        window.location.href = 'index.html';
                     } else {
                         alert(result.message);
                     }
@@ -378,53 +373,6 @@
                     const result = await loginWithGoogle();
                     
                     if (result.success) {
-                        // Если новый пользователь - запрашиваем имя
-                        if (result.isNewUser) {
-                            showNameModal(result.user);
-                        } else {
-                            // Переносим корзину гостя в аккаунт пользователя
-                            const guestCart = JSON.parse(localStorage.getItem('techstore_guest_cart') || '[]');
-                            if (guestCart.length > 0) {
-                                cart.mergeGuestCart(guestCart);
-                                localStorage.removeItem('techstore_guest_cart');
-                            }
-                            
-                            alert('Вход через Google выполнен успешно!');
-                            window.location.href = 'index.html';
-                        }
-                    } else {
-                        alert(result.message);
-                    }
-                });
-            }
-
-            // Функция показа модального окна для ввода имени
-            function showNameModal(user) {
-                const modal = document.getElementById('name-modal');
-                const nameForm = document.getElementById('name-form');
-                const nameInput = document.getElementById('user-name-input');
-                
-                // Предзаполняем имя из Google, если есть
-                if (user.displayName) {
-                    nameInput.value = user.displayName;
-                }
-                
-                modal.classList.add('active');
-                
-                // Обработчик отправки формы
-                nameForm.onsubmit = async function(e) {
-                    e.preventDefault();
-                    
-                    const userName = nameInput.value.trim();
-                    if (!userName) {
-                        alert('Пожалуйста, введите ваше имя');
-                        return;
-                    }
-                    
-                    // Создаем профиль с указанным именем
-                    const createResult = await createGoogleUserProfile(user.uid, user.email, userName);
-                    
-                    if (createResult.success) {
                         // Переносим корзину гостя в аккаунт пользователя
                         const guestCart = JSON.parse(localStorage.getItem('techstore_guest_cart') || '[]');
                         if (guestCart.length > 0) {
@@ -432,13 +380,12 @@
                             localStorage.removeItem('techstore_guest_cart');
                         }
                         
-                        modal.classList.remove('active');
-                        alert('Добро пожаловать, ' + userName + '! 🎉');
+                        alert('Вход через Google выполнен успешно!');
                         window.location.href = 'index.html';
                     } else {
-                        alert('Ошибка создания профиля. Попробуйте еще раз.');
+                        alert(result.message);
                     }
-                };
+                });
             }
         });
     </script>
