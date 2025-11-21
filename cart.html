@@ -1070,9 +1070,12 @@
 
             // Делаем функцию renderCart глобальной
             window.renderCart = function() {
+                console.log('🎨 Отрисовка корзины...');
                 const items = cart.items;
+                console.log('📦 Товаров в корзине:', items.length, items);
                 
                 if (items.length === 0) {
+                    console.log('❌ Корзина пуста');
                     emptyCart.style.display = 'block';
                     cartItemsContainer.style.display = 'none';
                     cartSummary.style.display = 'none';
@@ -1086,6 +1089,8 @@
                     }
                     return;
                 }
+                
+                console.log('✅ Отображение товаров');
 
                 emptyCart.style.display = 'none';
                 cartItemsContainer.style.display = 'block';
@@ -1166,11 +1171,24 @@
             });
 
             // Первоначальная отрисовка
-            // Убеждаемся, что итоговая сумма правильно инициализирована
-            if (totalPriceElement) {
-                totalPriceElement.textContent = '0 ₽';
+            // Ждем инициализации корзины, затем отрисовываем
+            async function initCartPage() {
+                console.log('🎬 Инициализация страницы корзины...');
+                // Ждем, пока корзина полностью инициализируется
+                while (!cart.isInitialized) {
+                    console.log('⏳ Ожидание инициализации корзины...');
+                    await new Promise(resolve => setTimeout(resolve, 50));
+                }
+                
+                console.log('✅ Корзина готова, отрисовываем...');
+                // Теперь можно отрисовать корзину
+                if (totalPriceElement) {
+                    totalPriceElement.textContent = '0 ₽';
+                }
+                renderCart();
             }
-            renderCart();
+            
+            initCartPage();
 
             // Слушаем изменения в корзине
             window.addEventListener('storage', function() {

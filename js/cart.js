@@ -142,22 +142,32 @@ class Cart {
 
     // Инициализация корзины
     async initCart() {
+        console.log('🚀 Инициализация корзины...');
         await this.auth.initPromise;
+        console.log('✅ Firebase Auth готов');
         this.items = await this.loadCart();
         this.isInitialized = true;
+        console.log('✅ Корзина инициализирована. Товаров:', this.items.length);
         this.updateCartCount();
         this.updateUserInfo();
     }
 
     // Загрузка корзины
     async loadCart() {
+        console.log('📥 Загрузка корзины...');
         if (this.auth.isLoggedIn()) {
             // Загружаем корзину пользователя из Firebase
-            return await this.auth.loadUserCart();
+            console.log('📥 Загрузка из Firebase для пользователя:', this.auth.getUserName());
+            const items = await this.auth.loadUserCart();
+            console.log('✅ Загружено из Firebase:', items.length, 'товаров', items);
+            return items;
         } else {
             // Загружаем корзину гостя из localStorage
+            console.log('📥 Загрузка из localStorage (гость)');
             const savedCart = localStorage.getItem('techstore_guest_cart');
-            return savedCart ? JSON.parse(savedCart) : [];
+            const items = savedCart ? JSON.parse(savedCart) : [];
+            console.log('✅ Загружено из localStorage:', items.length, 'товаров', items);
+            return items;
         }
     }
 
@@ -165,15 +175,18 @@ class Cart {
     async saveCart() {
         if (this.auth.isLoggedIn()) {
             // Сохраняем корзину пользователя в Firebase
+            console.log('💾 Сохранение в Firebase для пользователя:', this.auth.getUserName());
             await this.auth.saveUserCart(this.items);
         } else {
             // Сохраняем корзину гостя в localStorage
+            console.log('💾 Сохранение в localStorage (гость)');
             localStorage.setItem('techstore_guest_cart', JSON.stringify(this.items));
         }
         
         this.updateCartCount();
         this.updateCartDisplay();
         this.updateUserInfo();
+        console.log('✅ Корзина сохранена и интерфейс обновлен');
     }
 
     // Обновление счетчика в шапке
@@ -283,6 +296,7 @@ class Cart {
     async addItem(productId, name, price, image = '', quantity = 1) {
         // Ждем инициализации корзины
         if (!this.isInitialized) {
+            console.log('⏳ Ожидание инициализации корзины...');
             await new Promise(resolve => {
                 const checkInit = setInterval(() => {
                     if (this.isInitialized) {
@@ -297,6 +311,7 @@ class Cart {
 
         if (existingItem) {
             existingItem.quantity += quantity;
+            console.log(`✅ Увеличено количество товара "${name}" до ${existingItem.quantity}`);
         } else {
             this.items.push({
                 id: productId,
@@ -305,9 +320,12 @@ class Cart {
                 image: image,
                 quantity: quantity
             });
+            console.log(`✅ Товар "${name}" добавлен в корзину`);
         }
 
+        console.log('💾 Сохранение корзины...', this.items);
         await this.saveCart();
+        console.log('✅ Корзина сохранена. Всего товаров:', this.getTotalCount());
         this.showAddToCartNotification(name);
     }
 
