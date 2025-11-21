@@ -47,19 +47,32 @@
                         e.preventDefault();
                         e.stopPropagation();
                         
+                        const wasOpen = dropdown.classList.contains('active');
+                        
                         // Закрываем другие открытые меню
                         navDropdowns.forEach(otherDropdown => {
-                            if (otherDropdown !== dropdown && otherDropdown.classList.contains('active')) {
+                            if (otherDropdown !== dropdown) {
                                 otherDropdown.classList.remove('active');
                             }
                         });
                         
                         // Переключаем текущее меню
-                        dropdown.classList.toggle('active');
+                        if (wasOpen) {
+                            dropdown.classList.remove('active');
+                        } else {
+                            dropdown.classList.add('active');
+                        }
                         isOpen = dropdown.classList.contains('active');
                     }
                 });
             }
+            
+            // Предотвращаем закрытие при клике внутри меню на мобильных
+            dropdownMenu.addEventListener('click', function(e) {
+                if (window.innerWidth <= 768) {
+                    e.stopPropagation();
+                }
+            });
             
             // Предотвращаем закрытие при наведении на само меню
             dropdownMenu.addEventListener('mouseenter', function() {
@@ -84,11 +97,16 @@
         document.addEventListener('click', function(e) {
             if (window.innerWidth <= 768) {
                 const clickedDropdown = e.target.closest('.nav-dropdown');
-                navDropdowns.forEach(dropdown => {
-                    if (dropdown !== clickedDropdown) {
-                        dropdown.classList.remove('active');
-                    }
-                });
+                const clickedLink = e.target.closest('.nav-dropdown > a');
+                
+                // Не закрываем, если клик был на саму ссылку dropdown (это обрабатывается выше)
+                if (!clickedLink) {
+                    navDropdowns.forEach(dropdown => {
+                        if (dropdown !== clickedDropdown) {
+                            dropdown.classList.remove('active');
+                        }
+                    });
+                }
             }
         });
     }
