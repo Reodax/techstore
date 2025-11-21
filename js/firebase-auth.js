@@ -83,20 +83,18 @@ async function loginWithGoogle() {
         const userDoc = await db.collection('users').doc(user.uid).get();
         
         if (!userDoc.exists) {
-            // Создаем профиль для нового пользователя из Google
-            await db.collection('users').doc(user.uid).set({
-                uid: user.uid,
-                email: user.email,
-                name: user.displayName || 'Пользователь',
-                cart: [],
-                registrationDate: firebase.firestore.FieldValue.serverTimestamp(),
-                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
+            // Новый пользователь - вернем флаг isNewUser
+            console.log('✅ Новый пользователь через Google:', user.uid);
+            return { 
+                success: true, 
+                user: user, 
+                isNewUser: true,
+                message: 'Вход выполнен успешно' 
+            };
         }
 
         console.log('✅ Вход через Google выполнен:', user.uid);
-        return { success: true, user: user, message: 'Вход выполнен успешно' };
+        return { success: true, user: user, isNewUser: false, message: 'Вход выполнен успешно' };
     } catch (error) {
         console.error('❌ Ошибка входа через Google:', error);
         
@@ -108,6 +106,29 @@ async function loginWithGoogle() {
         }
         
         return { success: false, message: message };
+    }
+}
+
+/**
+ * Создание профиля пользователя Google с указанным именем
+ */
+async function createGoogleUserProfile(userId, email, name) {
+    try {
+        await db.collection('users').doc(userId).set({
+            uid: userId,
+            email: email,
+            name: name,
+            cart: [],
+            registrationDate: firebase.firestore.FieldValue.serverTimestamp(),
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        
+        console.log('✅ Профиль Google пользователя создан');
+        return { success: true };
+    } catch (error) {
+        console.error('❌ Ошибка создания профиля:', error);
+        return { success: false, message: 'Ошибка создания профиля' };
     }
 }
 
