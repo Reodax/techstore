@@ -763,16 +763,33 @@
             // Ждем инициализации Firebase Auth
             await auth.initPromise;
             
-            // Проверяем авторизацию
-            if (!auth.isLoggedIn()) {
+            // Проверяем авторизацию через Firebase Auth напрямую
+            const firebaseUser = firebase.auth().currentUser;
+            if (!firebaseUser) {
                 window.location.href = 'login.html';
                 return;
+            }
+
+            // Загружаем данные пользователя из Firestore
+            if (!auth.currentUser) {
+                const userData = await getCurrentUserData();
+                auth.currentUser = userData;
             }
 
             // Заполняем информацию о пользователе
             document.getElementById('user-name').textContent = auth.getUserName();
             document.getElementById('user-email').textContent = auth.getUserEmail();
-            document.getElementById('registration-date').textContent = new Date(auth.currentUser.registrationDate).toLocaleDateString('ru-RU');
+            
+            // Дата регистрации
+            let regDate = 'Не указана';
+            if (auth.currentUser && auth.currentUser.registrationDate) {
+                if (auth.currentUser.registrationDate.toDate) {
+                    regDate = auth.currentUser.registrationDate.toDate().toLocaleDateString('ru-RU');
+                } else {
+                    regDate = new Date(auth.currentUser.registrationDate).toLocaleDateString('ru-RU');
+                }
+            }
+            document.getElementById('registration-date').textContent = regDate;
             
             // Обновляем счетчик корзины
             const cartCount = cart.getTotalCount();
