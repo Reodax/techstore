@@ -71,6 +71,47 @@ async function loginWithFirebase(email, password) {
 }
 
 /**
+ * Вход через Google
+ */
+async function loginWithGoogle() {
+    try {
+        const provider = new firebase.auth.GoogleAuthProvider();
+        const result = await firebase.auth().signInWithPopup(provider);
+        const user = result.user;
+
+        // Проверяем, есть ли пользователь в Firestore
+        const userDoc = await db.collection('users').doc(user.uid).get();
+        
+        if (!userDoc.exists) {
+            // Создаем профиль для нового пользователя из Google
+            await db.collection('users').doc(user.uid).set({
+                uid: user.uid,
+                email: user.email,
+                name: user.displayName || 'Пользователь',
+                cart: [],
+                registrationDate: firebase.firestore.FieldValue.serverTimestamp(),
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+        }
+
+        console.log('✅ Вход через Google выполнен:', user.uid);
+        return { success: true, user: user, message: 'Вход выполнен успешно' };
+    } catch (error) {
+        console.error('❌ Ошибка входа через Google:', error);
+        
+        let message = 'Ошибка входа через Google';
+        if (error.code === 'auth/popup-closed-by-user') {
+            message = 'Окно входа было закрыто';
+        } else if (error.code === 'auth/cancelled-popup-request') {
+            message = 'Запрос был отменен';
+        }
+        
+        return { success: false, message: message };
+    }
+}
+
+/**
  * Выход пользователя
  */
 async function logoutFromFirebase() {

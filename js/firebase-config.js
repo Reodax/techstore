@@ -11,30 +11,18 @@ const firebaseConfig = {
     measurementId: "G-1LKLRY42H6"
 };
 
-// Инициализация Firebase (выполняется автоматически после загрузки SDK)
-let app;
-let db;
-
-// Функция инициализации Firebase
-function initializeFirebase() {
-    try {
-        // Инициализируем Firebase
-        app = firebase.initializeApp(firebaseConfig);
-        
-        // Получаем ссылку на Firestore
-        db = firebase.firestore();
-        
-        console.log('✅ Firebase инициализирован успешно!');
-        console.log('📊 Firestore подключен');
-        
-        return { app, db };
-    } catch (error) {
-        console.error('❌ Ошибка инициализации Firebase:', error);
-        return null;
-    }
+// Инициализация Firebase
+try {
+    // Инициализируем Firebase
+    const app = firebase.initializeApp(firebaseConfig);
+    
+    // Получаем ссылку на Firestore
+    const db = firebase.firestore();
+    
+    console.log('✅ Firebase инициализирован успешно!');
+    console.log('📊 Firestore подключен');
+    console.log('🔐 Firebase Auth подключен');
+} catch (error) {
+    console.error('❌ Ошибка инициализации Firebase:', error);
 }
-
-// Экспортируем конфигурацию для использования в других файлах
-window.firebaseConfig = firebaseConfig;
-window.initializeFirebase = initializeFirebase;
 
