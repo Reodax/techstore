@@ -136,38 +136,27 @@ class Cart {
         this.auth = auth;
         this.items = [];
         this.isInitialized = false;
-        this.userInfoUpdated = false;
         this.initCart();
     }
 
     // Инициализация корзины
     async initCart() {
-        console.log('🚀 Инициализация корзины...');
         await this.auth.initPromise;
-        console.log('✅ Firebase Auth готов');
         this.items = await this.loadCart();
         this.isInitialized = true;
-        console.log('✅ Корзина инициализирована. Товаров:', this.items.length);
         this.updateCartCount();
         this.updateUserInfo();
     }
 
     // Загрузка корзины
     async loadCart() {
-        console.log('📥 Загрузка корзины...');
         if (this.auth.isLoggedIn()) {
             // Загружаем корзину пользователя из Firebase
-            console.log('📥 Загрузка из Firebase для пользователя:', this.auth.getUserName());
-            const items = await this.auth.loadUserCart();
-            console.log('✅ Загружено из Firebase:', items.length, 'товаров', items);
-            return items;
+            return await this.auth.loadUserCart();
         } else {
             // Загружаем корзину гостя из localStorage
-            console.log('📥 Загрузка из localStorage (гость)');
             const savedCart = localStorage.getItem('techstore_guest_cart');
-            const items = savedCart ? JSON.parse(savedCart) : [];
-            console.log('✅ Загружено из localStorage:', items.length, 'товаров', items);
-            return items;
+            return savedCart ? JSON.parse(savedCart) : [];
         }
     }
 
@@ -175,18 +164,15 @@ class Cart {
     async saveCart() {
         if (this.auth.isLoggedIn()) {
             // Сохраняем корзину пользователя в Firebase
-            console.log('💾 Сохранение в Firebase для пользователя:', this.auth.getUserName());
             await this.auth.saveUserCart(this.items);
         } else {
             // Сохраняем корзину гостя в localStorage
-            console.log('💾 Сохранение в localStorage (гость)');
             localStorage.setItem('techstore_guest_cart', JSON.stringify(this.items));
         }
         
         this.updateCartCount();
         this.updateCartDisplay();
         this.updateUserInfo();
-        console.log('✅ Корзина сохранена и интерфейс обновлен');
     }
 
     // Обновление счетчика в шапке
@@ -203,81 +189,28 @@ class Cart {
         const loginButtons = document.querySelectorAll('.login-btn');
         const logoutButtons = document.querySelectorAll('.logout-btn');
         
-        // Используем анимацию только при первой инициализации
-        const useAnimation = !this.userInfoUpdated;
-        this.userInfoUpdated = true;
-        
         if (this.auth.isLoggedIn()) {
+            // Показываем элементы для авторизованного пользователя
             userInfoElements.forEach(element => {
                 element.textContent = this.auth.getUserName();
-                if (useAnimation) {
-                    element.style.opacity = '0';
-                }
-                element.style.display = 'inline';
-                if (useAnimation) {
-                    setTimeout(() => {
-                        element.style.transition = 'opacity 0.3s ease';
-                        element.style.opacity = '1';
-                    }, 10);
-                } else {
-                    element.style.opacity = '1';
-                }
+                element.classList.add('visible');
             });
             loginButtons.forEach(btn => {
-                if (useAnimation) {
-                    btn.style.transition = 'opacity 0.3s ease';
-                    btn.style.opacity = '0';
-                    setTimeout(() => btn.style.display = 'none', 300);
-                } else {
-                    btn.style.display = 'none';
-                }
+                btn.classList.remove('visible');
             });
             logoutButtons.forEach(btn => {
-                if (useAnimation) {
-                    btn.style.opacity = '0';
-                }
-                btn.style.display = 'inline';
-                if (useAnimation) {
-                    setTimeout(() => {
-                        btn.style.transition = 'opacity 0.3s ease';
-                        btn.style.opacity = '1';
-                    }, 10);
-                } else {
-                    btn.style.opacity = '1';
-                }
+                btn.classList.add('visible');
             });
         } else {
+            // Показываем элементы для гостя
             userInfoElements.forEach(element => {
-                if (useAnimation) {
-                    element.style.transition = 'opacity 0.3s ease';
-                    element.style.opacity = '0';
-                    setTimeout(() => element.style.display = 'none', 300);
-                } else {
-                    element.style.display = 'none';
-                }
+                element.classList.remove('visible');
             });
             loginButtons.forEach(btn => {
-                if (useAnimation) {
-                    btn.style.opacity = '0';
-                }
-                btn.style.display = 'inline';
-                if (useAnimation) {
-                    setTimeout(() => {
-                        btn.style.transition = 'opacity 0.3s ease';
-                        btn.style.opacity = '1';
-                    }, 10);
-                } else {
-                    btn.style.opacity = '1';
-                }
+                btn.classList.add('visible');
             });
             logoutButtons.forEach(btn => {
-                if (useAnimation) {
-                    btn.style.transition = 'opacity 0.3s ease';
-                    btn.style.opacity = '0';
-                    setTimeout(() => btn.style.display = 'none', 300);
-                } else {
-                    btn.style.display = 'none';
-                }
+                btn.classList.remove('visible');
             });
         }
     }
@@ -296,7 +229,6 @@ class Cart {
     async addItem(productId, name, price, image = '', quantity = 1) {
         // Ждем инициализации корзины
         if (!this.isInitialized) {
-            console.log('⏳ Ожидание инициализации корзины...');
             await new Promise(resolve => {
                 const checkInit = setInterval(() => {
                     if (this.isInitialized) {
@@ -311,7 +243,6 @@ class Cart {
 
         if (existingItem) {
             existingItem.quantity += quantity;
-            console.log(`✅ Увеличено количество товара "${name}" до ${existingItem.quantity}`);
         } else {
             this.items.push({
                 id: productId,
@@ -320,12 +251,9 @@ class Cart {
                 image: image,
                 quantity: quantity
             });
-            console.log(`✅ Товар "${name}" добавлен в корзину`);
         }
 
-        console.log('💾 Сохранение корзины...', this.items);
         await this.saveCart();
-        console.log('✅ Корзина сохранена. Всего товаров:', this.getTotalCount());
         this.showAddToCartNotification(name);
     }
 
