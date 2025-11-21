@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вход - TechStore</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .auth-container {
+            max-width: 400px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .auth-title {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: #2c3e50;
+        }
+
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .form-group input {
+            padding: 0.8rem;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .auth-btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 1rem;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+        }
+
+        .auth-btn:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .auth-switch {
+            text-align: center;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .auth-switch a {
+            color: #3498db;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .auth-switch a:hover {
+            text-decoration: underline;
+        }
+
+        .user-status {
+            text-align: center;
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+            color: #7f8c8d;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <a href="index.html">
+                    <h1>TechStore</h1>
+                </a>
+            </div>
+            <nav class="nav">
+                <a href="index.html">Главная</a>
+                
+                <div class="nav-dropdown">
+                    <a>Комплектующие</a>
+                    <div class="dropdown-menu">
+                        <!-- Категории будут загружены динамически через js/categories.js -->
+                    </div>
+                </div>
+                
+                <div class="nav-dropdown">
+                    <a>Готовые сборки</a>
+                    <div class="dropdown-menu">
+                        <div class="dropdown-section">Полные системы</div>
+                        <a href="builds.html#gaming">Игровые сборки</a>
+                        <a href="builds.html#workstation">Рабочие станции</a>
+                        <a href="builds.html#budget">Бюджетные сборки</a>
+                        <a href="builds.html">Все сборки</a>
+                    </div>
+                </div>
+                
+                <a href="cart.html">Корзина <span id="cart-count">0</span></a>
+                
+                <a href="profile.html" class="user-info" style="display: none;"></a>
+                <a href="login.html" class="login-btn nav-active">Вход</a>
+                <a href="#" class="logout-btn" style="display: none;">Выйти</a>
+                
+                <a href="admin.html" class="admin-link">Админ панель</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="container">
+            <div class="auth-container">
+                <h2 class="auth-title" id="auth-title">Вход в аккаунт</h2>
+                
+                <div class="user-status">
+                    <span id="user-status">Вы не авторизованы</span>
+                </div>
+
+                <!-- Форма входа -->
+                <form id="login-form" class="auth-form">
+                    <div class="form-group">
+                        <label for="login-email">Email:</label>
+                        <input type="email" id="login-email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="login-password">Пароль:</label>
+                        <input type="password" id="login-password" required>
+                    </div>
+                    <button type="submit" class="auth-btn" id="login-btn">Войти</button>
+                </form>
+
+                <!-- Форма регистрации -->
+                <form id="register-form" class="auth-form" style="display: none;">
+                    <div class="form-group">
+                        <label for="register-name">Имя:</label>
+                        <input type="text" id="register-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="register-email">Email:</label>
+                        <input type="email" id="register-email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="register-password">Пароль:</label>
+                        <input type="password" id="register-password" required minlength="6">
+                    </div>
+                    <div class="form-group">
+                        <label for="register-confirm-password">Подтвердите пароль:</label>
+                        <input type="password" id="register-confirm-password" required>
+                    </div>
+                    <button type="submit" class="auth-btn" id="register-btn">Зарегистрироваться</button>
+                </form>
+
+                <div class="auth-switch">
+                    <span id="login-switch-text">Нет аккаунта? </span>
+                    <a href="#" id="show-register">Зарегистрироваться</a>
+                    <a href="#" id="show-login" style="display: none;">Войти</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 TechStore. Все права защищены.</p>
+        </div>
+    </footer>
+
+    <script src="js/cart.js"></script>
+    <script src="js/theme.js"></script>
+    <script src="js/categories.js"></script>
+    <script src="js/dropdown.js"></script>
+</body>
+</html>

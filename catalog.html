@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Каталог - TechStore</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <a href="index.html">
+                    <h1>TechStore</h1>
+                </a>
+            </div>
+            <nav class="nav">
+                <a href="index.html">Главная</a>
+                <a href="catalog.html">Каталог</a>
+                <a href="cart.html">Корзина <span id="cart-count">0</span></a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main">
+        <section class="featured-products">
+            <div class="container">
+                <h2>Весь каталог</h2>
+                <div class="products-grid" data-product-category="all"></div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 TechStore. Все права защищены.</p>
+        </div>
+    </footer>
+
+    <script src="js/cart.js"></script>
+    <script src="js/theme.js"></script>
+    <script src="js/categories.js"></script>
+    <script src="js/dropdown.js"></script>
+</body>
+</html>

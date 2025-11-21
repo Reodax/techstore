@@ -1,0 +1,33 @@
+# Служебные файлы Windows
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Файлы macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Файлы редактора
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Логи
+*.log
+
+# Временные файлы
+*.tmp
+*.temp
+
+# Node modules (если будут использоваться)
+node_modules/
+
+# Личные заметки и инструкции (не нужны в репозитории)
+GITHUB_DEPLOY.txt
+FIREBASE_SETUP_COMPLETE.md
+QUICK_START.txt
+ADMIN_GUIDE.md
+

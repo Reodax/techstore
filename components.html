@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Комплектующие - TechStore</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <a href="index.html">
+                    <h1>TechStore</h1>
+                </a>
+            </div>
+            <nav class="nav">
+                <a href="index.html">Главная</a>
+                
+                <div class="nav-dropdown">
+                    <a class="nav-active">Комплектующие</a>
+                    <div class="dropdown-menu">
+                        <!-- Категории будут загружены динамически через js/categories.js -->
+                    </div>
+                </div>
+                
+                <div class="nav-dropdown">
+                    <a>Готовые сборки</a>
+                    <div class="dropdown-menu">
+                        <div class="dropdown-section">Полные системы</div>
+                        <a href="builds.html#gaming">Игровые сборки</a>
+                        <a href="builds.html#workstation">Рабочие станции</a>
+                        <a href="builds.html#budget">Бюджетные сборки</a>
+                        <a href="builds.html">Все сборки</a>
+                    </div>
+                </div>
+                
+                <a href="cart.html">Корзина <span id="cart-count">0</span></a>
+                
+                <a href="profile.html" class="user-info" style="display: none;"></a>
+                <a href="login.html" class="login-btn">Вход</a>
+                <a href="#" class="logout-btn" style="display: none;">Выйти</a>
+                
+                <a href="admin.html" class="admin-link">Админ панель</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main">
+        <section class="hero">
+            <div class="container">
+                <h2>Комплектующие для ПК</h2>
+                <p>Все необходимое для сборки вашего компьютера</p>
+            </div>
+        </section>
+
+        <section id="main" class="categories" style="padding-top: 2rem;">
+            <div class="container">
+                <h2>Главное</h2>
+                <div class="categories-grid">
+                    <a href="processors.html" class="category-card">
+                        <div class="category-icon">⚡</div>
+                        <h3>Процессоры</h3>
+                        <p>CPU для игр и работы</p>
+                    </a>
+                    <a href="video-cards.html" class="category-card">
+                        <div class="category-icon">🎮</div>
+                        <h3>Видеокарты</h3>
+                        <p>Мощные GPU для гейминга</p>
+                    </a>
+                    <a href="memory.html" class="category-card">
+                        <div class="category-icon">💾</div>
+                        <h3>Оперативная память</h3>
+                        <p>Быстрая RAM DDR4/DDR5</p>
+                    </a>
+                    <a href="motherboards.html" class="category-card">
+                        <div class="category-icon">🖥️</div>
+                        <h3>Материнские платы</h3>
+                        <p>Основа вашего ПК</p>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <section id="new" class="featured-products" style="margin-top: 0;">
+            <div class="container">
+                <h2>Актуальное</h2>
+                <div class="categories-grid">
+                    <a href="storage.html" class="category-card">
+                        <div class="category-icon">💽</div>
+                        <h3>Накопители</h3>
+                        <p>SSD и HDD-диски</p>
+                    </a>
+                    <a href="power-supplies.html" class="category-card">
+                        <div class="category-icon">⚡</div>
+                        <h3>Блоки питания</h3>
+                        <p>Надежное питание системы</p>
+                    </a>
+                    <a href="cooling.html" class="category-card">
+                        <div class="category-icon">❄️</div>
+                        <h3>Охлаждение</h3>
+                        <p>Кулеры и системы охлаждения</p>
+                    </a>
+                    <a href="cases.html" class="category-card">
+                        <div class="category-icon">📦</div>
+                        <h3>Корпуса</h3>
+                        <p>Стильные корпуса для ПК</p>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <section class="featured-products">
+            <div class="container">
+                <h2>Популярные комплектующие</h2>
+                <div class="products-grid">
+                    <div class="product-card">
+                        <img src="https://via.placeholder.com/300x200/3498db/ffffff?text=Intel+i9-14900K" 
+                             alt="Intel i9" class="product-image">
+                        <h3 class="product-name">Intel Core i9-14900K</h3>
+                        <p class="product-description">24-ядерный процессор</p>
+                        <div class="product-price">54 990 ₽</div>
+                        <button class="add-to-cart" data-id="5" data-name="Intel Core i9-14900K" data-price="54990">В корзину</button>
+                    </div>
+                    
+                    <div class="product-card">
+                        <img src="https://via.placeholder.com/300x200/e74c3c/ffffff?text=RTX+4080" 
+                             alt="RTX 4080" class="product-image">
+                        <h3 class="product-name">NVIDIA RTX 4080</h3>
+                        <p class="product-description">Игровая видеокарта</p>
+                        <div class="product-price">119 990 ₽</div>
+                        <button class="add-to-cart" data-id="6" data-name="NVIDIA RTX 4080" data-price="119990">В корзину</button>
+                    </div>
+                    
+                    <div class="product-card">
+                        <img src="https://via.placeholder.com/300x200/2ecc71/ffffff?text=SSD+2TB" 
+                             alt="SSD 2TB" class="product-image">
+                        <h3 class="product-name">Samsung 980 Pro 2TB</h3>
+                        <p class="product-description">NVMe SSD накопитель</p>
+                        <div class="product-price">14 990 ₽</div>
+                        <button class="add-to-cart" data-id="7" data-name="Samsung 980 Pro 2TB" data-price="14990">В корзину</button>
+                    </div>
+                    
+                    <div class="product-card">
+                        <img src="https://via.placeholder.com/300x200/9b59b6/ffffff?text=PSU+850W" 
+                             alt="PSU 850W" class="product-image">
+                        <h3 class="product-name">Seasonic 850W 80+ Gold</h3>
+                        <p class="product-description">Блок питания</p>
+                        <div class="product-price">12 490 ₽</div>
+                        <button class="add-to-cart" data-id="8" data-name="Seasonic 850W 80+ Gold" data-price="12490">В корзину</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 TechStore. Все права защищены.</p>
+        </div>
+    </footer>
+
+    <script src="js/cart.js"></script>
+    <script src="js/theme.js"></script>
+    <script src="js/categories.js"></script>
+    <script src="js/dropdown.js"></script>
+</body>
+</html>

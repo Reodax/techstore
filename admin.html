@@ -1,0 +1,3004 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Админ панель - TechStore</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .admin-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 20px;
+        }
+
+        .admin-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .admin-title {
+            font-size: 2.5rem;
+            color: var(--product-name-color);
+            margin-bottom: 1rem;
+        }
+
+        .admin-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #3498db;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: var(--product-desc-color);
+            font-size: 1.1rem;
+        }
+
+        /* Стили для вкладок */
+        .admin-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid #e9ecef;
+            flex-wrap: wrap;
+        }
+
+        .admin-tab {
+            padding: 1rem 2rem;
+            background: transparent;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--product-desc-color);
+            transition: all 0.3s ease;
+            position: relative;
+            top: 2px;
+        }
+
+        .admin-tab:hover {
+            color: #3498db;
+        }
+
+        .admin-tab.active {
+            color: #3498db;
+            border-bottom-color: #3498db;
+        }
+
+        .admin-tab-content {
+            display: none;
+        }
+
+        .admin-tab-content.active {
+            display: block;
+        }
+
+        .admin-sections {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .admin-section {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            color: var(--product-name-color);
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #3498db;
+        }
+
+        .admin-btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 0.5rem;
+            transition: all 0.3s ease;
+            display: block;
+            width: 100%;
+        }
+
+        .admin-btn:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .admin-btn.danger {
+            background: #e74c3c;
+        }
+
+        .admin-btn.danger:hover {
+            background: #c0392b;
+        }
+
+        .user-list {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-bottom: 1rem;
+        }
+
+        .user-item {
+            padding: 1rem;
+            border-bottom: 1px solid var(--card-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .user-item:last-child {
+            border-bottom: none;
+        }
+
+        /* Стили для заказов */
+        .orders-list {
+            max-height: 600px;
+            overflow-y: auto;
+            margin-bottom: 1rem;
+        }
+
+        .order-item {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            border: 2px solid var(--card-border);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .order-item:hover {
+            border-color: #3498db;
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.2);
+        }
+
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .order-id {
+            font-weight: 700;
+            color: #3498db;
+            font-size: 1.1rem;
+        }
+
+        .order-status {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .order-status.pending {
+            background: #f39c12;
+            color: white;
+        }
+
+        .order-status.processing {
+            background: #3498db;
+            color: white;
+        }
+
+        .order-status.shipped {
+            background: #9b59b6;
+            color: white;
+        }
+
+        .order-status.delivered {
+            background: #2ecc71;
+            color: white;
+        }
+
+        .order-status.cancelled {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .order-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .order-info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+        }
+
+        .order-info-label {
+            font-size: 0.85rem;
+            color: var(--product-desc-color);
+            font-weight: 600;
+        }
+
+        .order-info-value {
+            font-size: 1rem;
+            color: var(--product-name-color);
+        }
+
+        .order-items-preview {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--card-border);
+        }
+
+        .order-items-preview-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--product-name-color);
+        }
+
+        .order-item-product {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            font-size: 0.9rem;
+        }
+
+        .order-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .order-actions select {
+            padding: 0.5rem;
+            border-radius: 5px;
+            border: 2px solid var(--input-border);
+            background: var(--card-bg);
+            color: var(--product-name-color);
+            cursor: pointer;
+        }
+
+        /* Модальное окно деталей заказа */
+        .order-details-modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(5px);
+        }
+
+        .order-details-modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .order-details-content {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 15px;
+            max-width: 800px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .order-details-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--card-border);
+        }
+
+        .order-details-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--product-name-color);
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 2rem;
+            color: var(--product-desc-color);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        .close-modal:hover {
+            background: #e74c3c;
+            color: white;
+            transform: rotate(90deg);
+        }
+
+        .admin-login {
+            max-width: 400px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: var(--card-bg);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .admin-login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            text-align: left;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            color: var(--product-name-color);
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            padding: 0.8rem;
+            border: 2px solid var(--input-border);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+            background: var(--input-bg);
+            color: var(--input-text);
+        }
+
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .auth-title {
+            font-size: 2rem;
+            color: var(--product-name-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .modal-content {
+            background-color: var(--card-bg);
+            margin: 2% auto;
+            padding: 2rem;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            position: relative;
+        }
+
+        .modal-content::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .modal-content::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .modal-content::-webkit-scrollbar-thumb {
+            background: #3498db;
+            border-radius: 10px;
+        }
+
+        .modal-content::-webkit-scrollbar-thumb:hover {
+            background: #2980b9;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .close {
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--product-desc-color);
+        }
+
+        .close:hover {
+            color: #e74c3c;
+        }
+
+        .product-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+            max-height: 500px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding-right: 0.5rem;
+        }
+
+        .products-grid::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .products-grid::-webkit-scrollbar-track {
+            background: var(--background-color);
+            border-radius: 10px;
+        }
+
+        .products-grid::-webkit-scrollbar-thumb {
+            background: #3498db;
+            border-radius: 10px;
+        }
+
+        .products-grid::-webkit-scrollbar-thumb:hover {
+            background: #2980b9;
+        }
+
+        .product-card {
+            background: var(--background-color);
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid var(--card-border);
+        }
+
+        .product-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .product-actions button {
+            padding: 0.3rem 0.6rem;
+            font-size: 0.8rem;
+            flex: 1 1 auto;
+            min-width: 0;
+        }
+
+        .category-badge {
+            display: inline-block;
+            background: #3498db;
+            color: white;
+            padding: 0.2rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            margin-top: 0.5rem;
+        }
+
+        /* Темная тема для админ панели */
+        body.dark-theme .admin-title {
+            color: #ffffff;
+        }
+
+        body.dark-theme .stat-card {
+            background: #1a1a1a;
+        }
+
+        body.dark-theme .stat-label {
+            color: #cccccc;
+        }
+
+        body.dark-theme .admin-section {
+            background: #1a1a1a;
+        }
+
+        body.dark-theme .section-title {
+            color: #ffffff;
+            border-bottom-color: #3498db;
+        }
+
+        body.dark-theme .user-item {
+            border-bottom-color: #333333;
+            color: #ffffff;
+        }
+
+        body.dark-theme .admin-login {
+            background: #1a1a1a;
+        }
+
+        body.dark-theme .modal-content {
+            background: #1a1a1a;
+        }
+
+        body.dark-theme .modal-content::-webkit-scrollbar-track {
+            background: #2d2d2d;
+        }
+
+        body.dark-theme .product-card {
+            background: #000000;
+            border-color: #333333;
+            color: #ffffff;
+        }
+
+        body.dark-theme .products-grid::-webkit-scrollbar-track {
+            background: #2d2d2d;
+        }
+
+        body.dark-theme .product-card p,
+        body.dark-theme .product-card strong {
+            color: #ffffff;
+        }
+
+        body.dark-theme .builds-scrollable .build-card p,
+        body.dark-theme .builds-scrollable .build-card strong {
+            color: #ffffff;
+        }
+
+        body.dark-theme .user-item p {
+            color: #ffffff;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <a href="index.html">
+                    <h1>TechStore</h1>
+                </a>
+            </div>
+            <nav class="nav">
+                <a href="index.html">Главная</a>
+                
+                <div class="nav-dropdown">
+                    <a>Комплектующие</a>
+                    <div class="dropdown-menu">
+                        <!-- Категории будут загружены динамически через js/categories.js -->
+                    </div>
+                </div>
+                
+                <div class="nav-dropdown">
+                    <a>Готовые сборки</a>
+                    <div class="dropdown-menu">
+                        <div class="dropdown-section">Полные системы</div>
+                        <a href="builds.html#gaming">Игровые сборки</a>
+                        <a href="builds.html#workstation">Рабочие станции</a>
+                        <a href="builds.html#budget">Бюджетные сборки</a>
+                        <a href="builds.html">Все сборки</a>
+                    </div>
+                </div>
+                
+                <a href="cart.html">Корзина <span id="cart-count">0</span></a>
+                
+                <a href="profile.html" class="user-info" style="display: none;"></a>
+                <a href="login.html" class="login-btn">Вход</a>
+                <a href="#" class="logout-btn" style="display: none;">Выйти</a>
+                
+                <a href="admin.html" class="admin-link nav-active">Админ панель</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="admin-container">
+            <!-- Проверка авторизации админа -->
+            <div id="admin-login-required">
+                <div class="auth-header">
+                    <h1 class="auth-title">Панель администратора</h1>
+                </div>
+                
+                <div class="admin-login">
+                    <h2>Требуется авторизация</h2>
+                    <p>Для доступа к администрации необходимо войти как администратор.</p>
+                    <div class="admin-login-form">
+                        <div class="form-group">
+                            <label for="admin-email">Email администратора:</label>
+                            <input type="email" id="admin-email" value="admin@techstore.ru" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="admin-password">Пароль:</label>
+                            <input type="password" id="admin-password" placeholder="Введите пароль">
+                        </div>
+                        <button class="admin-btn" onclick="adminLogin()">Войти как администратор</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Контент админ панели (только для авторизованных) -->
+            <div id="admin-content">
+                <div class="admin-header">
+                    <h1 class="admin-title">Административная панель</h1>
+                    <p>Управление магазином и пользователями</p>
+                </div>
+
+                <div class="admin-stats">
+                    <div class="stat-card">
+                        <div class="stat-number" id="total-users">0</div>
+                        <div class="stat-label">Пользователей</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="total-orders">0</div>
+                        <div class="stat-label">Заказов</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="total-products">0</div>
+                        <div class="stat-label">Товаров</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="total-revenue">0 ₽</div>
+                        <div class="stat-label">Выручка</div>
+                    </div>
+                </div>
+
+                <!-- Вкладки -->
+                <div class="admin-tabs">
+                    <button class="admin-tab active" onclick="switchTab('users', event)">Пользователи</button>
+                    <button class="admin-tab" onclick="switchTab('products', event)">Товары</button>
+                    <button class="admin-tab" onclick="switchTab('categories', event)">Категории</button>
+                    <button class="admin-tab" onclick="switchTab('builds', event)">Сборки</button>
+                    <button class="admin-tab" onclick="switchTab('featured', event)">Популярные товары</button>
+                    <button class="admin-tab" onclick="switchTab('orders', event)">Заказы</button>
+                    <button class="admin-tab" onclick="switchTab('withdrawals', event)">Вывод средств</button>
+                    <button class="admin-tab" onclick="switchTab('customization', event)">Кастомизация</button>
+                    <button class="admin-tab" onclick="switchTab('system', event)">Система</button>
+                </div>
+
+                <!-- Содержимое вкладок -->
+                <!-- Вкладка: Пользователи -->
+                <div id="tab-users" class="admin-tab-content active">
+                    <div class="admin-section">
+                        <h2 class="section-title">Управление пользователями</h2>
+                        <div class="user-list" id="user-list">
+                            <!-- Список пользователей будет здесь -->
+                        </div>
+                        <button class="admin-btn" onclick="loadUsers()">Обновить список</button>
+                        <button class="admin-btn danger" onclick="clearAllUsers()">Удалить всех пользователей</button>
+                    </div>
+                </div>
+
+                <!-- Вкладка: Товары -->
+                <div id="tab-products" class="admin-tab-content">
+                    <div class="admin-section">
+                        <h2 class="section-title">Управление товарами</h2>
+                        <div id="products-list" class="products-grid">
+                            <!-- Список товаров будет здесь -->
+                        </div>
+                        <button class="admin-btn" onclick="showAddProductModal()">Добавить товар</button>
+                        <button class="admin-btn" onclick="loadProducts()">Обновить список товаров</button>
+                        <button class="admin-btn" onclick="updateDefaultProducts()">Добавить дефолтные товары</button>
+                        <button class="admin-btn danger" onclick="clearAllProducts()">Удалить все товары</button>
+                    </div>
+                </div>
+
+                <!-- Вкладка: Категории -->
+                <div id="tab-categories" class="admin-tab-content">
+                    <div class="admin-section">
+                        <h2 class="section-title">Управление категориями товаров</h2>
+                        <p style="color: var(--product-desc-color); margin-bottom: 1.5rem;">
+                            Управляйте категориями на главной странице и в верхнем меню "Комплектующие". 
+                            <br>Используйте чекбокс <strong>"Показывать в выпадающем меню"</strong> для управления отображением в навигации.
+                        </p>
+                        
+                        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 1.5rem; border-radius: 15px; margin-bottom: 1.5rem; color: white;">
+                            <h3 style="margin-bottom: 1rem; font-size: 1.2rem;">💡 Управление отображением категорий</h3>
+                            <div style="display: grid; grid-template-columns: auto 1fr; gap: 0.8rem; align-items: start;">
+                                <div style="background: rgba(255,255,255,0.2); padding: 0.5rem 0.8rem; border-radius: 8px; font-weight: bold;">📌</div>
+                                <div>
+                                    <strong>Синяя метка "В меню"</strong> - категория отображается в выпадающем меню навигации на всех страницах
+                                </div>
+                                <div style="background: rgba(255,255,255,0.2); padding: 0.5rem 0.8rem; border-radius: 8px; font-weight: bold;">🏠</div>
+                                <div>
+                                    <strong>Зелёная метка "На главной"</strong> - категория отображается на главной странице в разделе "Категории товаров"
+                                </div>
+                                <div style="background: rgba(255,255,255,0.2); padding: 0.5rem 0.8rem; border-radius: 8px; font-weight: bold;">⚙️</div>
+                                <div>
+                                    При <strong>добавлении/редактировании</strong> используйте два чекбокса для раздельного управления отображением в меню и на главной странице
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div id="categories-list" class="products-grid" style="margin-bottom: 1.5rem;">
+                            <!-- Список категорий будет здесь -->
+                        </div>
+                        <button class="admin-btn" onclick="showAddCategoryModal()">Добавить категорию</button>
+                        <button class="admin-btn" onclick="loadCategories()">Обновить список</button>
+                        <button class="admin-btn" onclick="resetCategories()">Сбросить к значениям по умолчанию</button>
+                    </div>
+                </div>
+
+                <!-- Вкладка: Сборки -->
+                <div id="tab-builds" class="admin-tab-content">
+                    <div class="admin-section">
+                        <h2 class="section-title">Управление сборками</h2>
+                        <div id="builds-list" class="products-grid">
+                            <!-- Список сборок будет здесь -->
+                        </div>
+                        <button class="admin-btn" onclick="showAddBuildModal()">Добавить сборку</button>
+                        <button class="admin-btn" onclick="loadBuilds()">Обновить список сборок</button>
+                        <button class="admin-btn" onclick="updateDefaultBuilds()">Добавить дефолтные сборки</button>
+                        <button class="admin-btn danger" onclick="clearAllBuilds()">Удалить все сборки</button>
+                    </div>
+                </div>
+
+                <!-- Вкладка: Популярные товары -->
+                <div id="tab-featured" class="admin-tab-content">
+                    <div class="admin-section">
+                        <h2 class="section-title">Управление популярными товарами</h2>
+                        <p style="color: var(--product-desc-color); margin-bottom: 1.5rem;">
+                            Редактируйте товары, которые отображаются на главной странице в разделе "Популярные товары"
+                        </p>
+                        <div id="featured-products-list" class="products-grid">
+                            <!-- Список популярных товаров будет здесь -->
+                        </div>
+                        <button class="admin-btn" onclick="showAddFeaturedProductModal()">Добавить товар</button>
+                        <button class="admin-btn" onclick="loadFeaturedProducts()">Обновить список</button>
+                        <button class="admin-btn" onclick="resetFeaturedProducts()">Сбросить к значениям по умолчанию</button>
+                    </div>
+                </div>
+
+                <!-- Вкладка: Заказы -->
+                <div id="tab-orders" class="admin-tab-content">
+                    <div class="admin-section">
+                        <h2 class="section-title">Оформленные заказы</h2>
+                        <div class="orders-list" id="orders-list">
+                            <!-- Список заказов будет здесь -->
+                        </div>
+                        <button class="admin-btn" onclick="loadOrders()">Обновить список заказов</button>
+                    </div>
+                </div>
+
+                <!-- Вкладка: Вывод средств -->
+                <div id="tab-withdrawals" class="admin-tab-content">
+                    <div class="admin-section">
+                        <h2 class="section-title">Вывод средств</h2>
+                        
+                        <!-- Статистика по средствам -->
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+                            <div class="stat-card" style="background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%); color: white;">
+                                <div class="stat-number" style="color: white; font-size: 2rem;" id="available-funds">0 ₽</div>
+                                <div class="stat-label" style="color: rgba(255,255,255,0.9);">Доступно для вывода</div>
+                            </div>
+                            <div class="stat-card" style="background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%); color: white;">
+                                <div class="stat-number" style="color: white; font-size: 2rem;" id="withdrawn-amount">0 ₽</div>
+                                <div class="stat-label" style="color: rgba(255,255,255,0.9);">Выведено средств</div>
+                            </div>
+                        </div>
+
+                        <!-- Форма для вывода средств -->
+                        <div style="background: var(--card-bg); padding: 2rem; border-radius: 10px; margin-bottom: 2rem; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
+                            <h3 style="margin-bottom: 1.5rem; color: var(--product-name-color);">Создать запрос на вывод</h3>
+                            <form id="withdrawal-form" class="product-form" onsubmit="createWithdrawal(event)">
+                                <div class="form-group">
+                                    <label for="withdrawal-amount">Сумма вывода (₽):</label>
+                                    <input type="number" id="withdrawal-amount" required min="1" step="0.01" placeholder="Введите сумму">
+                                    <small style="color: var(--product-desc-color);">Минимальная сумма: 100 ₽</small>
+                                </div>
+                                <div class="form-group">
+                                    <label for="withdrawal-method">Способ вывода:</label>
+                                    <select id="withdrawal-method" required>
+                                        <option value="">Выберите способ</option>
+                                        <option value="bank-card">Банковская карта</option>
+                                        <option value="bank-account">Банковский счет</option>
+                                        <option value="yoomoney">ЮMoney</option>
+                                        <option value="qiwi">QIWI</option>
+                                        <option value="webmoney">WebMoney</option>
+                                        <option value="crypto">Криптовалюта</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="withdrawal-details">Реквизиты:</label>
+                                    <textarea id="withdrawal-details" required rows="3" placeholder="Номер карты/счета, кошелек и т.д."></textarea>
+                                    <small style="color: var(--product-desc-color);">Укажите реквизиты для получения средств</small>
+                                </div>
+                                <div class="form-group">
+                                    <label for="withdrawal-comment">Комментарий (необязательно):</label>
+                                    <textarea id="withdrawal-comment" rows="2" placeholder="Дополнительная информация"></textarea>
+                                </div>
+                                <button type="submit" class="admin-btn" style="width: 100%;">Создать запрос на вывод</button>
+                            </form>
+                        </div>
+
+                        <!-- История выводов -->
+                        <div>
+                            <h3 style="margin-bottom: 1.5rem; color: var(--product-name-color);">История выводов</h3>
+                            <div id="withdrawals-list" style="display: grid; gap: 1rem;">
+                                <!-- Список выводов будет здесь -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Вкладка: Кастомизация -->
+                <div id="tab-customization" class="admin-tab-content">
+                    <div class="admin-section">
+                        <h2 class="section-title">Кастомизация сайта</h2>
+                        <p style="color: var(--product-desc-color); margin-bottom: 2rem;">
+                            Настройте внешний вид и тексты вашего сайта
+                        </p>
+                        
+                        <!-- Настройки сайта -->
+                        <div style="margin-bottom: 2rem; padding: 1.5rem; background: var(--background-color); border-radius: 10px; border: 2px solid var(--card-border);">
+                            <h3 style="color: var(--product-name-color); margin-bottom: 1rem; font-size: 1.3rem;">Основные настройки</h3>
+                            <div class="form-group" style="margin-bottom: 1rem;">
+                                <label for="siteName">Название сайта:</label>
+                                <input type="text" id="siteName" style="width: 100%; padding: 0.8rem; border-radius: 5px; border: 2px solid var(--input-border); background: var(--input-bg); color: var(--input-text);">
+                            </div>
+                            <div class="form-group" style="margin-bottom: 1rem;">
+                                <label for="siteIcon">Иконка сайта (эмодзи или текст):</label>
+                                <input type="text" id="siteIcon" placeholder="💻" style="width: 100%; padding: 0.8rem; border-radius: 5px; border: 2px solid var(--input-border); background: var(--input-bg); color: var(--input-text);">
+                            </div>
+                            <div class="form-group" style="margin-bottom: 1rem;">
+                                <label for="heroTitle">Заголовок главной страницы:</label>
+                                <input type="text" id="heroTitle" style="width: 100%; padding: 0.8rem; border-radius: 5px; border: 2px solid var(--input-border); background: var(--input-bg); color: var(--input-text);">
+                            </div>
+                            <div class="form-group" style="margin-bottom: 1rem;">
+                                <label for="heroDescription">Описание на главной странице:</label>
+                                <textarea id="heroDescription" rows="3" style="width: 100%; padding: 0.8rem; border-radius: 5px; border: 2px solid var(--input-border); background: var(--input-bg); color: var(--input-text);"></textarea>
+                            </div>
+                            <div class="form-group" style="margin-bottom: 1rem;">
+                                <label for="footerText">Текст в подвале:</label>
+                                <input type="text" id="footerText" style="width: 100%; padding: 0.8rem; border-radius: 5px; border: 2px solid var(--input-border); background: var(--input-bg); color: var(--input-text);">
+                            </div>
+                        </div>
+                        
+                        <!-- Цветовая схема -->
+                        <div style="margin-bottom: 2rem; padding: 1.5rem; background: var(--background-color); border-radius: 10px; border: 2px solid var(--card-border);">
+                            <h3 style="color: var(--product-name-color); margin-bottom: 1rem; font-size: 1.3rem;">Цветовая схема</h3>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+                                <div class="form-group">
+                                    <label for="colorHeaderBg">Фон шапки:</label>
+                                    <input type="color" id="colorHeaderBg" style="width: 100%; height: 50px; border-radius: 5px; border: 2px solid var(--input-border); cursor: pointer;">
+                                </div>
+                                <div class="form-group">
+                                    <label for="colorBackground">Фон страницы:</label>
+                                    <input type="color" id="colorBackground" style="width: 100%; height: 50px; border-radius: 5px; border: 2px solid var(--input-border); cursor: pointer;">
+                                </div>
+                                <div class="form-group">
+                                    <label for="colorCardBg">Фон карточек:</label>
+                                    <input type="color" id="colorCardBg" style="width: 100%; height: 50px; border-radius: 5px; border: 2px solid var(--input-border); cursor: pointer;">
+                                </div>
+                                <div class="form-group">
+                                    <label for="colorPrimary">Основной цвет (кнопки):</label>
+                                    <input type="color" id="colorPrimary" style="width: 100%; height: 50px; border-radius: 5px; border: 2px solid var(--input-border); cursor: pointer;">
+                                </div>
+                                <div class="form-group">
+                                    <label for="colorText">Цвет текста:</label>
+                                    <input type="color" id="colorText" style="width: 100%; height: 50px; border-radius: 5px; border: 2px solid var(--input-border); cursor: pointer;">
+                                </div>
+                                <div class="form-group">
+                                    <label for="colorPrice">Цвет цены:</label>
+                                    <input type="color" id="colorPrice" style="width: 100%; height: 50px; border-radius: 5px; border: 2px solid var(--input-border); cursor: pointer;">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Кнопки действий -->
+                        <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                            <button class="admin-btn" onclick="saveCustomization()">Сохранить настройки</button>
+                            <button class="admin-btn" onclick="loadCustomization()">Загрузить текущие настройки</button>
+                            <button class="admin-btn danger" onclick="resetCustomization()">Сбросить к значениям по умолчанию</button>
+                        </div>
+                        
+                        <!-- Предпросмотр -->
+                        <div style="margin-top: 2rem; padding: 1.5rem; background: var(--background-color); border-radius: 10px; border: 2px solid var(--card-border);">
+                            <h3 style="color: var(--product-name-color); margin-bottom: 1rem; font-size: 1.3rem;">Предпросмотр</h3>
+                            <div id="customization-preview" style="padding: 1rem; background: var(--card-bg); border-radius: 8px; border: 1px solid var(--card-border);">
+                                <p style="color: var(--product-desc-color);">Изменения будут применены после сохранения и перезагрузки страницы</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Вкладка: Система -->
+                <div id="tab-system" class="admin-tab-content">
+                    <div class="admin-section">
+                        <h2 class="section-title">Система</h2>
+                        <button class="admin-btn" onclick="backupData()">Резервное копирование</button>
+                        <button class="admin-btn" onclick="clearCache()">Очистить кэш</button>
+                        <button class="admin-btn danger" onclick="clearAllData()">Очистить все данные</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Модальное окно для категорий -->
+    <div id="categoryModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="categoryModalTitle">Добавить категорию</h3>
+                <span class="close" onclick="closeCategoryModal()">&times;</span>
+            </div>
+            <form id="categoryForm" class="product-form" onsubmit="saveCategory(event)">
+                <input type="hidden" id="categoryIndex">
+                <div class="form-group">
+                    <label for="categoryId">ID категории (латиница, без пробелов):</label>
+                    <input type="text" id="categoryId" required pattern="[a-z0-9-]+" placeholder="new-category">
+                    <small style="color: var(--product-desc-color);">Используется для идентификации категории</small>
+                </div>
+                <div class="form-group">
+                    <label for="categoryName">Название категории:</label>
+                    <input type="text" id="categoryName" required placeholder="Новая категория">
+                </div>
+                <div class="form-group">
+                    <label for="categoryDescription">Описание:</label>
+                    <input type="text" id="categoryDescription" required placeholder="Краткое описание категории">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="categoryIcon">Иконка (эмодзи):</label>
+                        <input type="text" id="categoryIcon" required placeholder="💻" maxlength="2">
+                    </div>
+                    <div class="form-group">
+                        <label for="categoryUrl">URL страницы (необязательно):</label>
+                        <input type="text" id="categoryUrl" placeholder="category.html">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-weight: bold; font-size: 1.05rem;">
+                        <input type="checkbox" id="categoryShowInMenu" checked style="width: auto; margin: 0; width: 18px; height: 18px; cursor: pointer;">
+                        <span>📌 Показывать в выпадающем меню "Комплектующие"</span>
+                    </label>
+                    <div style="margin-top: 0.8rem; padding: 1rem; background: rgba(52, 152, 219, 0.1); border-left: 4px solid #3498db; border-radius: 5px;">
+                        <small style="color: var(--product-desc-color); display: block; line-height: 1.6;">
+                            <strong style="color: #3498db;">✅ Отмечено:</strong> Категория появится в верхней панели навигации (при наведении на "Комплектующие") на всех страницах сайта<br>
+                            <strong style="color: #95a5a6;">❌ Не отмечено:</strong> Категория будет скрыта из верхнего меню
+                        </small>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-weight: bold; font-size: 1.05rem;">
+                        <input type="checkbox" id="categoryShowOnMainPage" checked style="width: auto; margin: 0; width: 18px; height: 18px; cursor: pointer;">
+                        <span>🏠 Показывать на главной странице</span>
+                    </label>
+                    <div style="margin-top: 0.8rem; padding: 1rem; background: rgba(46, 204, 113, 0.1); border-left: 4px solid #2ecc71; border-radius: 5px;">
+                        <small style="color: var(--product-desc-color); display: block; line-height: 1.6;">
+                            <strong style="color: #2ecc71;">✅ Отмечено:</strong> Категория будет отображаться на главной странице в разделе "Категории товаров"<br>
+                            <strong style="color: #95a5a6;">❌ Не отмечено:</strong> Категория будет полностью скрыта с главной страницы
+                        </small>
+                    </div>
+                </div>
+                
+                <button type="submit" class="admin-btn">Сохранить</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Модальное окно для популярных товаров -->
+    <div id="featuredProductModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="featuredModalTitle">Добавить популярный товар</h3>
+                <span class="close" onclick="closeFeaturedProductModal()">&times;</span>
+            </div>
+            <form id="featuredProductForm" class="product-form" onsubmit="saveFeaturedProduct(event)">
+                <input type="hidden" id="featuredProductIndex">
+                
+                <div class="form-group">
+                    <label for="selectExistingProduct">Выбрать существующий товар:</label>
+                    <select id="selectExistingProduct" onchange="fillProductFromSelection()" style="width: 100%; padding: 0.8rem; border-radius: 5px; border: 2px solid var(--input-border); background: var(--card-bg); color: var(--product-name-color); font-size: 1rem; margin-bottom: 0.5rem;">
+                        <option value="">-- Выберите товар из списка --</option>
+                    </select>
+                    <small style="color: var(--product-desc-color); display: block; margin-bottom: 1rem;">Или заполните поля вручную ниже</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="featuredProductName">Название товара:</label>
+                    <input type="text" id="featuredProductName" required>
+                </div>
+                <div class="form-group">
+                    <label for="featuredProductDescription">Описание:</label>
+                    <input type="text" id="featuredProductDescription" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="featuredProductPrice">Цена (₽):</label>
+                        <input type="number" id="featuredProductPrice" required min="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="featuredProductId">ID товара:</label>
+                        <input type="text" id="featuredProductId" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="featuredProductImage">URL изображения:</label>
+                    <input type="url" id="featuredProductImage" required placeholder="https://example.com/image.jpg">
+                </div>
+                <button type="submit" class="admin-btn">Сохранить</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Модальное окно добавления товара -->
+    <div id="productModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Добавить товар</h3>
+                <span class="close" onclick="closeProductModal()">&times;</span>
+            </div>
+            <form id="productForm" class="product-form" onsubmit="saveProduct(event)">
+                <input type="hidden" id="productId">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="productName">Название товара:</label>
+                        <input type="text" id="productName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="productPrice">Цена (₽):</label>
+                        <input type="number" id="productPrice" required min="0">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="productCategory">Категория:</label>
+                        <select id="productCategory" required>
+                            <option value="">Выберите категорию</option>
+                            <option value="processors">Процессоры</option>
+                            <option value="video-cards">Видеокарты</option>
+                            <option value="memory">Оперативная память</option>
+                            <option value="motherboards">Материнские платы</option>
+                            <option value="storage">Накопители</option>
+                            <option value="power-supplies">Блоки питания</option>
+                            <option value="cooling">Охлаждение</option>
+                            <option value="cases">Корпуса</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="productStock">Количество:</label>
+                        <input type="number" id="productStock" required min="0">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="productDescription">Описание:</label>
+                    <textarea id="productDescription" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="productImage">URL изображения:</label>
+                    <input type="url" id="productImage" placeholder="https://example.com/image.jpg">
+                </div>
+                <button type="submit" class="admin-btn">Сохранить товар</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Модальное окно добавления сборки -->
+    <div id="buildModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="buildModalTitle">Добавить сборку</h3>
+                <span class="close" onclick="closeBuildModal()">&times;</span>
+            </div>
+            <form id="buildForm" class="product-form" onsubmit="saveBuild(event)">
+                <input type="hidden" id="buildId">
+                <div class="form-group">
+                    <label for="buildName">Название сборки:</label>
+                    <input type="text" id="buildName" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="buildPrice">Цена (₽):</label>
+                        <input type="number" id="buildPrice" required min="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="buildCategory">Категория:</label>
+                        <select id="buildCategory" required>
+                            <option value="">Выберите категорию</option>
+                            <option value="gaming">Игровые сборки</option>
+                            <option value="workstation">Рабочие станции</option>
+                            <option value="budget">Бюджетные сборки</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="buildDescription">Описание:</label>
+                    <textarea id="buildDescription" rows="3" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="buildImage">URL изображения:</label>
+                    <input type="url" id="buildImage" placeholder="https://example.com/image.jpg">
+                </div>
+                <div class="form-group">
+                    <label for="buildProcessor">Процессор:</label>
+                    <input type="text" id="buildProcessor" required>
+                </div>
+                <div class="form-group">
+                    <label for="buildVideoCard">Видеокарта:</label>
+                    <input type="text" id="buildVideoCard" required>
+                </div>
+                <div class="form-group">
+                    <label for="buildMemory">Оперативная память:</label>
+                    <input type="text" id="buildMemory" required>
+                </div>
+                <div class="form-group">
+                    <label for="buildStorage">Накопитель:</label>
+                    <input type="text" id="buildStorage" required>
+                </div>
+                <button type="submit" class="admin-btn">Сохранить сборку</button>
+            </form>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 TechStore. Все права защищены.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Категории и их соответствие страницам
+        const categoryPages = {
+            'processors': 'processors.html',
+            'video-cards': 'video-cards.html',
+            'memory': 'memory.html',
+            'motherboards': 'motherboards.html',
+            'storage': 'storage.html',
+            'power-supplies': 'power-supplies.html',
+            'cooling': 'cooling.html',
+            'cases': 'cases.html'
+        };
+
+        const categoryNames = {
+            'processors': 'Процессоры',
+            'video-cards': 'Видеокарты',
+            'memory': 'Оперативная память',
+            'motherboards': 'Материнские платы',
+            'storage': 'Накопители',
+            'power-supplies': 'Блоки питания',
+            'cooling': 'Охлаждение',
+            'cases': 'Корпуса'
+        };
+
+        // Проверка авторизации админа при загрузке
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof ensureProductsInitialized === 'function') {
+                ensureProductsInitialized();
+            }
+            ensureBuildsInitialized();
+            checkAdminAuth();
+        });
+
+        function checkAdminAuth() {
+            const isAdmin = localStorage.getItem('techstore_admin') === 'true';
+            const adminLoginRequired = document.getElementById('admin-login-required');
+            const adminContent = document.getElementById('admin-content');
+            
+            if (isAdmin) {
+                adminLoginRequired.style.display = 'none';
+                adminContent.style.display = 'block';
+                
+                // Загружаем данные для активной вкладки
+                const activeTab = document.querySelector('.admin-tab.active');
+                if (activeTab) {
+                    const tabName = activeTab.getAttribute('onclick').match(/'(\w+)'/)[1];
+                    if (tabName === 'orders') {
+                        loadOrders();
+                    } else if (tabName === 'withdrawals') {
+                        loadWithdrawals();
+                        updateWithdrawalStats();
+                    } else if (tabName === 'users') {
+                        loadUsers();
+                    } else if (tabName === 'products') {
+                        loadProducts();
+                    } else if (tabName === 'builds') {
+                        loadBuilds();
+                    }
+                } else {
+                    // По умолчанию загружаем пользователей
+                    loadUsers();
+                }
+                
+                updateStats();
+            } else {
+                adminLoginRequired.style.display = 'block';
+                adminContent.style.display = 'none';
+            }
+        }
+
+        function adminLogin() {
+            const password = document.getElementById('admin-password').value;
+            
+            if (password === 'admin123') {
+                localStorage.setItem('techstore_admin', 'true');
+                checkAdminAuth();
+                alert('Добро пожаловать в админ панель!');
+            } else {
+                alert('Неверный пароль!');
+            }
+        }
+
+        // ===== УПРАВЛЕНИЕ ПОЛЬЗОВАТЕЛЯМИ =====
+        function loadUsers() {
+            const users = JSON.parse(localStorage.getItem('techstore_users') || '[]');
+            const userList = document.getElementById('user-list');
+            
+            if (users.length === 0) {
+                userList.innerHTML = '<p>Пользователей нет</p>';
+                return;
+            }
+            
+            userList.innerHTML = users.map(user => `
+                <div class="user-item">
+                    <div>
+                        <strong>${user.name}</strong><br>
+                        <small>${user.email}</small>
+                    </div>
+                    <div>
+                        <small>${new Date(user.registrationDate).toLocaleDateString('ru-RU')}</small>
+                    </div>
+                </div>
+            `).join('');
+            
+            updateStats();
+        }
+
+        function clearAllUsers() {
+            if (confirm('Вы уверены, что хотите удалить всех пользователей? Это действие нельзя отменить!')) {
+                localStorage.removeItem('techstore_users');
+                localStorage.removeItem('techstore_current_user');
+                loadUsers();
+                alert('Все пользователи удалены!');
+            }
+        }
+
+        // ===== УПРАВЛЕНИЕ ТОВАРАМИ =====
+        function loadProducts() {
+            const products = JSON.parse(localStorage.getItem('techstore_products') || '[]');
+            const productsList = document.getElementById('products-list');
+            
+            if (products.length === 0) {
+                productsList.innerHTML = '<p>Товаров нет</p>';
+                return;
+            }
+            
+            productsList.innerHTML = products.map(product => `
+                <div class="product-card">
+                    <strong>${product.name}</strong><br>
+                    <small>${product.price} ₽</small><br>
+                    <small>В наличии: ${product.stock}</small>
+                    <div class="category-badge">${categoryNames[product.category] || product.category}</div>
+                    <div class="product-actions">
+                        <button class="admin-btn" onclick="editProduct(${product.id})" style="padding: 0.3rem 0.6rem; font-size: 0.8rem;">Ред.</button>
+                        <button class="admin-btn danger" onclick="deleteProduct(${product.id})" style="padding: 0.3rem 0.6rem; font-size: 0.8rem;">Уд.</button>
+                    </div>
+                </div>
+            `).join('');
+            
+            updateStats();
+        }
+
+        function showAddProductModal() {
+            document.getElementById('modalTitle').textContent = 'Добавить товар';
+            document.getElementById('productForm').reset();
+            document.getElementById('productId').value = '';
+            document.getElementById('productModal').style.display = 'block';
+        }
+
+        function closeProductModal() {
+            document.getElementById('productModal').style.display = 'none';
+        }
+
+        function saveProduct(event) {
+            event.preventDefault();
+            
+            const products = JSON.parse(localStorage.getItem('techstore_products') || '[]');
+            const productId = document.getElementById('productId').value;
+            const productData = {
+                name: document.getElementById('productName').value,
+                price: parseInt(document.getElementById('productPrice').value),
+                category: document.getElementById('productCategory').value,
+                stock: parseInt(document.getElementById('productStock').value),
+                description: document.getElementById('productDescription').value,
+                image: document.getElementById('productImage').value
+            };
+            
+            let updatedProducts;
+            
+            if (productId) {
+                // Редактирование существующего товара
+                updatedProducts = products.map(p => 
+                    p.id == productId ? { ...p, ...productData } : p
+                );
+            } else {
+                // Добавление нового товара
+                const newId = products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1;
+                const newProduct = { 
+                    id: newId, 
+                    ...productData
+                };
+                updatedProducts = [...products, newProduct];
+            }
+            
+            localStorage.setItem('techstore_products', JSON.stringify(updatedProducts));
+            
+            closeProductModal();
+            loadProducts();
+            updateStats();
+            
+            alert(`Товар "${productData.name}" успешно сохранен!`);
+        }
+
+        function editProduct(id) {
+            const products = JSON.parse(localStorage.getItem('techstore_products') || '[]');
+            const product = products.find(p => p.id === id);
+            
+            if (product) {
+                document.getElementById('modalTitle').textContent = 'Редактировать товар';
+                document.getElementById('productId').value = product.id;
+                document.getElementById('productName').value = product.name;
+                document.getElementById('productPrice').value = product.price;
+                document.getElementById('productCategory').value = product.category;
+                document.getElementById('productStock').value = product.stock;
+                document.getElementById('productDescription').value = product.description || '';
+                document.getElementById('productImage').value = product.image || '';
+                document.getElementById('productModal').style.display = 'block';
+            }
+        }
+
+        function deleteProduct(id) {
+            if (confirm('Удалить этот товар?')) {
+                let products = JSON.parse(localStorage.getItem('techstore_products') || '[]');
+                products = products.filter(p => p.id !== id);
+                localStorage.setItem('techstore_products', JSON.stringify(products));
+                loadProducts();
+                alert('Товар удален!');
+            }
+        }
+
+        function clearAllProducts() {
+            if (confirm('Вы уверены, что хотите удалить все товары? Это действие нельзя отменить!')) {
+                localStorage.removeItem('techstore_products');
+                loadProducts();
+                alert('Все товары удалены!');
+            }
+        }
+
+        function updateDefaultProducts() {
+            // Вызываем функцию обновления товаров, если она доступна
+            if (typeof ensureProductsInitialized === 'function') {
+                ensureProductsInitialized();
+                loadProducts();
+                updateStats();
+                alert('Дефолтные товары добавлены! Новые товары будут видны на страницах каталога.');
+            } else {
+                // Если функция недоступна (cart.js не загружен), просто перезагружаем страницу
+                alert('Обновление страницы для загрузки дефолтных товаров...');
+                window.location.reload();
+            }
+        }
+
+        // ===== УПРАВЛЕНИЕ СБОРКАМИ =====
+        const buildCategoryNames = {
+            'gaming': 'Игровые сборки',
+            'workstation': 'Рабочие станции',
+            'budget': 'Бюджетные сборки'
+        };
+
+        const DEFAULT_BUILDS = [
+            {
+                id: 1,
+                name: 'ULTIMATE GAMING PRO',
+                price: 289990,
+                category: 'gaming',
+                description: 'Максимальная производительность для игр в 4K. Идеально подходит для стриминга и записи геймплея. Охлаждение жидкостное, корпус с RGB-подсветкой.',
+                image: 'https://images.unsplash.com/photo-1593640408182-31c562922280?w=1200&h=400&fit=crop&auto=format',
+                processor: 'AMD Ryzen 9 7950X3D',
+                videoCard: 'NVIDIA RTX 4090 24GB',
+                memory: 'DDR5 64GB 6000MHz',
+                storage: 'SSD NVMe 2TB + HDD 4TB'
+            },
+            {
+                id: 2,
+                name: 'ELITE GAMING RIG',
+                price: 219990,
+                category: 'gaming',
+                description: 'Мощная игровая система для 1440p и 4K гейминга. Отличная производительность в современных играх с максимальными настройками. Поддержка ray tracing и DLSS 3.',
+                image: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=1200&h=400&fit=crop&auto=format',
+                processor: 'Intel Core i9-14900K',
+                videoCard: 'NVIDIA RTX 4080 16GB',
+                memory: 'DDR5 32GB 6000MHz',
+                storage: 'SSD NVMe 2TB'
+            },
+            {
+                id: 3,
+                name: 'AMD GAMING BEAST',
+                price: 179990,
+                category: 'gaming',
+                description: 'Высокопроизводительная сборка на базе AMD. Идеальна для игр в 1440p с высоким FPS. Отличная цена за производительность, поддержка FSR 3.',
+                image: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=1200&h=400&fit=crop&auto=format',
+                processor: 'AMD Ryzen 7 7800X3D',
+                videoCard: 'AMD RX 7900 XTX 24GB',
+                memory: 'DDR5 32GB 6000MHz',
+                storage: 'SSD NVMe 1TB'
+            },
+            {
+                id: 4,
+                name: 'GAMING PERFORMANCE',
+                price: 149990,
+                category: 'gaming',
+                description: 'Сбалансированная игровая сборка для комфортного гейминга в 1440p. Стабильные 100+ FPS в большинстве игр. Отличный выбор для энтузиастов.',
+                image: 'https://images.unsplash.com/photo-1527814050087-3793815479db?w=1200&h=400&fit=crop&auto=format',
+                processor: 'AMD Ryzen 7 7700X',
+                videoCard: 'NVIDIA RTX 4070 Ti 12GB',
+                memory: 'DDR5 32GB 5600MHz',
+                storage: 'SSD NVMe 1TB'
+            },
+            {
+                id: 5,
+                name: 'COMPETITIVE GAMING',
+                price: 129990,
+                category: 'gaming',
+                description: 'Оптимизированная сборка для киберспортивных игр. Максимальный FPS в CS:GO, Valorant, Overwatch. Низкая задержка ввода, стабильная работа.',
+                image: 'https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=1200&h=400&fit=crop&auto=format',
+                processor: 'Intel Core i7-14700K',
+                videoCard: 'NVIDIA RTX 4070 12GB',
+                memory: 'DDR5 32GB 6000MHz',
+                storage: 'SSD NVMe 1TB'
+            },
+            {
+                id: 6,
+                name: 'PRO WORKSTATION',
+                price: 199990,
+                category: 'workstation',
+                description: 'Профессиональная рабочая станция для 3D-моделирования, видеомонтажа и программирования. Стабильная работа под высокой нагрузкой 24/7.',
+                image: 'https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=1200&h=400&fit=crop&auto=format',
+                processor: 'Intel Core i9-14900K',
+                videoCard: 'NVIDIA RTX 4080 16GB',
+                memory: 'DDR5 128GB 5600MHz',
+                storage: 'SSD NVMe 4TB RAID 0'
+            },
+            {
+                id: 7,
+                name: 'CREATIVE WORKSTATION',
+                price: 169990,
+                category: 'workstation',
+                description: 'Специализированная рабочая станция для дизайнеров, видеомонтажеров и 3D-художников. Быстрый рендеринг, работа с большими проектами, поддержка профессионального ПО.',
+                image: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=1200&h=400&fit=crop&auto=format',
+                processor: 'AMD Ryzen 9 7900X',
+                videoCard: 'NVIDIA RTX 4070 Ti 12GB',
+                memory: 'DDR5 64GB 6000MHz',
+                storage: 'SSD NVMe 2TB + HDD 4TB'
+            },
+            {
+                id: 8,
+                name: 'DEVELOPER PRO',
+                price: 139990,
+                category: 'workstation',
+                description: 'Идеальная рабочая станция для программистов и разработчиков. Быстрая компиляция, поддержка виртуализации, работа с Docker и контейнерами. Множество параллельных задач.',
+                image: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=1200&h=400&fit=crop&auto=format',
+                processor: 'Intel Core i7-14700K',
+                videoCard: 'NVIDIA RTX 4060 Ti 16GB',
+                memory: 'DDR5 64GB 5600MHz',
+                storage: 'SSD NVMe 2TB'
+            },
+            {
+                id: 9,
+                name: '3D RENDERING STATION',
+                price: 249990,
+                category: 'workstation',
+                description: 'Мощная станция для 3D-рендеринга и визуализации. Оптимизирована для Blender, Maya, 3ds Max. Быстрый рендеринг сложных сцен, работа с большими текстурами.',
+                image: 'https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=1200&h=400&fit=crop&auto=format',
+                processor: 'AMD Ryzen 9 7950X',
+                videoCard: 'NVIDIA RTX 4090 24GB',
+                memory: 'DDR5 128GB 6000MHz',
+                storage: 'SSD NVMe 4TB'
+            },
+            {
+                id: 10,
+                name: 'VIDEO EDITING PRO',
+                price: 179990,
+                category: 'workstation',
+                description: 'Профессиональная станция для видеомонтажа. Быстрый экспорт 4K/8K видео, работа с RAW форматами, поддержка Adobe Premiere, DaVinci Resolve.',
+                image: 'https://images.unsplash.com/photo-1527814050087-3793815479db?w=1200&h=400&fit=crop&auto=format',
+                processor: 'Intel Core i9-13900K',
+                videoCard: 'NVIDIA RTX 4080 16GB',
+                memory: 'DDR5 64GB 6000MHz',
+                storage: 'SSD NVMe 2TB + HDD 8TB'
+            },
+            {
+                id: 11,
+                name: 'GAMING STARTER',
+                price: 89990,
+                category: 'budget',
+                description: 'Отличный старт для начинающих геймеров. Стабильные 144 FPS в Full HD, современные игры на высоких настройках. Отличное соотношение цена/качество.',
+                image: 'https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=1200&h=400&fit=crop&auto=format',
+                processor: 'AMD Ryzen 5 7600X',
+                videoCard: 'NVIDIA RTX 4060 Ti 8GB',
+                memory: 'DDR5 32GB 5200MHz',
+                storage: 'SSD NVMe 1TB'
+            },
+            {
+                id: 12,
+                name: 'ENTRY GAMING',
+                price: 69990,
+                category: 'budget',
+                description: 'Отличная стартовая сборка для начинающих геймеров. Комфортный гейминг в Full HD, современные игры на средних настройках. Идеальное соотношение цена/качество.',
+                image: 'https://images.unsplash.com/photo-1593640408182-31c562922280?w=1200&h=400&fit=crop&auto=format',
+                processor: 'AMD Ryzen 5 5600X',
+                videoCard: 'NVIDIA RTX 4060 8GB',
+                memory: 'DDR4 16GB 3200MHz',
+                storage: 'SSD NVMe 1TB'
+            },
+            {
+                id: 13,
+                name: 'COMPACT GAMING',
+                price: 79990,
+                category: 'budget',
+                description: 'Компактная игровая сборка в корпусе Mini-ITX. Занимает мало места, но обеспечивает отличную производительность. Подходит для небольших помещений.',
+                image: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=1200&h=400&fit=crop&auto=format',
+                processor: 'Intel Core i5-13400F',
+                videoCard: 'AMD RX 7600 8GB',
+                memory: 'DDR5 16GB 5200MHz',
+                storage: 'SSD NVMe 1TB'
+            },
+            {
+                id: 14,
+                name: 'OFFICE & GAMING',
+                price: 99990,
+                category: 'budget',
+                description: 'Универсальная сборка для работы и игр. Отлично справляется с офисными задачами, видеозвонками и современными играми. Идеальна для домашнего использования.',
+                image: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=1200&h=400&fit=crop&auto=format',
+                processor: 'AMD Ryzen 5 7600X',
+                videoCard: 'NVIDIA RTX 4060 Ti 16GB',
+                memory: 'DDR5 32GB 5600MHz',
+                storage: 'SSD NVMe 1TB + HDD 2TB'
+            },
+            {
+                id: 15,
+                name: 'BUDGET PERFORMANCE',
+                price: 109990,
+                category: 'budget',
+                description: 'Оптимальная сборка для тех, кто хочет больше производительности за разумные деньги. Отличная производительность в играх и работе. Хорошая база для будущих апгрейдов.',
+                image: 'https://images.unsplash.com/photo-1527814050087-3793815479db?w=1200&h=400&fit=crop&auto=format',
+                processor: 'Intel Core i5-14600K',
+                videoCard: 'AMD RX 7700 XT 12GB',
+                memory: 'DDR5 32GB 6000MHz',
+                storage: 'SSD NVMe 1TB'
+            }
+        ];
+
+        function ensureBuildsInitialized() {
+            const builds = JSON.parse(localStorage.getItem('techstore_builds') || '[]');
+            if (builds.length === 0) {
+                localStorage.setItem('techstore_builds', JSON.stringify(DEFAULT_BUILDS));
+            } else {
+                // Добавляем новые сборки из DEFAULT_BUILDS, которых еще нет
+                const existingIds = new Set(builds.map(b => b.id));
+                const newBuilds = DEFAULT_BUILDS.filter(b => !existingIds.has(b.id));
+                if (newBuilds.length > 0) {
+                    const updatedBuilds = [...builds, ...newBuilds];
+                    localStorage.setItem('techstore_builds', JSON.stringify(updatedBuilds));
+                }
+            }
+        }
+
+        function loadBuilds() {
+            const builds = JSON.parse(localStorage.getItem('techstore_builds') || '[]');
+            const buildsList = document.getElementById('builds-list');
+            
+            if (builds.length === 0) {
+                buildsList.innerHTML = '<p>Сборок нет</p>';
+                return;
+            }
+            
+            buildsList.innerHTML = builds.map(build => `
+                <div class="product-card">
+                    <strong>${build.name}</strong><br>
+                    <small>${build.price} ₽</small><br>
+                    <small>Категория: ${buildCategoryNames[build.category] || build.category}</small>
+                    <div class="product-actions">
+                        <button class="admin-btn" onclick="editBuild(${build.id})" style="padding: 0.3rem 0.6rem; font-size: 0.8rem;">Ред.</button>
+                        <button class="admin-btn danger" onclick="deleteBuild(${build.id})" style="padding: 0.3rem 0.6rem; font-size: 0.8rem;">Уд.</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function showAddBuildModal() {
+            document.getElementById('buildModalTitle').textContent = 'Добавить сборку';
+            document.getElementById('buildForm').reset();
+            document.getElementById('buildId').value = '';
+            document.getElementById('buildModal').style.display = 'block';
+        }
+
+        function closeBuildModal() {
+            document.getElementById('buildModal').style.display = 'none';
+        }
+
+        function saveBuild(event) {
+            event.preventDefault();
+            
+            const builds = JSON.parse(localStorage.getItem('techstore_builds') || '[]');
+            const buildId = document.getElementById('buildId').value;
+            const buildData = {
+                name: document.getElementById('buildName').value,
+                price: parseInt(document.getElementById('buildPrice').value),
+                category: document.getElementById('buildCategory').value,
+                description: document.getElementById('buildDescription').value,
+                image: document.getElementById('buildImage').value || 'https://via.placeholder.com/1200x400/34495e/ffffff?text=PC+Build',
+                processor: document.getElementById('buildProcessor').value,
+                videoCard: document.getElementById('buildVideoCard').value,
+                memory: document.getElementById('buildMemory').value,
+                storage: document.getElementById('buildStorage').value
+            };
+            
+            let updatedBuilds;
+            
+            if (buildId) {
+                // Редактирование существующей сборки
+                updatedBuilds = builds.map(b => 
+                    b.id == buildId ? { ...b, ...buildData } : b
+                );
+            } else {
+                // Добавление новой сборки
+                const newId = builds.length > 0 ? Math.max(...builds.map(b => b.id)) + 1 : 1;
+                const newBuild = { 
+                    id: newId, 
+                    ...buildData
+                };
+                updatedBuilds = [...builds, newBuild];
+            }
+            
+            localStorage.setItem('techstore_builds', JSON.stringify(updatedBuilds));
+            
+            closeBuildModal();
+            loadBuilds();
+            
+            alert(`Сборка "${buildData.name}" успешно сохранена!`);
+        }
+
+        function editBuild(id) {
+            const builds = JSON.parse(localStorage.getItem('techstore_builds') || '[]');
+            const build = builds.find(b => b.id === id);
+            
+            if (build) {
+                document.getElementById('buildModalTitle').textContent = 'Редактировать сборку';
+                document.getElementById('buildId').value = build.id;
+                document.getElementById('buildName').value = build.name;
+                document.getElementById('buildPrice').value = build.price;
+                document.getElementById('buildCategory').value = build.category;
+                document.getElementById('buildDescription').value = build.description || '';
+                document.getElementById('buildImage').value = build.image || '';
+                document.getElementById('buildProcessor').value = build.processor || '';
+                document.getElementById('buildVideoCard').value = build.videoCard || '';
+                document.getElementById('buildMemory').value = build.memory || '';
+                document.getElementById('buildStorage').value = build.storage || '';
+                document.getElementById('buildModal').style.display = 'block';
+            }
+        }
+
+        function deleteBuild(id) {
+            if (confirm('Удалить эту сборку?')) {
+                let builds = JSON.parse(localStorage.getItem('techstore_builds') || '[]');
+                builds = builds.filter(b => b.id !== id);
+                localStorage.setItem('techstore_builds', JSON.stringify(builds));
+                loadBuilds();
+                alert('Сборка удалена!');
+            }
+        }
+
+        function clearAllBuilds() {
+            if (confirm('Вы уверены, что хотите удалить все сборки? Это действие нельзя отменить!')) {
+                localStorage.removeItem('techstore_builds');
+                loadBuilds();
+                alert('Все сборки удалены!');
+            }
+        }
+
+        function updateDefaultBuilds() {
+            ensureBuildsInitialized();
+            loadBuilds();
+            alert('Дефолтные сборки добавлены! Новые сборки будут видны в списке.');
+        }
+
+        // ===== СИСТЕМА =====
+        function backupData() {
+            const users = JSON.parse(localStorage.getItem('techstore_users') || '[]');
+            const products = JSON.parse(localStorage.getItem('techstore_products') || '[]');
+            const builds = JSON.parse(localStorage.getItem('techstore_builds') || '[]');
+            const backup = {
+                users: users,
+                products: products,
+                builds: builds,
+                backupDate: new Date().toISOString()
+            };
+            
+            const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `techstore-backup-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            alert('Резервная копия создана и скачана!');
+        }
+
+        function clearCache() {
+            localStorage.removeItem('techstore_cart');
+            localStorage.removeItem('techstore_orders');
+            alert('Кэш очищен!');
+        }
+
+        function clearAllData() {
+            if (confirm('ВНИМАНИЕ! Это удалит ВСЕ данные: пользователей, товары, корзины, настройки. Продолжить?')) {
+                localStorage.clear();
+                alert('Все данные очищены!');
+                checkAdminAuth();
+            }
+        }
+
+        // ===== СТАТИСТИКА =====
+        function updateStats() {
+            const users = JSON.parse(localStorage.getItem('techstore_users') || '[]');
+            const products = JSON.parse(localStorage.getItem('techstore_products') || '[]');
+            const orders = JSON.parse(localStorage.getItem('techstore_orders') || '[]');
+            
+            document.getElementById('total-users').textContent = users.length;
+            document.getElementById('total-products').textContent = products.length;
+            document.getElementById('total-orders').textContent = orders.length;
+            
+            const revenue = orders.reduce((total, order) => total + (order.total || 0), 0);
+            document.getElementById('total-revenue').textContent = revenue + ' ₽';
+        }
+
+        // ===== ВКЛАДКИ =====
+        function switchTab(tabName, event) {
+            // Скрываем все вкладки
+            document.querySelectorAll('.admin-tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Убираем активный класс со всех кнопок вкладок
+            document.querySelectorAll('.admin-tab').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Показываем выбранную вкладку
+            document.getElementById('tab-' + tabName).classList.add('active');
+            
+            // Добавляем активный класс к кнопке вкладки
+            if (event && event.target) {
+                event.target.classList.add('active');
+            } else {
+                // Если event не передан, находим кнопку по onclick
+                document.querySelectorAll('.admin-tab').forEach(btn => {
+                    if (btn.getAttribute('onclick').includes("'" + tabName + "'")) {
+                        btn.classList.add('active');
+                    }
+                });
+            }
+            
+            // Загружаем данные для выбранной вкладки
+            if (tabName === 'orders') {
+                loadOrders();
+            } else if (tabName === 'withdrawals') {
+                loadWithdrawals();
+                updateWithdrawalStats();
+            } else if (tabName === 'users') {
+                loadUsers();
+            } else if (tabName === 'products') {
+                loadProducts();
+            } else if (tabName === 'builds') {
+                loadBuilds();
+            } else if (tabName === 'featured') {
+                loadFeaturedProducts();
+            } else if (tabName === 'customization') {
+                loadCustomization();
+            }
+        }
+
+        // ===== ЗАКАЗЫ =====
+        function loadOrders() {
+            const orders = JSON.parse(localStorage.getItem('techstore_orders') || '[]');
+            const ordersList = document.getElementById('orders-list');
+            
+            if (orders.length === 0) {
+                ordersList.innerHTML = '<p style="text-align: center; color: var(--product-desc-color); padding: 2rem;">Заказов пока нет</p>';
+                return;
+            }
+            
+            // Сортируем заказы по дате (новые сначала)
+            orders.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            
+            ordersList.innerHTML = orders.map(order => {
+                const statusNames = {
+                    'pending': 'Ожидает',
+                    'processing': 'В обработке',
+                    'shipped': 'Отправлен',
+                    'delivered': 'Доставлен',
+                    'cancelled': 'Отменен'
+                };
+                
+                const date = new Date(order.createdAt).toLocaleString('ru-RU');
+                const itemsCount = order.items ? order.items.length : 0;
+                
+                return `
+                    <div class="order-item" onclick="showOrderDetails('${order.id}')">
+                        <div class="order-header">
+                            <div class="order-id">${order.id}</div>
+                            <div class="order-status ${order.status}">${statusNames[order.status] || order.status}</div>
+                        </div>
+                        <div class="order-info">
+                            <div class="order-info-item">
+                                <span class="order-info-label">Клиент:</span>
+                                <span class="order-info-value">${order.customer.name}</span>
+                            </div>
+                            <div class="order-info-item">
+                                <span class="order-info-label">Телефон:</span>
+                                <span class="order-info-value">${order.customer.phone}</span>
+                            </div>
+                            <div class="order-info-item">
+                                <span class="order-info-label">Email:</span>
+                                <span class="order-info-value">${order.customer.email}</span>
+                            </div>
+                            <div class="order-info-item">
+                                <span class="order-info-label">Дата:</span>
+                                <span class="order-info-value">${date}</span>
+                            </div>
+                            <div class="order-info-item">
+                                <span class="order-info-label">Товаров:</span>
+                                <span class="order-info-value">${itemsCount}</span>
+                            </div>
+                            <div class="order-info-item">
+                                <span class="order-info-label">Сумма:</span>
+                                <span class="order-info-value" style="font-weight: 700; color: #2ecc71;">${order.total.toLocaleString()} ₽</span>
+                            </div>
+                        </div>
+                        <div class="order-actions">
+                            <select onchange="updateOrderStatus('${order.id}', this.value)" onclick="event.stopPropagation()">
+                                <option value="pending" ${order.status === 'pending' ? 'selected' : ''}>Ожидает</option>
+                                <option value="processing" ${order.status === 'processing' ? 'selected' : ''}>В обработке</option>
+                                <option value="shipped" ${order.status === 'shipped' ? 'selected' : ''}>Отправлен</option>
+                                <option value="delivered" ${order.status === 'delivered' ? 'selected' : ''}>Доставлен</option>
+                                <option value="cancelled" ${order.status === 'cancelled' ? 'selected' : ''}>Отменен</option>
+                            </select>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateOrderStatus(orderId, newStatus) {
+            const orders = JSON.parse(localStorage.getItem('techstore_orders') || '[]');
+            const orderIndex = orders.findIndex(o => o.id === orderId);
+            
+            if (orderIndex !== -1) {
+                orders[orderIndex].status = newStatus;
+                orders[orderIndex].updatedAt = new Date().toISOString();
+                localStorage.setItem('techstore_orders', JSON.stringify(orders));
+                loadOrders();
+                updateStats();
+            }
+        }
+
+        // ===== ВЫВОД СРЕДСТВ =====
+        function updateWithdrawalStats() {
+            const orders = JSON.parse(localStorage.getItem('techstore_orders') || '[]');
+            const withdrawals = JSON.parse(localStorage.getItem('techstore_withdrawals') || '[]');
+            
+            // Рассчитываем доступные средства (только доставленные заказы)
+            const availableFunds = orders.reduce((sum, order) => {
+                if (order.status === 'delivered') {
+                    return sum + (order.total || 0);
+                }
+                return sum;
+            }, 0);
+            
+            // Рассчитываем уже выведенные средства
+            const withdrawnAmount = withdrawals.reduce((sum, withdrawal) => {
+                if (withdrawal.status === 'completed') {
+                    return sum + (withdrawal.amount || 0);
+                }
+                return sum;
+            }, 0);
+            
+            // Доступно для вывода = доступные средства - уже выведенные
+            const availableForWithdrawal = availableFunds - withdrawnAmount;
+            
+            // Обновляем отображение
+            document.getElementById('available-funds').textContent = Math.max(0, availableForWithdrawal).toLocaleString() + ' ₽';
+            document.getElementById('withdrawn-amount').textContent = withdrawnAmount.toLocaleString() + ' ₽';
+        }
+        
+        function loadWithdrawals() {
+            const withdrawals = JSON.parse(localStorage.getItem('techstore_withdrawals') || '[]');
+            const withdrawalsList = document.getElementById('withdrawals-list');
+            
+            if (withdrawals.length === 0) {
+                withdrawalsList.innerHTML = '<p style="text-align: center; color: var(--product-desc-color); padding: 2rem;">История выводов пуста</p>';
+                return;
+            }
+            
+            // Сортируем по дате (новые сначала)
+            withdrawals.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            
+            withdrawalsList.innerHTML = withdrawals.map(withdrawal => {
+                const statusNames = {
+                    'pending': 'Ожидает',
+                    'processing': 'В обработке',
+                    'completed': 'Выполнен',
+                    'rejected': 'Отклонен'
+                };
+                
+                const statusColors = {
+                    'pending': '#f39c12',
+                    'processing': '#3498db',
+                    'completed': '#2ecc71',
+                    'rejected': '#e74c3c'
+                };
+                
+                const methodNames = {
+                    'bank-card': 'Банковская карта',
+                    'bank-account': 'Банковский счет',
+                    'yoomoney': 'ЮMoney',
+                    'qiwi': 'QIWI',
+                    'webmoney': 'WebMoney',
+                    'crypto': 'Криптовалюта'
+                };
+                
+                const date = new Date(withdrawal.createdAt).toLocaleString('ru-RU');
+                const completedDate = withdrawal.completedAt ? new Date(withdrawal.completedAt).toLocaleString('ru-RU') : '-';
+                
+                return `
+                    <div class="order-item" style="background: var(--card-bg); padding: 1.5rem; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
+                        <div class="order-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                            <div style="font-weight: 700; color: var(--product-name-color);">Запрос #${withdrawal.id}</div>
+                            <div style="padding: 0.5rem 1rem; border-radius: 5px; background: ${statusColors[withdrawal.status] || '#95a5a6'}; color: white; font-weight: 600;">
+                                ${statusNames[withdrawal.status] || withdrawal.status}
+                            </div>
+                        </div>
+                        <div class="order-info" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
+                            <div class="order-info-item">
+                                <span class="order-info-label">Сумма:</span>
+                                <span class="order-info-value" style="font-weight: 700; color: #2ecc71; font-size: 1.2rem;">${withdrawal.amount.toLocaleString()} ₽</span>
+                            </div>
+                            <div class="order-info-item">
+                                <span class="order-info-label">Способ:</span>
+                                <span class="order-info-value">${methodNames[withdrawal.method] || withdrawal.method}</span>
+                            </div>
+                            <div class="order-info-item">
+                                <span class="order-info-label">Дата создания:</span>
+                                <span class="order-info-value">${date}</span>
+                            </div>
+                            ${withdrawal.completedAt ? `
+                            <div class="order-info-item">
+                                <span class="order-info-label">Дата выполнения:</span>
+                                <span class="order-info-value">${completedDate}</span>
+                            </div>
+                            ` : ''}
+                        </div>
+                        <div style="margin-bottom: 1rem;">
+                            <div style="font-weight: 600; margin-bottom: 0.5rem; color: var(--product-name-color);">Реквизиты:</div>
+                            <div style="background: var(--background-color); padding: 1rem; border-radius: 5px; font-family: monospace; word-break: break-all;">
+                                ${withdrawal.details}
+                            </div>
+                        </div>
+                        ${withdrawal.comment ? `
+                        <div style="margin-bottom: 1rem;">
+                            <div style="font-weight: 600; margin-bottom: 0.5rem; color: var(--product-name-color);">Комментарий:</div>
+                            <div style="color: var(--product-desc-color);">${withdrawal.comment}</div>
+                        </div>
+                        ` : ''}
+                        ${withdrawal.rejectionReason ? `
+                        <div style="margin-bottom: 1rem; padding: 1rem; background: #fee; border-left: 4px solid #e74c3c; border-radius: 5px;">
+                            <div style="font-weight: 600; margin-bottom: 0.5rem; color: #e74c3c;">Причина отклонения:</div>
+                            <div style="color: #c0392b;">${withdrawal.rejectionReason}</div>
+                        </div>
+                        ` : ''}
+                        <div class="order-actions" style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                            ${withdrawal.status === 'pending' ? `
+                                <button class="admin-btn" style="background: #2ecc71;" onclick="updateWithdrawalStatus('${withdrawal.id}', 'processing')">В обработку</button>
+                                <button class="admin-btn" style="background: #27ae60;" onclick="updateWithdrawalStatus('${withdrawal.id}', 'completed')">Выполнить</button>
+                                <button class="admin-btn danger" onclick="rejectWithdrawal('${withdrawal.id}')">Отклонить</button>
+                            ` : ''}
+                            ${withdrawal.status === 'processing' ? `
+                                <button class="admin-btn" style="background: #27ae60;" onclick="updateWithdrawalStatus('${withdrawal.id}', 'completed')">Выполнить</button>
+                                <button class="admin-btn danger" onclick="rejectWithdrawal('${withdrawal.id}')">Отклонить</button>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function createWithdrawal(event) {
+            event.preventDefault();
+            
+            const amount = parseFloat(document.getElementById('withdrawal-amount').value);
+            const method = document.getElementById('withdrawal-method').value;
+            const details = document.getElementById('withdrawal-details').value.trim();
+            const comment = document.getElementById('withdrawal-comment').value.trim();
+            
+            if (!amount || amount < 100) {
+                alert('Минимальная сумма вывода: 100 ₽');
+                return;
+            }
+            
+            if (!method || !details) {
+                alert('Заполните все обязательные поля');
+                return;
+            }
+            
+            // Проверяем доступные средства
+            const orders = JSON.parse(localStorage.getItem('techstore_orders') || '[]');
+            const withdrawals = JSON.parse(localStorage.getItem('techstore_withdrawals') || '[]');
+            
+            const availableFunds = orders.reduce((sum, order) => {
+                if (order.status === 'delivered') {
+                    return sum + (order.total || 0);
+                }
+                return sum;
+            }, 0);
+            
+            const withdrawnAmount = withdrawals.reduce((sum, withdrawal) => {
+                if (withdrawal.status === 'completed') {
+                    return sum + (withdrawal.amount || 0);
+                }
+                return sum;
+            }, 0);
+            
+            const availableForWithdrawal = availableFunds - withdrawnAmount;
+            
+            if (amount > availableForWithdrawal) {
+                alert(`Недостаточно средств. Доступно: ${availableForWithdrawal.toLocaleString()} ₽`);
+                return;
+            }
+            
+            // Создаем запрос на вывод
+            const withdrawalsList = JSON.parse(localStorage.getItem('techstore_withdrawals') || '[]');
+            const newWithdrawal = {
+                id: 'WD' + Date.now(),
+                amount: amount,
+                method: method,
+                details: details,
+                comment: comment || '',
+                status: 'pending',
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            };
+            
+            withdrawalsList.push(newWithdrawal);
+            localStorage.setItem('techstore_withdrawals', JSON.stringify(withdrawalsList));
+            
+            // Очищаем форму
+            document.getElementById('withdrawal-form').reset();
+            
+            // Обновляем отображение
+            loadWithdrawals();
+            updateWithdrawalStats();
+            
+            alert('Запрос на вывод средств создан успешно!');
+        }
+        
+        function updateWithdrawalStatus(withdrawalId, newStatus) {
+            const withdrawals = JSON.parse(localStorage.getItem('techstore_withdrawals') || '[]');
+            const withdrawalIndex = withdrawals.findIndex(w => w.id === withdrawalId);
+            
+            if (withdrawalIndex !== -1) {
+                withdrawals[withdrawalIndex].status = newStatus;
+                withdrawals[withdrawalIndex].updatedAt = new Date().toISOString();
+                
+                if (newStatus === 'completed') {
+                    withdrawals[withdrawalIndex].completedAt = new Date().toISOString();
+                }
+                
+                localStorage.setItem('techstore_withdrawals', JSON.stringify(withdrawals));
+                loadWithdrawals();
+                updateWithdrawalStats();
+            }
+        }
+        
+        function rejectWithdrawal(withdrawalId) {
+            const reason = prompt('Укажите причину отклонения:');
+            if (!reason || reason.trim() === '') {
+                return;
+            }
+            
+            const withdrawals = JSON.parse(localStorage.getItem('techstore_withdrawals') || '[]');
+            const withdrawalIndex = withdrawals.findIndex(w => w.id === withdrawalId);
+            
+            if (withdrawalIndex !== -1) {
+                withdrawals[withdrawalIndex].status = 'rejected';
+                withdrawals[withdrawalIndex].rejectionReason = reason.trim();
+                withdrawals[withdrawalIndex].updatedAt = new Date().toISOString();
+                
+                localStorage.setItem('techstore_withdrawals', JSON.stringify(withdrawals));
+                loadWithdrawals();
+                updateWithdrawalStats();
+            }
+        }
+
+        function showOrderDetails(orderId) {
+            const orders = JSON.parse(localStorage.getItem('techstore_orders') || '[]');
+            const order = orders.find(o => o.id === orderId);
+            
+            if (!order) {
+                alert('Заказ не найден');
+                return;
+            }
+            
+            const statusNames = {
+                'pending': 'Ожидает',
+                'processing': 'В обработке',
+                'shipped': 'Отправлен',
+                'delivered': 'Доставлен',
+                'cancelled': 'Отменен'
+            };
+            
+            const date = new Date(order.createdAt).toLocaleString('ru-RU');
+            const updatedDate = new Date(order.updatedAt).toLocaleString('ru-RU');
+            
+            let addressDetails = '';
+            if (order.customer.addressDetails) {
+                const addr = order.customer.addressDetails;
+                addressDetails = `
+                    <div class="order-info-item">
+                        <span class="order-info-label">Город:</span>
+                        <span class="order-info-value">${addr.city || '-'}</span>
+                    </div>
+                    <div class="order-info-item">
+                        <span class="order-info-label">Улица:</span>
+                        <span class="order-info-value">${addr.street || '-'}</span>
+                    </div>
+                    <div class="order-info-item">
+                        <span class="order-info-label">Дом:</span>
+                        <span class="order-info-value">${addr.house || '-'}</span>
+                    </div>
+                    ${addr.apartment ? `
+                    <div class="order-info-item">
+                        <span class="order-info-label">Квартира:</span>
+                        <span class="order-info-value">${addr.apartment}</span>
+                    </div>
+                    ` : ''}
+                `;
+            }
+            
+            const detailsBody = document.getElementById('order-details-body');
+            detailsBody.innerHTML = `
+                <div class="order-info" style="margin-bottom: 2rem;">
+                    <div class="order-info-item">
+                        <span class="order-info-label">Номер заказа:</span>
+                        <span class="order-info-value" style="font-weight: 700; color: #3498db;">${order.id}</span>
+                    </div>
+                    <div class="order-info-item">
+                        <span class="order-info-label">Статус:</span>
+                        <span class="order-status ${order.status}">${statusNames[order.status] || order.status}</span>
+                    </div>
+                    <div class="order-info-item">
+                        <span class="order-info-label">Дата создания:</span>
+                        <span class="order-info-value">${date}</span>
+                    </div>
+                    <div class="order-info-item">
+                        <span class="order-info-label">Последнее обновление:</span>
+                        <span class="order-info-value">${updatedDate}</span>
+                    </div>
+                </div>
+                
+                <h3 style="margin-bottom: 1rem; color: var(--product-name-color);">Информация о клиенте</h3>
+                <div class="order-info" style="margin-bottom: 2rem;">
+                    <div class="order-info-item">
+                        <span class="order-info-label">ФИО:</span>
+                        <span class="order-info-value">${order.customer.name}</span>
+                    </div>
+                    <div class="order-info-item">
+                        <span class="order-info-label">Телефон:</span>
+                        <span class="order-info-value">${order.customer.phone}</span>
+                    </div>
+                    <div class="order-info-item">
+                        <span class="order-info-label">Email:</span>
+                        <span class="order-info-value">${order.customer.email}</span>
+                    </div>
+                    <div class="order-info-item" style="grid-column: 1 / -1;">
+                        <span class="order-info-label">Адрес доставки:</span>
+                        <span class="order-info-value">${order.customer.address}</span>
+                    </div>
+                    ${addressDetails}
+                    ${order.customer.comment ? `
+                    <div class="order-info-item" style="grid-column: 1 / -1;">
+                        <span class="order-info-label">Комментарий:</span>
+                        <span class="order-info-value">${order.customer.comment}</span>
+                    </div>
+                    ` : ''}
+                </div>
+                
+                <h3 style="margin-bottom: 1rem; color: var(--product-name-color);">Товары в заказе</h3>
+                <div class="order-items-preview">
+                    ${order.items.map(item => `
+                        <div class="order-item-product">
+                            <span>${item.name} x${item.quantity}</span>
+                            <span style="font-weight: 600;">${(item.price * item.quantity).toLocaleString()} ₽</span>
+                        </div>
+                    `).join('')}
+                    <div class="order-item-product" style="margin-top: 1rem; padding-top: 1rem; border-top: 2px solid var(--card-border); font-weight: 700; font-size: 1.2rem;">
+                        <span>Итого:</span>
+                        <span style="color: #2ecc71;">${order.total.toLocaleString()} ₽</span>
+                    </div>
+                </div>
+                
+                <div class="order-actions" style="margin-top: 2rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Изменить статус:</label>
+                    <select onchange="updateOrderStatus('${order.id}', this.value)" style="width: 100%; padding: 0.8rem; font-size: 1rem;">
+                        <option value="pending" ${order.status === 'pending' ? 'selected' : ''}>Ожидает</option>
+                        <option value="processing" ${order.status === 'processing' ? 'selected' : ''}>В обработке</option>
+                        <option value="shipped" ${order.status === 'shipped' ? 'selected' : ''}>Отправлен</option>
+                        <option value="delivered" ${order.status === 'delivered' ? 'selected' : ''}>Доставлен</option>
+                        <option value="cancelled" ${order.status === 'cancelled' ? 'selected' : ''}>Отменен</option>
+                    </select>
+                </div>
+            `;
+            
+            document.getElementById('order-details-modal').classList.add('active');
+        }
+
+        function closeOrderDetailsModal() {
+            document.getElementById('order-details-modal').classList.remove('active');
+        }
+
+        // Закрытие модального окна при клике вне его
+        // ===== ПОПУЛЯРНЫЕ ТОВАРЫ =====
+        function loadFeaturedProducts() {
+            let featuredProducts = JSON.parse(localStorage.getItem('techstore_featured_products') || '[]');
+            
+            // Если нет сохраненных товаров, загружаем дефолтные
+            if (featuredProducts.length === 0) {
+                featuredProducts = getDefaultFeaturedProducts();
+                saveFeaturedProducts(featuredProducts);
+            }
+            
+            const list = document.getElementById('featured-products-list');
+            
+            if (featuredProducts.length === 0) {
+                list.innerHTML = '<p style="text-align: center; color: var(--product-desc-color); padding: 2rem; grid-column: 1 / -1;">Популярных товаров пока нет</p>';
+                return;
+            }
+            
+            list.innerHTML = featuredProducts.map((product, index) => `
+                <div class="product-card">
+                    <img src="${product.image}" alt="${product.name}" style="width: 100%; height: 120px; object-fit: contain; margin-bottom: 0.5rem;">
+                    <h4 style="margin-bottom: 0.5rem; color: var(--product-name-color);">${product.name}</h4>
+                    <p style="font-size: 0.9rem; color: var(--product-desc-color); margin-bottom: 0.5rem;">${product.description}</p>
+                    <div style="font-weight: 700; color: #2ecc71; margin-bottom: 0.5rem;">${product.price.toLocaleString()} ₽</div>
+                    <div class="product-actions">
+                        <button class="admin-btn" style="padding: 0.5rem 1rem; font-size: 0.9rem;" onclick="editFeaturedProduct(${index})">Редактировать</button>
+                        <button class="admin-btn danger" style="padding: 0.5rem 1rem; font-size: 0.9rem;" onclick="deleteFeaturedProduct(${index})">Удалить</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function getDefaultFeaturedProducts() {
+            return [
+                {
+                    id: '1',
+                    name: 'NVIDIA RTX 4090',
+                    description: 'Игровая видеокарта',
+                    price: 159990,
+                    image: 'https://via.placeholder.com/300x200/3498db/ffffff?text=RTX+4090'
+                },
+                {
+                    id: '2',
+                    name: 'AMD Ryzen 9 7950X',
+                    description: '16-ядерный процессор',
+                    price: 64990,
+                    image: 'https://via.placeholder.com/300x200/e74c3c/ffffff?text=Ryzen+9+7950X'
+                },
+                {
+                    id: '3',
+                    name: 'DDR5 32GB 6000MHz',
+                    description: 'Оперативная память',
+                    price: 18990,
+                    image: 'https://via.placeholder.com/300x200/2ecc71/ffffff?text=DDR5+32GB'
+                },
+                {
+                    id: '4',
+                    name: 'ASUS ROG Z790',
+                    description: 'Материнская плата',
+                    price: 34990,
+                    image: 'https://via.placeholder.com/300x200/9b59b6/ffffff?text=Z790+Board'
+                }
+            ];
+        }
+        
+        function saveFeaturedProducts(products) {
+            localStorage.setItem('techstore_featured_products', JSON.stringify(products));
+        }
+        
+        function showAddFeaturedProductModal() {
+            document.getElementById('featuredModalTitle').textContent = 'Добавить популярный товар';
+            document.getElementById('featuredProductForm').reset();
+            document.getElementById('featuredProductIndex').value = '';
+            loadProductsForSelection();
+            document.getElementById('featuredProductModal').style.display = 'block';
+        }
+        
+        function loadProductsForSelection() {
+            const products = JSON.parse(localStorage.getItem('techstore_products') || '[]');
+            const select = document.getElementById('selectExistingProduct');
+            
+            // Очищаем список, оставляя только первый option
+            select.innerHTML = '<option value="">-- Выберите товар из списка --</option>';
+            
+            if (products.length === 0) {
+                const option = document.createElement('option');
+                option.value = '';
+                option.textContent = 'Товаров на сайте пока нет';
+                option.disabled = true;
+                select.appendChild(option);
+                return;
+            }
+            
+            // Получаем уже добавленные популярные товары
+            const featuredProducts = JSON.parse(localStorage.getItem('techstore_featured_products') || '[]');
+            const featuredIds = new Set(featuredProducts.map(p => String(p.id)));
+            
+            // Добавляем товары в список
+            products.forEach(product => {
+                const option = document.createElement('option');
+                option.value = product.id;
+                const isAdded = featuredIds.has(String(product.id));
+                option.textContent = `${product.name} - ${product.price.toLocaleString()} ₽${isAdded ? ' (уже добавлен)' : ''}`;
+                option.dataset.productData = JSON.stringify(product);
+                if (isAdded) {
+                    option.style.color = '#999';
+                }
+                select.appendChild(option);
+            });
+        }
+        
+        function fillProductFromSelection() {
+            const select = document.getElementById('selectExistingProduct');
+            const selectedOption = select.options[select.selectedIndex];
+            
+            if (!selectedOption || !selectedOption.value) {
+                return;
+            }
+            
+            try {
+                const productData = JSON.parse(selectedOption.dataset.productData);
+                
+                // Заполняем поля формы
+                document.getElementById('featuredProductId').value = productData.id;
+                document.getElementById('featuredProductName').value = productData.name || '';
+                document.getElementById('featuredProductDescription').value = productData.description || '';
+                document.getElementById('featuredProductPrice').value = productData.price || 0;
+                document.getElementById('featuredProductImage').value = productData.image || '';
+            } catch (e) {
+                console.error('Ошибка при заполнении формы:', e);
+            }
+        }
+        
+        function editFeaturedProduct(index) {
+            const products = JSON.parse(localStorage.getItem('techstore_featured_products') || '[]');
+            const product = products[index];
+            
+            if (!product) return;
+            
+            document.getElementById('featuredModalTitle').textContent = 'Редактировать популярный товар';
+            document.getElementById('featuredProductIndex').value = index;
+            document.getElementById('featuredProductName').value = product.name;
+            document.getElementById('featuredProductDescription').value = product.description;
+            document.getElementById('featuredProductPrice').value = product.price;
+            document.getElementById('featuredProductId').value = product.id;
+            document.getElementById('featuredProductImage').value = product.image;
+            
+            // Загружаем список товаров и сбрасываем выбор
+            loadProductsForSelection();
+            document.getElementById('selectExistingProduct').value = '';
+            
+            document.getElementById('featuredProductModal').style.display = 'block';
+        }
+        
+        function deleteFeaturedProduct(index) {
+            if (!confirm('Вы уверены, что хотите удалить этот товар из популярных?')) {
+                return;
+            }
+            
+            let products = JSON.parse(localStorage.getItem('techstore_featured_products') || '[]');
+            products.splice(index, 1);
+            saveFeaturedProducts(products);
+            loadFeaturedProducts();
+        }
+        
+        function saveFeaturedProduct(event) {
+            event.preventDefault();
+            
+            const index = document.getElementById('featuredProductIndex').value;
+            const name = document.getElementById('featuredProductName').value.trim();
+            const description = document.getElementById('featuredProductDescription').value.trim();
+            const price = parseInt(document.getElementById('featuredProductPrice').value);
+            const id = document.getElementById('featuredProductId').value.trim();
+            const image = document.getElementById('featuredProductImage').value.trim();
+            
+            if (!name || !description || !price || !id || !image) {
+                alert('Пожалуйста, заполните все поля');
+                return;
+            }
+            
+            let products = JSON.parse(localStorage.getItem('techstore_featured_products') || '[]');
+            
+            const product = {
+                id: id,
+                name: name,
+                description: description,
+                price: price,
+                image: image
+            };
+            
+            if (index === '' || index === null) {
+                // Добавляем новый товар
+                products.push(product);
+            } else {
+                // Обновляем существующий товар
+                products[parseInt(index)] = product;
+            }
+            
+            saveFeaturedProducts(products);
+            loadFeaturedProducts();
+            closeFeaturedProductModal();
+        }
+        
+        function closeFeaturedProductModal() {
+            document.getElementById('featuredProductModal').style.display = 'none';
+            document.getElementById('featuredProductForm').reset();
+        }
+        
+        function resetFeaturedProducts() {
+            if (!confirm('Вы уверены, что хотите сбросить популярные товары к значениям по умолчанию? Все текущие изменения будут потеряны.')) {
+                return;
+            }
+            
+            const defaultProducts = getDefaultFeaturedProducts();
+            saveFeaturedProducts(defaultProducts);
+            loadFeaturedProducts();
+        }
+        
+        // ===== КАСТОМИЗАЦИЯ САЙТА =====
+        function loadCustomization() {
+            const settings = JSON.parse(localStorage.getItem('techstore_customization') || '{}');
+            
+            // Загружаем настройки сайта
+            document.getElementById('siteName').value = settings.siteName || 'TechStore';
+            document.getElementById('siteIcon').value = settings.siteIcon || '💻';
+            document.getElementById('heroTitle').value = settings.heroTitle || 'Собери свой идеальный компьютер';
+            document.getElementById('heroDescription').value = settings.heroDescription || 'Лучшие комплектующие и готовые сборки для любых задач';
+            document.getElementById('footerText').value = settings.footerText || '© 2024 TechStore. Все права защищены.';
+            
+            // Загружаем цвета
+            document.getElementById('colorHeaderBg').value = settings.colors?.headerBg || '#2c3e50';
+            document.getElementById('colorBackground').value = settings.colors?.background || '#f8f9fa';
+            document.getElementById('colorCardBg').value = settings.colors?.cardBg || '#ffffff';
+            document.getElementById('colorPrimary').value = settings.colors?.primary || '#3498db';
+            document.getElementById('colorText').value = settings.colors?.text || '#333333';
+            document.getElementById('colorPrice').value = settings.colors?.price || '#e74c3c';
+        }
+        
+        function saveCustomization() {
+            const settings = {
+                siteName: document.getElementById('siteName').value.trim(),
+                siteIcon: document.getElementById('siteIcon').value.trim(),
+                heroTitle: document.getElementById('heroTitle').value.trim(),
+                heroDescription: document.getElementById('heroDescription').value.trim(),
+                footerText: document.getElementById('footerText').value.trim(),
+                colors: {
+                    headerBg: document.getElementById('colorHeaderBg').value,
+                    background: document.getElementById('colorBackground').value,
+                    cardBg: document.getElementById('colorCardBg').value,
+                    primary: document.getElementById('colorPrimary').value,
+                    text: document.getElementById('colorText').value,
+                    price: document.getElementById('colorPrice').value
+                }
+            };
+            
+            localStorage.setItem('techstore_customization', JSON.stringify(settings));
+            
+            // Применяем настройки
+            applyCustomization(settings);
+            
+            alert('Настройки сохранены! Изменения применятся на всех страницах сайта.');
+        }
+        
+        function applyCustomization(settings) {
+            if (!settings) {
+                settings = JSON.parse(localStorage.getItem('techstore_customization') || '{}');
+            }
+            
+            if (!settings || Object.keys(settings).length === 0) {
+                return;
+            }
+            
+            // Применяем цвета через CSS переменные
+            if (settings.colors) {
+                const root = document.documentElement;
+                root.style.setProperty('--header-bg', settings.colors.headerBg || '#2c3e50');
+                root.style.setProperty('--background-color', settings.colors.background || '#f8f9fa');
+                root.style.setProperty('--card-bg', settings.colors.cardBg || '#ffffff');
+                root.style.setProperty('--text-color', settings.colors.text || '#333333');
+                root.style.setProperty('--price-color', settings.colors.price || '#e74c3c');
+            }
+        }
+        
+        function resetCustomization() {
+            if (!confirm('Вы уверены, что хотите сбросить все настройки кастомизации к значениям по умолчанию?')) {
+                return;
+            }
+            
+            localStorage.removeItem('techstore_customization');
+            loadCustomization();
+            
+            // Сбрасываем CSS переменные
+            const root = document.documentElement;
+            root.style.removeProperty('--header-bg');
+            root.style.removeProperty('--background-color');
+            root.style.removeProperty('--card-bg');
+            root.style.removeProperty('--text-color');
+            root.style.removeProperty('--price-color');
+            
+            alert('Настройки сброшены к значениям по умолчанию!');
+        }
+        
+        // ===== УПРАВЛЕНИЕ КАТЕГОРИЯМИ =====
+        async function loadCategories() {
+            console.log('🔄 Загрузка категорий...');
+            
+            let categories = [];
+            
+            // Пытаемся загрузить из Firestore
+            if (typeof getCategoriesFromFirestore === 'function') {
+                try {
+                    categories = await getCategoriesFromFirestore();
+                    console.log(`✅ Загружено ${categories.length} категорий из Firestore`);
+                } catch (error) {
+                    console.error('❌ Ошибка загрузки из Firestore:', error);
+                    // Fallback на localStorage
+                    categories = JSON.parse(localStorage.getItem('techstore_categories') || '[]');
+                }
+            } else {
+                // Если Firebase не загружен, используем localStorage
+                categories = JSON.parse(localStorage.getItem('techstore_categories') || '[]');
+            }
+            
+            const defaultCategories = getDefaultCategories();
+            
+            // Если нет сохраненных категорий, загружаем дефолтные
+            if (categories.length === 0) {
+                categories = defaultCategories;
+                await saveCategories(categories);
+            }
+            
+            const list = document.getElementById('categories-list');
+            
+            if (categories.length === 0) {
+                list.innerHTML = '<p style="text-align: center; color: var(--product-desc-color); padding: 2rem; grid-column: 1 / -1;">Категорий пока нет</p>';
+                return;
+            }
+            
+            list.innerHTML = categories.map((category, index) => `
+                <div class="product-card" style="position: relative; padding-top: 4.5rem;">
+                    <div style="position: absolute; top: 20px; left: 10px; right: 10px; display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: center;">
+                        ${category.showInMenu !== false ? '<div style="background: #3498db; color: white; padding: 0.3rem 0.6rem; border-radius: 20px; font-size: 0.7rem; font-weight: bold;">📌 В меню</div>' : '<div style="background: #95a5a6; color: white; padding: 0.3rem 0.6rem; border-radius: 20px; font-size: 0.7rem;">Нет в меню</div>'}
+                        ${category.showOnMainPage !== false ? '<div style="background: #2ecc71; color: white; padding: 0.3rem 0.6rem; border-radius: 20px; font-size: 0.7rem; font-weight: bold;">🏠 На главной</div>' : '<div style="background: #e74c3c; color: white; padding: 0.3rem 0.6rem; border-radius: 20px; font-size: 0.7rem;">Скрыта</div>'}
+                    </div>
+                    <div style="font-size: 3rem; margin-top: 1rem; margin-bottom: 0.5rem; text-align: center;">${category.icon}</div>
+                    <h4 style="margin-bottom: 0.5rem; color: var(--product-name-color); text-align: center;">${category.name}</h4>
+                    <p style="font-size: 0.9rem; color: var(--product-desc-color); margin-bottom: 0.5rem; text-align: center;">${category.description}</p>
+                    <div style="font-size: 0.85rem; color: var(--product-desc-color); margin-bottom: 0.5rem; text-align: center;">
+                        <strong>ID:</strong> ${category.id}<br>
+                        <strong>Ссылка:</strong> ${category.url || 'не указана'}
+                    </div>
+                    <div class="product-actions">
+                        <button class="admin-btn" style="padding: 0.4rem 0.8rem; font-size: 0.85rem; flex: 1 1 calc(50% - 0.25rem);" onclick="editCategory(${index})">Редактировать</button>
+                        <button class="admin-btn danger" style="padding: 0.4rem 0.8rem; font-size: 0.85rem; flex: 1 1 calc(50% - 0.25rem);" onclick="deleteCategory(${index})">Удалить</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function getDefaultCategories() {
+            return [
+                {
+                    id: 'processors',
+                    name: 'Процессоры',
+                    description: 'CPU для игр и работы',
+                    icon: '⚡',
+                    url: 'processors.html',
+                    showInMenu: true,
+                    showOnMainPage: true
+                },
+                {
+                    id: 'video-cards',
+                    name: 'Видеокарты',
+                    description: 'Мощные GPU для гейминга',
+                    icon: '🎮',
+                    url: 'video-cards.html',
+                    showInMenu: true,
+                    showOnMainPage: true
+                },
+                {
+                    id: 'memory',
+                    name: 'Оперативная память',
+                    description: 'Быстрая RAM DDR4/DDR5',
+                    icon: '💾',
+                    url: 'memory.html',
+                    showInMenu: true,
+                    showOnMainPage: true
+                },
+                {
+                    id: 'motherboards',
+                    name: 'Материнские платы',
+                    description: 'Основа вашего ПК',
+                    icon: '🖥️',
+                    url: 'motherboards.html',
+                    showInMenu: true,
+                    showOnMainPage: true
+                },
+                {
+                    id: 'storage',
+                    name: 'Накопители',
+                    description: 'SSD и HDD-диски',
+                    icon: '💽',
+                    url: 'storage.html',
+                    showInMenu: true,
+                    showOnMainPage: true
+                },
+                {
+                    id: 'power-supplies',
+                    name: 'Блоки питания',
+                    description: 'Надежное питание системы',
+                    icon: '⚡',
+                    url: 'power-supplies.html',
+                    showInMenu: true,
+                    showOnMainPage: true
+                },
+                {
+                    id: 'cooling',
+                    name: 'Охлаждение',
+                    description: 'Кулеры и системы охлаждения',
+                    icon: '❄️',
+                    url: 'cooling.html',
+                    showInMenu: true,
+                    showOnMainPage: true
+                },
+                {
+                    id: 'cases',
+                    name: 'Корпуса',
+                    description: 'Стильные корпуса для ПК',
+                    icon: '📦',
+                    url: 'cases.html',
+                    showInMenu: true,
+                    showOnMainPage: true
+                }
+            ];
+        }
+        
+        async function saveCategories(categories) {
+            console.log('💾 Сохранение категорий...');
+            
+            // Сохраняем в localStorage для быстрого доступа
+            localStorage.setItem('techstore_categories', JSON.stringify(categories));
+            
+            // Пытаемся сохранить в Firestore
+            if (typeof saveCategoriesToFirestore === 'function') {
+                try {
+                    await saveCategoriesToFirestore(categories);
+                    console.log(`✅ Категории сохранены в Firestore`);
+                } catch (error) {
+                    console.error('❌ Ошибка сохранения в Firestore:', error);
+                }
+            }
+        }
+        
+        function showAddCategoryModal() {
+            document.getElementById('categoryModalTitle').textContent = 'Добавить категорию';
+            document.getElementById('categoryForm').reset();
+            document.getElementById('categoryIndex').value = '';
+            document.getElementById('categoryShowInMenu').checked = true; // По умолчанию включено
+            document.getElementById('categoryShowOnMainPage').checked = true; // По умолчанию включено
+            document.getElementById('categoryModal').style.display = 'block';
+        }
+        
+        function editCategory(index) {
+            const categories = JSON.parse(localStorage.getItem('techstore_categories') || '[]');
+            const category = categories[index];
+            
+            if (!category) return;
+            
+            document.getElementById('categoryModalTitle').textContent = 'Редактировать категорию';
+            document.getElementById('categoryIndex').value = index;
+            document.getElementById('categoryId').value = category.id;
+            document.getElementById('categoryName').value = category.name;
+            document.getElementById('categoryDescription').value = category.description;
+            document.getElementById('categoryIcon').value = category.icon;
+            document.getElementById('categoryUrl').value = category.url || '';
+            document.getElementById('categoryShowInMenu').checked = category.showInMenu !== false; // По умолчанию true
+            document.getElementById('categoryShowOnMainPage').checked = category.showOnMainPage !== false; // По умолчанию true
+            
+            document.getElementById('categoryModal').style.display = 'block';
+        }
+        
+        function deleteCategory(index) {
+            if (!confirm('Вы уверены, что хотите удалить эту категорию?')) {
+                return;
+            }
+            
+            let categories = JSON.parse(localStorage.getItem('techstore_categories') || '[]');
+            categories.splice(index, 1);
+            saveCategories(categories);
+            loadCategories();
+            
+            // Обновляем меню на всех страницах
+            setTimeout(function() {
+                if (typeof window.updateCategoriesMenu === 'function') {
+                    window.updateCategoriesMenu();
+                }
+                window.dispatchEvent(new CustomEvent('localStorageChange', {
+                    detail: { key: 'techstore_categories', value: JSON.stringify(categories) }
+                }));
+            }, 100);
+        }
+        
+        function saveCategory(event) {
+            event.preventDefault();
+            
+            const index = document.getElementById('categoryIndex').value;
+            const id = document.getElementById('categoryId').value.trim();
+            const name = document.getElementById('categoryName').value.trim();
+            const description = document.getElementById('categoryDescription').value.trim();
+            const icon = document.getElementById('categoryIcon').value.trim();
+            const url = document.getElementById('categoryUrl').value.trim();
+            
+            if (!id || !name || !description || !icon) {
+                alert('Пожалуйста, заполните все обязательные поля');
+                return;
+            }
+            
+            let categories = JSON.parse(localStorage.getItem('techstore_categories') || '[]');
+            
+            const showInMenu = document.getElementById('categoryShowInMenu').checked;
+            const showOnMainPage = document.getElementById('categoryShowOnMainPage').checked;
+            
+            // Убеждаемся, что значения булевые
+            const showInMenuValue = Boolean(showInMenu);
+            const showOnMainPageValue = Boolean(showOnMainPage);
+            
+            console.log('Сохранение категории:', { id, name, showInMenu: showInMenuValue, showOnMainPage: showOnMainPageValue });
+            
+            const category = {
+                id: id,
+                name: name,
+                description: description,
+                icon: icon,
+                url: url || '',
+                showInMenu: showInMenuValue,
+                showOnMainPage: showOnMainPageValue
+            };
+            
+            if (index === '' || index === null) {
+                // Проверяем, нет ли уже категории с таким ID
+                if (categories.some(c => c.id === id)) {
+                    alert('Категория с таким ID уже существует!');
+                    return;
+                }
+                // Добавляем новую категорию
+                categories.push(category);
+            } else {
+                // Обновляем существующую категорию
+                const oldId = categories[parseInt(index)].id;
+                if (oldId !== id && categories.some(c => c.id === id && categories.indexOf(c) !== parseInt(index))) {
+                    alert('Категория с таким ID уже существует!');
+                    return;
+                }
+                categories[parseInt(index)] = category;
+            }
+            
+            saveCategories(categories);
+            loadCategories();
+            closeCategoryModal();
+            
+            // Отладочная информация
+            const savedCategory = categories.find(c => c.id === id);
+            console.log('Категория сохранена:', savedCategory);
+            console.log('showInMenu значение:', savedCategory ? savedCategory.showInMenu : 'не найдено', typeof (savedCategory ? savedCategory.showInMenu : null));
+            
+            // Обновляем меню на всех страницах
+            // Событие storage сработает для других вкладок
+            // Для текущей вкладки вызовем функцию напрямую, если она доступна
+            setTimeout(function() {
+                console.log('Обновление меню...');
+                // Сначала обновляем через кастомное событие
+                window.dispatchEvent(new CustomEvent('localStorageChange', {
+                    detail: { key: 'techstore_categories', value: JSON.stringify(categories) }
+                }));
+                
+                // Затем вызываем функцию напрямую, если она доступна
+                if (typeof window.updateCategoriesMenu === 'function') {
+                    console.log('Вызываем updateCategoriesMenu');
+                    window.updateCategoriesMenu();
+                } else {
+                    console.log('updateCategoriesMenu не найдена, пробуем loadNavigationMenu');
+                    if (typeof window.loadNavigationMenu === 'function') {
+                        window.loadNavigationMenu();
+                    }
+                }
+                
+                // Также пробуем обновить через событие для других вкладок
+                window.dispatchEvent(new StorageEvent('storage', {
+                    key: 'techstore_categories',
+                    newValue: JSON.stringify(categories)
+                }));
+            }, 200);
+        }
+        
+        function closeCategoryModal() {
+            document.getElementById('categoryModal').style.display = 'none';
+            document.getElementById('categoryForm').reset();
+        }
+        
+        async function resetCategories() {
+            if (!confirm('Вы уверены, что хотите сбросить категории к значениям по умолчанию? Все текущие изменения будут потеряны.')) {
+                return;
+            }
+            
+            const defaultCategories = getDefaultCategories();
+            await saveCategories(defaultCategories);
+            await loadCategories();
+            
+            // Обновляем меню на всех страницах
+            setTimeout(function() {
+                if (typeof window.updateCategoriesMenu === 'function') {
+                    window.updateCategoriesMenu();
+                }
+                window.dispatchEvent(new CustomEvent('localStorageChange', {
+                    detail: { key: 'techstore_categories', value: JSON.stringify(defaultCategories) }
+                }));
+            }, 100);
+        }
+
+        window.onclick = function(event) {
+            const productModal = document.getElementById('productModal');
+            const buildModal = document.getElementById('buildModal');
+            const orderModal = document.getElementById('order-details-modal');
+            const featuredModal = document.getElementById('featuredProductModal');
+            const categoryModal = document.getElementById('categoryModal');
+            
+            if (event.target === productModal) {
+                closeProductModal();
+            }
+            if (event.target === buildModal) {
+                closeBuildModal();
+            }
+            if (event.target === orderModal) {
+                closeOrderDetailsModal();
+            }
+            if (event.target === featuredModal) {
+                closeFeaturedProductModal();
+            }
+            if (event.target === categoryModal) {
+                closeCategoryModal();
+            }
+        }
+    </script>
+
+    <!-- Модальное окно деталей заказа -->
+    <div id="order-details-modal" class="order-details-modal">
+        <div class="order-details-content">
+            <div class="order-details-header">
+                <h3 class="order-details-title">Детали заказа</h3>
+                <button class="close-modal" onclick="closeOrderDetailsModal()">&times;</button>
+            </div>
+            <div id="order-details-body">
+                <!-- Детали заказа будут здесь -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    
+    <!-- Firebase Configuration -->
+    <script src="js/firebase-config.js"></script>
+    <script src="js/firebase-categories.js"></script>
+    
+    <!-- Existing Scripts -->
+    <script src="js/cart.js"></script>
+    <script src="js/theme.js"></script>
+    <script src="js/customization.js"></script>
+    <script src="js/categories.js"></script>
+    <script src="js/dropdown.js"></script>
+    
+    <script>
+        // Принудительная загрузка категорий в меню при загрузке админ-панели
+        window.addEventListener('DOMContentLoaded', function() {
+            console.log('=== АДМИНКА: Запуск принудительной загрузки категорий ===');
+            
+            setTimeout(function() {
+                console.log('Проверка loadNavigationMenu:', typeof window.loadNavigationMenu);
+                
+                if (typeof window.loadNavigationMenu === 'function') {
+                    console.log('Вызываем loadNavigationMenu...');
+                    window.loadNavigationMenu();
+                } else {
+                    console.error('loadNavigationMenu не найдена!');
+                }
+                
+                // Дополнительная проверка через 1 секунду
+                setTimeout(function() {
+                    const dropdown = document.querySelector('.nav-dropdown .dropdown-menu');
+                    if (dropdown) {
+                        const links = dropdown.querySelectorAll('a');
+                        console.log('Количество ссылок в меню:', links.length);
+                        links.forEach(link => console.log('- ' + link.textContent));
+                    }
+                }, 1000);
+            }, 500);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TechStore - Магазин комплектующих</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <a href="index.html">
+                    <h1>TechStore</h1>
+                </a>
+            </div>
+            <nav class="nav">
+                <a href="index.html" class="nav-active">Главная</a>
+                
+                <div class="nav-dropdown">
+                    <a>Комплектующие</a>
+                    <div class="dropdown-menu">
+                        <!-- Категории будут загружены динамически через js/categories.js -->
+                    </div>
+                </div>
+                
+                <div class="nav-dropdown">
+                    <a>Готовые сборки</a>
+                    <div class="dropdown-menu">
+                        <div class="dropdown-section">Полные системы</div>
+                        <a href="builds.html#gaming">Игровые сборки</a>
+                        <a href="builds.html#workstation">Рабочие станции</a>
+                        <a href="builds.html#budget">Бюджетные сборки</a>
+                        <a href="builds.html">Все сборки</a>
+                    </div>
+                </div>
+                
+                <a href="cart.html">Корзина <span id="cart-count">0</span></a>
+                
+                <a href="profile.html" class="user-info" style="display: none;"></a>
+                <a href="login.html" class="login-btn">Вход</a>
+                <a href="#" class="logout-btn" style="display: none;">Выйти</a>
+                
+                <a href="admin.html" class="admin-link">Админ панель</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main">
+        <section class="hero">
+            <div class="container">
+                <h2>Собери свой идеальный компьютер</h2>
+                <p>Лучшие комплектующие и готовые сборки для любых задач</p>
+                <div class="hero-buttons">
+                    <a href="components.html" class="btn btn-primary">Выбрать комплектующие</a>
+                    <a href="builds.html" class="btn btn-secondary">Готовые сборки</a>
+                </div>
+            </div>
+        </section>
+
+        <section class="categories">
+            <div class="container">
+                <h2>Категории товаров</h2>
+                <div class="categories-grid">
+                    <a href="processors.html" class="category-card">
+                        <div class="category-icon">⚡</div>
+                        <h3>Процессоры</h3>
+                        <p>CPU для игр и работы</p>
+                    </a>
+                    <a href="video-cards.html" class="category-card">
+                        <div class="category-icon">🎮</div>
+                        <h3>Видеокарты</h3>
+                        <p>Мощные GPU</p>
+                    </a>
+                    <a href="memory.html" class="category-card">
+                        <div class="category-icon">💾</div>
+                        <h3>Оперативная память</h3>
+                        <p>Быстрая RAM</p>
+                    </a>
+                    <a href="motherboards.html" class="category-card">
+                        <div class="category-icon">🖥️</div>
+                        <h3>Материнские платы</h3>
+                        <p>Основа вашего ПК</p>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <section class="featured-products">
+            <div class="container">
+                <h2>Популярные товары</h2>
+                <div class="products-grid" id="featured-products-grid">
+                    <!-- Товары будут загружены через JavaScript -->
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 TechStore. Все права защищены.</p>
+        </div>
+    </footer>
+
+    <script src="js/cart.js"></script>
+    <script src="js/theme.js"></script>
+    <script src="js/customization.js"></script>
+    <script src="js/categories.js"></script>
+    <script src="js/dropdown.js"></script>
+    <script>
+        // Загрузка популярных товаров на главную страницу
+        document.addEventListener('DOMContentLoaded', function() {
+            loadFeaturedProducts();
+        });
+        
+        function loadFeaturedProducts() {
+            let featuredProducts = JSON.parse(localStorage.getItem('techstore_featured_products') || '[]');
+            
+            // Если нет сохраненных товаров, используем дефолтные
+            if (featuredProducts.length === 0) {
+                featuredProducts = [
+                    {
+                        id: '1',
+                        name: 'NVIDIA RTX 4090',
+                        description: 'Игровая видеокарта',
+                        price: 159990,
+                        image: 'https://via.placeholder.com/300x200/3498db/ffffff?text=RTX+4090'
+                    },
+                    {
+                        id: '2',
+                        name: 'AMD Ryzen 9 7950X',
+                        description: '16-ядерный процессор',
+                        price: 64990,
+                        image: 'https://via.placeholder.com/300x200/e74c3c/ffffff?text=Ryzen+9+7950X'
+                    },
+                    {
+                        id: '3',
+                        name: 'DDR5 32GB 6000MHz',
+                        description: 'Оперативная память',
+                        price: 18990,
+                        image: 'https://via.placeholder.com/300x200/2ecc71/ffffff?text=DDR5+32GB'
+                    },
+                    {
+                        id: '4',
+                        name: 'ASUS ROG Z790',
+                        description: 'Материнская плата',
+                        price: 34990,
+                        image: 'https://via.placeholder.com/300x200/9b59b6/ffffff?text=Z790+Board'
+                    }
+                ];
+            }
+            
+            const grid = document.getElementById('featured-products-grid');
+            
+            if (featuredProducts.length === 0) {
+                grid.innerHTML = '<p style="text-align: center; color: var(--product-desc-color); padding: 2rem; grid-column: 1 / -1;">Популярных товаров пока нет</p>';
+                return;
+            }
+            
+            grid.innerHTML = featuredProducts.map(product => `
+                <div class="product-card">
+                    <img src="${product.image}" 
+                         alt="${product.name}" 
+                         class="product-image">
+                    <h3 class="product-name">${product.name}</h3>
+                    <p class="product-description">${product.description}</p>
+                    <div class="product-price">${product.price.toLocaleString()} ₽</div>
+                    <button class="add-to-cart" 
+                            data-id="${product.id}" 
+                            data-name="${product.name}" 
+                            data-price="${product.price}">В корзину</button>
+                </div>
+            `).join('');
+        }
+    </script>
+</body>
+</html>

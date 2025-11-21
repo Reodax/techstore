@@ -1,0 +1,1307 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Готовые сборки - TechStore</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .builds-container {
+            padding: 2rem 0;
+        }
+
+        .build-section {
+            margin-bottom: 4rem;
+        }
+
+        .section-title {
+            font-size: 2rem;
+            color: var(--product-name-color);
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 3px solid #3498db;
+        }
+
+        .build-card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            border: 2px solid var(--card-border);
+            transition: all 0.3s ease;
+        }
+
+        .build-card:hover {
+            transform: translateY(-5px);
+            border-color: #3498db;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .build-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--card-border);
+        }
+
+        .build-title {
+            font-size: 1.8rem;
+            color: var(--product-name-color);
+            margin: 0;
+        }
+
+        .build-price {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--price-color);
+        }
+
+        .build-description {
+            color: var(--product-desc-color);
+            font-size: 1.1rem;
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        .build-specs {
+            margin-bottom: 2rem;
+        }
+
+        .specs-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--product-name-color);
+            margin-bottom: 1rem;
+        }
+
+        .specs-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .specs-list li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--card-border);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .spec-name {
+            color: var(--product-desc-color);
+        }
+
+        .spec-value {
+            color: var(--product-name-color);
+            font-weight: 500;
+        }
+
+        .build-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .feature {
+            background: var(--background-color);
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .feature-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-text {
+            font-weight: 500;
+            color: var(--product-name-color);
+        }
+
+        .build-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+
+        .btn-build {
+            padding: 1rem 2rem;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background: #3498db;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: #3498db;
+            border: 2px solid #3498db;
+        }
+
+        .btn-outline:hover {
+            background: #3498db;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .performance-badge {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .gaming-badge {
+            background: linear-gradient(135deg, #9b59b6, #8e44ad);
+        }
+
+        .workstation-badge {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+        }
+
+        .budget-badge {
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+        }
+
+        .build-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Стили для модального окна */
+        .build-modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .build-modal-content {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            margin: 3% auto;
+            padding: 0;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideDown 0.3s ease;
+            position: relative;
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .build-modal-close {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            font-size: 2rem;
+            font-weight: bold;
+            color: #7f8c8d;
+            cursor: pointer;
+            z-index: 10;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.9);
+            transition: all 0.3s ease;
+        }
+
+        .build-modal-close:hover {
+            background: #e74c3c;
+            color: white;
+            transform: rotate(90deg);
+        }
+
+        .build-modal-header {
+            padding: 2rem 2rem 1rem;
+            border-bottom: 3px solid;
+            border-image: linear-gradient(90deg, #3498db, #2ecc71) 1;
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .build-modal-header h2 {
+            margin: 0;
+            font-size: 2rem;
+            color: #2c3e50;
+            font-weight: 700;
+        }
+
+        #modal-build-badge {
+            margin-left: 0.5rem;
+        }
+
+        .build-modal-body {
+            padding: 2rem;
+        }
+
+        .build-modal-image {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .build-modal-price-section {
+            background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 2px solid;
+            border-image: linear-gradient(135deg, #3498db, #2ecc71) 1;
+        }
+
+        .build-modal-price-label {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .build-modal-price {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #e74c3c;
+            text-shadow: 0 2px 4px rgba(231, 76, 60, 0.2);
+        }
+
+        .build-modal-description {
+            margin-bottom: 2rem;
+        }
+
+        .build-modal-description h3,
+        .build-modal-specs h3 {
+            font-size: 1.4rem;
+            color: #2c3e50;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .build-modal-description p {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: #555;
+        }
+
+        .build-modal-specs-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .build-modal-specs-list li {
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            border-radius: 10px;
+            border-left: 4px solid #3498db;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .build-modal-specs-list li:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.15);
+        }
+
+        .build-modal-specs-list .spec-name {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .build-modal-specs-list .spec-value {
+            color: #3498db;
+            font-weight: 500;
+        }
+
+        .build-modal-footer {
+            padding: 1.5rem 2rem;
+            border-top: 2px solid #e9ecef;
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            background: #f8f9fa;
+            border-radius: 0 0 20px 20px;
+        }
+
+        /* Кастомный скроллбар для модального окна */
+        .build-modal-content::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .build-modal-content::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .build-modal-content::-webkit-scrollbar-thumb {
+            background: #3498db;
+            border-radius: 10px;
+        }
+
+        .build-modal-content::-webkit-scrollbar-thumb:hover {
+            background: #2980b9;
+        }
+
+        /* Темная тема для карточек сборок */
+        body.dark-theme .build-card {
+            background: #1a1a1a;
+            border-color: #333333;
+        }
+
+        body.dark-theme .build-header {
+            border-bottom-color: #333333;
+        }
+
+        body.dark-theme .specs-list li {
+            border-bottom-color: #333333;
+        }
+
+        body.dark-theme .feature {
+            background: #000000;
+        }
+
+        body.dark-theme h1 {
+            color: #ffffff;
+        }
+
+        body.dark-theme p {
+            color: #cccccc;
+        }
+
+        /* Темная тема для модального окна */
+        body.dark-theme .build-modal-content {
+            background: linear-gradient(135deg, #1a1a1a 0%, #000000 100%);
+        }
+
+        body.dark-theme .build-modal-header h2 {
+            color: #ffffff;
+        }
+
+        body.dark-theme .build-modal-close {
+            background: rgba(26, 26, 26, 0.9);
+            color: #ffffff;
+        }
+
+        body.dark-theme .build-modal-close:hover {
+            background: #333333;
+            color: white;
+        }
+
+        body.dark-theme .build-modal-price-section {
+            background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
+        }
+
+        body.dark-theme .build-modal-price-label {
+            color: #ffffff;
+        }
+
+        body.dark-theme .build-modal-description h3,
+        body.dark-theme .build-modal-specs h3 {
+            color: #ffffff;
+            border-bottom-color: #333333;
+        }
+
+        body.dark-theme .build-modal-description p {
+            color: #cccccc;
+        }
+
+        body.dark-theme .build-modal-specs-list li {
+            background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
+        }
+
+        body.dark-theme .build-modal-specs-list .spec-name {
+            color: #ffffff;
+        }
+
+        body.dark-theme .build-modal-specs-list .spec-value {
+            color: #ffffff;
+        }
+
+        body.dark-theme .build-modal-footer {
+            background: #000000;
+            border-top-color: #333333;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <a href="index.html">
+                    <h1>TechStore</h1>
+                </a>
+            </div>
+            <nav class="nav">
+                <a href="index.html">Главная</a>
+                
+                <div class="nav-dropdown">
+                    <a>Комплектующие</a>
+                    <div class="dropdown-menu">
+                        <!-- Категории будут загружены динамически через js/categories.js -->
+                    </div>
+                </div>
+                
+                <div class="nav-dropdown">
+                    <a class="nav-active">Готовые сборки</a>
+                    <div class="dropdown-menu">
+                        <div class="dropdown-section">Полные системы</div>
+                        <a href="builds.html#gaming">Игровые сборки</a>
+                        <a href="builds.html#workstation">Рабочие станции</a>
+                        <a href="builds.html#budget">Бюджетные сборки</a>
+                        <a href="builds.html">Все сборки</a>
+                    </div>
+                </div>
+                
+                <a href="cart.html">Корзина <span id="cart-count">0</span></a>
+                
+                <a href="profile.html" class="user-info" style="display: none;"></a>
+                <a href="login.html" class="login-btn">Вход</a>
+                <a href="#" class="logout-btn" style="display: none;">Выйти</a>
+                
+                <a href="admin.html" class="admin-link">Админ панель</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="container builds-container">
+            <h1 style="text-align: center; margin: 2rem 0;">Готовые сборки ПК</h1>
+            <p style="text-align: center; margin-bottom: 3rem; font-size: 1.1rem;">
+                Профессионально собранные компьютеры для любых задач
+            </p>
+
+            <!-- Игровые сборки -->
+            <section id="gaming" class="build-section">
+                <h2 class="section-title">Игровые сборки</h2>
+                
+                <div class="build-card">
+                    <div class="build-header">
+                        <div>
+                            <h3 class="build-title">ULTIMATE GAMING PRO</h3>
+                            <span class="performance-badge gaming-badge">ИГРОВАЯ СБОРКА</span>
+                        </div>
+                        <div class="build-price">289 990 ₽</div>
+                    </div>
+                    
+                    <img src="https://images.unsplash.com/photo-1593640408182-31c562922280?w=1200&h=400&fit=crop&auto=format" 
+                         alt="Игровая сборка" class="build-image">
+                    
+                    <p class="build-description">
+                        Максимальная производительность для игр в 4K. Идеально подходит для стриминга и записи геймплея. 
+                        Охлаждение жидкостное, корпус с RGB-подсветкой.
+                    </p>
+
+                    <div class="build-specs">
+                        <h4 class="specs-title">Характеристики:</h4>
+                        <ul class="specs-list">
+                            <li><span class="spec-name">Процессор:</span><span class="spec-value">AMD Ryzen 9 7950X3D</span></li>
+                            <li><span class="spec-name">Видеокарта:</span><span class="spec-value">NVIDIA RTX 4090 24GB</span></li>
+                            <li><span class="spec-name">Оперативная память:</span><span class="spec-value">DDR5 64GB 6000MHz</span></li>
+                            <li><span class="spec-name">Накопитель:</span><span class="spec-value">SSD NVMe 2TB + HDD 4TB</span></li>
+                        </ul>
+                    </div>
+
+                    <div class="build-actions">
+                        <button class="btn-build btn-outline">Подробнее</button>
+                        <button class="btn-build btn-primary add-to-cart-build" 
+                                data-id="build1" 
+                                data-name="ULTIMATE GAMING PRO" 
+                                data-price="289990">
+                            Добавить в корзину
+                        </button>
+                    </div>
+                </div>
+
+                <div class="build-card">
+                    <div class="build-header">
+                        <div>
+                            <h3 class="build-title">ELITE GAMING RIG</h3>
+                            <span class="performance-badge gaming-badge">ИГРОВАЯ СБОРКА</span>
+                        </div>
+                        <div class="build-price">219 990 ₽</div>
+                    </div>
+                    
+                    <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?w=1200&h=400&fit=crop&auto=format" 
+                         alt="Elite Gaming Rig" class="build-image">
+                    
+                    <p class="build-description">
+                        Мощная игровая система для 1440p и 4K гейминга. Отличная производительность в современных играх 
+                        с максимальными настройками. Поддержка ray tracing и DLSS 3.
+                    </p>
+
+                    <div class="build-specs">
+                        <h4 class="specs-title">Характеристики:</h4>
+                        <ul class="specs-list">
+                            <li><span class="spec-name">Процессор:</span><span class="spec-value">Intel Core i9-14900K</span></li>
+                            <li><span class="spec-name">Видеокарта:</span><span class="spec-value">NVIDIA RTX 4080 16GB</span></li>
+                            <li><span class="spec-name">Оперативная память:</span><span class="spec-value">DDR5 32GB 6000MHz</span></li>
+                            <li><span class="spec-name">Накопитель:</span><span class="spec-value">SSD NVMe 2TB</span></li>
+                        </ul>
+                    </div>
+
+                    <div class="build-actions">
+                        <button class="btn-build btn-outline">Подробнее</button>
+                        <button class="btn-build btn-primary add-to-cart-build" 
+                                data-id="build4" 
+                                data-name="ELITE GAMING RIG" 
+                                data-price="219990">
+                            Добавить в корзину
+                        </button>
+                    </div>
+                </div>
+
+                <div class="build-card">
+                    <div class="build-header">
+                        <div>
+                            <h3 class="build-title">AMD GAMING BEAST</h3>
+                            <span class="performance-badge gaming-badge">ИГРОВАЯ СБОРКА</span>
+                        </div>
+                        <div class="build-price">179 990 ₽</div>
+                    </div>
+                    
+                    <img src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=1200&h=400&fit=crop&auto=format" 
+                         alt="AMD Gaming Beast" class="build-image">
+                    
+                    <p class="build-description">
+                        Высокопроизводительная сборка на базе AMD. Идеальна для игр в 1440p с высоким FPS. 
+                        Отличная цена за производительность, поддержка FSR 3.
+                    </p>
+
+                    <div class="build-specs">
+                        <h4 class="specs-title">Характеристики:</h4>
+                        <ul class="specs-list">
+                            <li><span class="spec-name">Процессор:</span><span class="spec-value">AMD Ryzen 7 7800X3D</span></li>
+                            <li><span class="spec-name">Видеокарта:</span><span class="spec-value">AMD RX 7900 XTX 24GB</span></li>
+                            <li><span class="spec-name">Оперативная память:</span><span class="spec-value">DDR5 32GB 6000MHz</span></li>
+                            <li><span class="spec-name">Накопитель:</span><span class="spec-value">SSD NVMe 1TB</span></li>
+                        </ul>
+                    </div>
+
+                    <div class="build-actions">
+                        <button class="btn-build btn-outline">Подробнее</button>
+                        <button class="btn-build btn-primary add-to-cart-build" 
+                                data-id="build5" 
+                                data-name="AMD GAMING BEAST" 
+                                data-price="179990">
+                            Добавить в корзину
+                        </button>
+                    </div>
+                </div>
+
+                <div class="build-card">
+                    <div class="build-header">
+                        <div>
+                            <h3 class="build-title">GAMING PERFORMANCE</h3>
+                            <span class="performance-badge gaming-badge">ИГРОВАЯ СБОРКА</span>
+                        </div>
+                        <div class="build-price">149 990 ₽</div>
+                    </div>
+                    
+                    <img src="https://images.unsplash.com/photo-1527814050087-3793815479db?w=1200&h=400&fit=crop&auto=format" 
+                         alt="Gaming Performance" class="build-image">
+                    
+                    <p class="build-description">
+                        Сбалансированная игровая сборка для комфортного гейминга в 1440p. Стабильные 100+ FPS 
+                        в большинстве игр. Отличный выбор для энтузиастов.
+                    </p>
+
+                    <div class="build-specs">
+                        <h4 class="specs-title">Характеристики:</h4>
+                        <ul class="specs-list">
+                            <li><span class="spec-name">Процессор:</span><span class="spec-value">AMD Ryzen 7 7700X</span></li>
+                            <li><span class="spec-name">Видеокарта:</span><span class="spec-value">NVIDIA RTX 4070 Ti 12GB</span></li>
+                            <li><span class="spec-name">Оперативная память:</span><span class="spec-value">DDR5 32GB 5600MHz</span></li>
+                            <li><span class="spec-name">Накопитель:</span><span class="spec-value">SSD NVMe 1TB</span></li>
+                        </ul>
+                    </div>
+
+                    <div class="build-actions">
+                        <button class="btn-build btn-outline">Подробнее</button>
+                        <button class="btn-build btn-primary add-to-cart-build" 
+                                data-id="build6" 
+                                data-name="GAMING PERFORMANCE" 
+                                data-price="149990">
+                            Добавить в корзину
+                        </button>
+                    </div>
+                </div>
+
+                <div class="build-card">
+                    <div class="build-header">
+                        <div>
+                            <h3 class="build-title">COMPETITIVE GAMING</h3>
+                            <span class="performance-badge gaming-badge">ИГРОВАЯ СБОРКА</span>
+                        </div>
+                        <div class="build-price">129 990 ₽</div>
+                    </div>
+                    
+                    <img src="https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=1200&h=400&fit=crop&auto=format" 
+                         alt="Competitive Gaming" class="build-image">
+                    
+                    <p class="build-description">
+                        Оптимизированная сборка для киберспортивных игр. Максимальный FPS в CS:GO, Valorant, 
+                        Overwatch. Низкая задержка ввода, стабильная работа.
+                    </p>
+
+                    <div class="build-specs">
+                        <h4 class="specs-title">Характеристики:</h4>
+                        <ul class="specs-list">
+                            <li><span class="spec-name">Процессор:</span><span class="spec-value">Intel Core i7-14700K</span></li>
+                            <li><span class="spec-name">Видеокарта:</span><span class="spec-value">NVIDIA RTX 4070 12GB</span></li>
+                            <li><span class="spec-name">Оперативная память:</span><span class="spec-value">DDR5 32GB 6000MHz</span></li>
+                            <li><span class="spec-name">Накопитель:</span><span class="spec-value">SSD NVMe 1TB</span></li>
+                        </ul>
+                    </div>
+
+                    <div class="build-actions">
+                        <button class="btn-build btn-outline">Подробнее</button>
+                        <button class="btn-build btn-primary add-to-cart-build" 
+                                data-id="build7" 
+                                data-name="COMPETITIVE GAMING" 
+                                data-price="129990">
+                            Добавить в корзину
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Рабочие станции -->
+            <section id="workstation" class="build-section">
+                <h2 class="section-title">Рабочие станции</h2>
+                
+                <div class="build-card">
+                    <div class="build-header">
+                        <div>
+                            <h3 class="build-title">PRO WORKSTATION</h3>
+                            <span class="performance-badge workstation-badge">ДЛЯ РАБОТЫ</span>
+                        </div>
+                        <div class="build-price">199 990 ₽</div>
+                    </div>
+                    
+                    <img src="https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=1200&h=400&fit=crop&auto=format" 
+                         alt="Рабочая станция" class="build-image">
+                    
+                    <p class="build-description">
+                        Профессиональная рабочая станция для 3D-моделирования, видеомонтажа и программирования. 
+                        Стабильная работа под высокой нагрузкой 24/7.
+                    </p>
+
+                    <div class="build-specs">
+                        <h4 class="specs-title">Характеристики:</h4>
+                        <ul class="specs-list">
+                            <li><span class="spec-name">Процессор:</span><span class="spec-value">Intel Core i9-14900K</span></li>
+                            <li><span class="spec-name">Видеокарта:</span><span class="spec-value">NVIDIA RTX 4080 16GB</span></li>
+                            <li><span class="spec-name">Оперативная память:</span><span class="spec-value">DDR5 128GB 5600MHz</span></li>
+                            <li><span class="spec-name">Накопитель:</span><span class="spec-value">SSD NVMe 4TB RAID 0</span></li>
+                        </ul>
+                    </div>
+
+                    <div class="build-actions">
+                        <button class="btn-build btn-outline">Подробнее</button>
+                        <button class="btn-build btn-primary add-to-cart-build" 
+                                data-id="build2" 
+                                data-name="PRO WORKSTATION" 
+                                data-price="199990">
+                            Добавить в корзину
+                        </button>
+                    </div>
+                </div>
+
+                <div class="build-card">
+                    <div class="build-header">
+                        <div>
+                            <h3 class="build-title">CREATIVE WORKSTATION</h3>
+                            <span class="performance-badge workstation-badge">ДЛЯ РАБОТЫ</span>
+                        </div>
+                        <div class="build-price">169 990 ₽</div>
+                    </div>
+                    
+                    <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?w=1200&h=400&fit=crop&auto=format" 
+                         alt="Creative Workstation" class="build-image">
+                    
+                    <p class="build-description">
+                        Специализированная рабочая станция для дизайнеров, видеомонтажеров и 3D-художников. 
+                        Быстрый рендеринг, работа с большими проектами, поддержка профессионального ПО.
+                    </p>
+
+                    <div class="build-specs">
+                        <h4 class="specs-title">Характеристики:</h4>
+                        <ul class="specs-list">
+                            <li><span class="spec-name">Процессор:</span><span class="spec-value">AMD Ryzen 9 7900X</span></li>
+                            <li><span class="spec-name">Видеокарта:</span><span class="spec-value">NVIDIA RTX 4070 Ti 12GB</span></li>
+                            <li><span class="spec-name">Оперативная память:</span><span class="spec-value">DDR5 64GB 6000MHz</span></li>
+                            <li><span class="spec-name">Накопитель:</span><span class="spec-value">SSD NVMe 2TB + HDD 4TB</span></li>
+                        </ul>
+                    </div>
+
+                    <div class="build-actions">
+                        <button class="btn-build btn-outline">Подробнее</button>
+                        <button class="btn-build btn-primary add-to-cart-build" 
+                                data-id="build8" 
+                                data-name="CREATIVE WORKSTATION" 
+                                data-price="169990">
+                            Добавить в корзину
+                        </button>
+                    </div>
+                </div>
+
+                <div class="build-card">
+                    <div class="build-header">
+                        <div>
+                            <h3 class="build-title">DEVELOPER PRO</h3>
+                            <span class="performance-badge workstation-badge">ДЛЯ РАБОТЫ</span>
+                        </div>
+                        <div class="build-price">139 990 ₽</div>
+                    </div>
+                    
+                    <img src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=1200&h=400&fit=crop&auto=format" 
+                         alt="Developer Pro" class="build-image">
+                    
+                    <p class="build-description">
+                        Идеальная рабочая станция для программистов и разработчиков. Быстрая компиляция, 
+                        поддержка виртуализации, работа с Docker и контейнерами. Множество параллельных задач.
+                    </p>
+
+                    <div class="build-specs">
+                        <h4 class="specs-title">Характеристики:</h4>
+                        <ul class="specs-list">
+                            <li><span class="spec-name">Процессор:</span><span class="spec-value">Intel Core i7-14700K</span></li>
+                            <li><span class="spec-name">Видеокарта:</span><span class="spec-value">NVIDIA RTX 4060 Ti 16GB</span></li>
+                            <li><span class="spec-name">Оперативная память:</span><span class="spec-value">DDR5 64GB 5600MHz</span></li>
+                            <li><span class="spec-name">Накопитель:</span><span class="spec-value">SSD NVMe 2TB</span></li>
+                        </ul>
+                    </div>
+
+                    <div class="build-actions">
+                        <button class="btn-build btn-outline">Подробнее</button>
+                        <button class="btn-build btn-primary add-to-cart-build" 
+                                data-id="build9" 
+                                data-name="DEVELOPER PRO" 
+                                data-price="139990">
+                            Добавить в корзину
+                        </button>
+                    </div>
+                </div>
+
+                <div class="build-card">
+                    <div class="build-header">
+                        <div>
+                            <h3 class="build-title">3D RENDERING STATION</h3>
+                            <span class="performance-badge workstation-badge">ДЛЯ РАБОТЫ</span>
+                        </div>
+                        <div class="build-price">249 990 ₽</div>
+                    </div>
+                    
+                    <img src="https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=1200&h=400&fit=crop&auto=format" 
+                         alt="3D Rendering Station" class="build-image">
+                    
+                    <p class="build-description">
+                        Мощная станция для 3D-рендеринга и визуализации. Оптимизирована для Blender, 
+                        Maya, 3ds Max. Быстрый рендеринг сложных сцен, работа с большими текстурами.
+                    </p>
+
+                    <div class="build-specs">
+                        <h4 class="specs-title">Характеристики:</h4>
+                        <ul class="specs-list">
+                            <li><span class="spec-name">Процессор:</span><span class="spec-value">AMD Ryzen 9 7950X</span></li>
+                            <li><span class="spec-name">Видеокарта:</span><span class="spec-value">NVIDIA RTX 4090 24GB</span></li>
+                            <li><span class="spec-name">Оперативная память:</span><span class="spec-value">DDR5 128GB 6000MHz</span></li>
+                            <li><span class="spec-name">Накопитель:</span><span class="spec-value">SSD NVMe 4TB</span></li>
+                        </ul>
+                    </div>
+
+                    <div class="build-actions">
+                        <button class="btn-build btn-outline">Подробнее</button>
+                        <button class="btn-build btn-primary add-to-cart-build" 
+                                data-id="build10" 
+                                data-name="3D RENDERING STATION" 
+                                data-price="249990">
+                            Добавить в корзину
+                        </button>
+                    </div>
+                </div>
+
+                <div class="build-card">
+                    <div class="build-header">
+                        <div>
+                            <h3 class="build-title">VIDEO EDITING PRO</h3>
+                            <span class="performance-badge workstation-badge">ДЛЯ РАБОТЫ</span>
+                        </div>
+                        <div class="build-price">179 990 ₽</div>
+                    </div>
+                    
+                    <img src="https://images.unsplash.com/photo-1527814050087-3793815479db?w=1200&h=400&fit=crop&auto=format" 
+                         alt="Video Editing Pro" class="build-image">
+                    
+                    <p class="build-description">
+                        Профессиональная станция для видеомонтажа. Быстрый экспорт 4K/8K видео, 
+                        работа с RAW форматами, поддержка Adobe Premiere, DaVinci Resolve.
+                    </p>
+
+                    <div class="build-specs">
+                        <h4 class="specs-title">Характеристики:</h4>
+                        <ul class="specs-list">
+                            <li><span class="spec-name">Процессор:</span><span class="spec-value">Intel Core i9-13900K</span></li>
+                            <li><span class="spec-name">Видеокарта:</span><span class="spec-value">NVIDIA RTX 4080 16GB</span></li>
+                            <li><span class="spec-name">Оперативная память:</span><span class="spec-value">DDR5 64GB 6000MHz</span></li>
+                            <li><span class="spec-name">Накопитель:</span><span class="spec-value">SSD NVMe 2TB + HDD 8TB</span></li>
+                        </ul>
+                    </div>
+
+                    <div class="build-actions">
+                        <button class="btn-build btn-outline">Подробнее</button>
+                        <button class="btn-build btn-primary add-to-cart-build" 
+                                data-id="build11" 
+                                data-name="VIDEO EDITING PRO" 
+                                data-price="179990">
+                            Добавить в корзину
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Бюджетные сборки -->
+            <section id="budget" class="build-section">
+                <h2 class="section-title">Бюджетные сборки</h2>
+                
+                <div class="build-card">
+                    <div class="build-header">
+                        <div>
+                            <h3 class="build-title">GAMING STARTER</h3>
+                            <span class="performance-badge budget-badge">БЮДЖЕТНАЯ</span>
+                        </div>
+                        <div class="build-price">89 990 ₽</div>
+                    </div>
+                    
+                    <img src="https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=1200&h=400&fit=crop&auto=format" 
+                         alt="Бюджетная сборка" class="build-image">
+                    
+                    <p class="build-description">
+                        Отличный старт для начинающих геймеров. Стабильные 144 FPS в Full HD, 
+                        современные игры на высоких настройках. Отличное соотношение цена/качество.
+                    </p>
+
+                    <div class="build-specs">
+                        <h4 class="specs-title">Характеристики:</h4>
+                        <ul class="specs-list">
+                            <li><span class="spec-name">Процессор:</span><span class="spec-value">AMD Ryzen 5 7600X</span></li>
+                            <li><span class="spec-name">Видеокарта:</span><span class="spec-value">NVIDIA RTX 4060 Ti 8GB</span></li>
+                            <li><span class="spec-name">Оперативная память:</span><span class="spec-value">DDR5 32GB 5200MHz</span></li>
+                            <li><span class="spec-name">Накопитель:</span><span class="spec-value">SSD NVMe 1TB</span></li>
+                        </ul>
+                    </div>
+
+                    <div class="build-actions">
+                        <button class="btn-build btn-outline">Подробнее</button>
+                        <button class="btn-build btn-primary add-to-cart-build" 
+                                data-id="build3" 
+                                data-name="GAMING STARTER" 
+                                data-price="89990">
+                            Добавить в корзину
+                        </button>
+                    </div>
+                </div>
+
+                <div class="build-card">
+                    <div class="build-header">
+                        <div>
+                            <h3 class="build-title">ENTRY GAMING</h3>
+                            <span class="performance-badge budget-badge">БЮДЖЕТНАЯ</span>
+                        </div>
+                        <div class="build-price">69 990 ₽</div>
+                    </div>
+                    
+                    <img src="https://images.unsplash.com/photo-1593640408182-31c562922280?w=1200&h=400&fit=crop&auto=format" 
+                         alt="Entry Gaming" class="build-image">
+                    
+                    <p class="build-description">
+                        Отличная стартовая сборка для начинающих геймеров. Комфортный гейминг в Full HD, 
+                        современные игры на средних настройках. Идеальное соотношение цена/качество.
+                    </p>
+
+                    <div class="build-specs">
+                        <h4 class="specs-title">Характеристики:</h4>
+                        <ul class="specs-list">
+                            <li><span class="spec-name">Процессор:</span><span class="spec-value">AMD Ryzen 5 5600X</span></li>
+                            <li><span class="spec-name">Видеокарта:</span><span class="spec-value">NVIDIA RTX 4060 8GB</span></li>
+                            <li><span class="spec-name">Оперативная память:</span><span class="spec-value">DDR4 16GB 3200MHz</span></li>
+                            <li><span class="spec-name">Накопитель:</span><span class="spec-value">SSD NVMe 1TB</span></li>
+                        </ul>
+                    </div>
+
+                    <div class="build-actions">
+                        <button class="btn-build btn-outline">Подробнее</button>
+                        <button class="btn-build btn-primary add-to-cart-build" 
+                                data-id="build12" 
+                                data-name="ENTRY GAMING" 
+                                data-price="69990">
+                            Добавить в корзину
+                        </button>
+                    </div>
+                </div>
+
+                <div class="build-card">
+                    <div class="build-header">
+                        <div>
+                            <h3 class="build-title">COMPACT GAMING</h3>
+                            <span class="performance-badge budget-badge">БЮДЖЕТНАЯ</span>
+                        </div>
+                        <div class="build-price">79 990 ₽</div>
+                    </div>
+                    
+                    <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?w=1200&h=400&fit=crop&auto=format" 
+                         alt="Compact Gaming" class="build-image">
+                    
+                    <p class="build-description">
+                        Компактная игровая сборка в корпусе Mini-ITX. Занимает мало места, но обеспечивает 
+                        отличную производительность. Подходит для небольших помещений.
+                    </p>
+
+                    <div class="build-specs">
+                        <h4 class="specs-title">Характеристики:</h4>
+                        <ul class="specs-list">
+                            <li><span class="spec-name">Процессор:</span><span class="spec-value">Intel Core i5-13400F</span></li>
+                            <li><span class="spec-name">Видеокарта:</span><span class="spec-value">AMD RX 7600 8GB</span></li>
+                            <li><span class="spec-name">Оперативная память:</span><span class="spec-value">DDR5 16GB 5200MHz</span></li>
+                            <li><span class="spec-name">Накопитель:</span><span class="spec-value">SSD NVMe 1TB</span></li>
+                        </ul>
+                    </div>
+
+                    <div class="build-actions">
+                        <button class="btn-build btn-outline">Подробнее</button>
+                        <button class="btn-build btn-primary add-to-cart-build" 
+                                data-id="build13" 
+                                data-name="COMPACT GAMING" 
+                                data-price="79990">
+                            Добавить в корзину
+                        </button>
+                    </div>
+                </div>
+
+                <div class="build-card">
+                    <div class="build-header">
+                        <div>
+                            <h3 class="build-title">OFFICE & GAMING</h3>
+                            <span class="performance-badge budget-badge">БЮДЖЕТНАЯ</span>
+                        </div>
+                        <div class="build-price">99 990 ₽</div>
+                    </div>
+                    
+                    <img src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=1200&h=400&fit=crop&auto=format" 
+                         alt="Office & Gaming" class="build-image">
+                    
+                    <p class="build-description">
+                        Универсальная сборка для работы и игр. Отлично справляется с офисными задачами, 
+                        видеозвонками и современными играми. Идеальна для домашнего использования.
+                    </p>
+
+                    <div class="build-specs">
+                        <h4 class="specs-title">Характеристики:</h4>
+                        <ul class="specs-list">
+                            <li><span class="spec-name">Процессор:</span><span class="spec-value">AMD Ryzen 5 7600X</span></li>
+                            <li><span class="spec-name">Видеокарта:</span><span class="spec-value">NVIDIA RTX 4060 Ti 16GB</span></li>
+                            <li><span class="spec-name">Оперативная память:</span><span class="spec-value">DDR5 32GB 5600MHz</span></li>
+                            <li><span class="spec-name">Накопитель:</span><span class="spec-value">SSD NVMe 1TB + HDD 2TB</span></li>
+                        </ul>
+                    </div>
+
+                    <div class="build-actions">
+                        <button class="btn-build btn-outline">Подробнее</button>
+                        <button class="btn-build btn-primary add-to-cart-build" 
+                                data-id="build14" 
+                                data-name="OFFICE & GAMING" 
+                                data-price="99990">
+                            Добавить в корзину
+                        </button>
+                    </div>
+                </div>
+
+                <div class="build-card">
+                    <div class="build-header">
+                        <div>
+                            <h3 class="build-title">BUDGET PERFORMANCE</h3>
+                            <span class="performance-badge budget-badge">БЮДЖЕТНАЯ</span>
+                        </div>
+                        <div class="build-price">109 990 ₽</div>
+                    </div>
+                    
+                    <img src="https://images.unsplash.com/photo-1527814050087-3793815479db?w=1200&h=400&fit=crop&auto=format" 
+                         alt="Budget Performance" class="build-image">
+                    
+                    <p class="build-description">
+                        Оптимальная сборка для тех, кто хочет больше производительности за разумные деньги. 
+                        Отличная производительность в играх и работе. Хорошая база для будущих апгрейдов.
+                    </p>
+
+                    <div class="build-specs">
+                        <h4 class="specs-title">Характеристики:</h4>
+                        <ul class="specs-list">
+                            <li><span class="spec-name">Процессор:</span><span class="spec-value">Intel Core i5-14600K</span></li>
+                            <li><span class="spec-name">Видеокарта:</span><span class="spec-value">AMD RX 7700 XT 12GB</span></li>
+                            <li><span class="spec-name">Оперативная память:</span><span class="spec-value">DDR5 32GB 6000MHz</span></li>
+                            <li><span class="spec-name">Накопитель:</span><span class="spec-value">SSD NVMe 1TB</span></li>
+                        </ul>
+                    </div>
+
+                    <div class="build-actions">
+                        <button class="btn-build btn-outline">Подробнее</button>
+                        <button class="btn-build btn-primary add-to-cart-build" 
+                                data-id="build15" 
+                                data-name="BUDGET PERFORMANCE" 
+                                data-price="109990">
+                            Добавить в корзину
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Модальное окно с подробной информацией о сборке -->
+    <div id="build-details-modal" class="build-modal">
+        <div class="build-modal-content">
+            <span class="build-modal-close">&times;</span>
+            <div class="build-modal-header">
+                <h2 id="modal-build-title"></h2>
+                <span id="modal-build-badge" class="performance-badge"></span>
+            </div>
+            <div class="build-modal-body">
+                <img id="modal-build-image" src="" alt="Сборка" class="build-modal-image">
+                <div class="build-modal-info">
+                    <div class="build-modal-price-section">
+                        <span class="build-modal-price-label">Цена:</span>
+                        <span id="modal-build-price" class="build-modal-price"></span>
+                    </div>
+                    <div class="build-modal-description">
+                        <h3>Описание</h3>
+                        <p id="modal-build-description"></p>
+                    </div>
+                    <div class="build-modal-specs">
+                        <h3>Полные характеристики</h3>
+                        <ul id="modal-build-specs" class="build-modal-specs-list"></ul>
+                    </div>
+                </div>
+            </div>
+            <div class="build-modal-footer">
+                <button class="btn-build btn-outline" id="modal-close-btn">Закрыть</button>
+                <button class="btn-build btn-primary" id="modal-add-to-cart-btn">
+                    Добавить в корзину
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 TechStore. Все права защищены.</p>
+        </div>
+    </footer>
+
+    <script src="js/cart.js"></script>
+    <script src="js/theme.js"></script>
+    <script src="js/categories.js"></script>
+    <script src="js/dropdown.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Обработчик кнопки выхода
+            document.querySelectorAll('.logout-btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    if (confirm('Вы уверены, что хотите выйти?')) {
+                        cart.auth.logout();
+                        cart.updateUserInfo();
+                        window.location.href = 'index.html';
+                    }
+                });
+            });
+            
+            document.querySelectorAll('.add-to-cart-build').forEach(button => {
+                button.addEventListener('click', function() {
+                    const buildId = this.dataset.id;
+                    const buildName = this.dataset.name;
+                    const buildPrice = parseInt(this.dataset.price);
+                    const buildImage = this.closest('.build-card').querySelector('.build-image').src;
+                    
+                    cart.addItem(buildId, buildName, buildPrice, buildImage, 1);
+                    
+                    const originalText = this.textContent;
+                    this.textContent = 'Добавлено!';
+                    this.style.background = '#2ecc71';
+                    
+                    setTimeout(() => {
+                        this.textContent = originalText;
+                        this.style.background = '';
+                    }, 2000);
+                });
+            });
+
+            // Обработчик кнопки "Подробнее"
+            const modal = document.getElementById('build-details-modal');
+            const closeModal = document.querySelector('.build-modal-close');
+            const closeBtn = document.getElementById('modal-close-btn');
+            const addToCartBtn = document.getElementById('modal-add-to-cart-btn');
+
+            document.querySelectorAll('.btn-outline').forEach(button => {
+                if (button.textContent.trim() === 'Подробнее') {
+                    button.addEventListener('click', function() {
+                        const buildCard = this.closest('.build-card');
+                        
+                        // Собираем данные из карточки
+                        const title = buildCard.querySelector('.build-title').textContent;
+                        const price = buildCard.querySelector('.build-price').textContent;
+                        const image = buildCard.querySelector('.build-image').src;
+                        const description = buildCard.querySelector('.build-description').textContent;
+                        const badge = buildCard.querySelector('.performance-badge');
+                        const badgeText = badge ? badge.textContent : '';
+                        const badgeClass = badge ? badge.className.split(' ').find(c => c.includes('badge')) : '';
+                        
+                        // Получаем характеристики
+                        const specsList = buildCard.querySelectorAll('.specs-list li');
+                        const specs = [];
+                        specsList.forEach(li => {
+                            const name = li.querySelector('.spec-name').textContent;
+                            const value = li.querySelector('.spec-value').textContent;
+                            specs.push({ name, value });
+                        });
+
+                        // Получаем данные для добавления в корзину
+                        const addToCartButton = buildCard.querySelector('.add-to-cart-build');
+                        const buildId = addToCartButton ? addToCartButton.dataset.id : '';
+                        const buildName = addToCartButton ? addToCartButton.dataset.name : title;
+                        const buildPrice = addToCartButton ? parseInt(addToCartButton.dataset.price) : 0;
+
+                        // Заполняем модальное окно
+                        document.getElementById('modal-build-title').textContent = title;
+                        document.getElementById('modal-build-price').textContent = price;
+                        document.getElementById('modal-build-image').src = image;
+                        document.getElementById('modal-build-description').textContent = description;
+                        
+                        // Бейдж
+                        const modalBadge = document.getElementById('modal-build-badge');
+                        if (badgeText) {
+                            modalBadge.textContent = badgeText;
+                            modalBadge.className = 'performance-badge ' + badgeClass;
+                            modalBadge.style.display = 'inline-block';
+                        } else {
+                            modalBadge.style.display = 'none';
+                        }
+
+                        // Характеристики
+                        const specsContainer = document.getElementById('modal-build-specs');
+                        specsContainer.innerHTML = '';
+                        specs.forEach(spec => {
+                            const li = document.createElement('li');
+                            li.innerHTML = `
+                                <span class="spec-name">${spec.name}</span>
+                                <span class="spec-value">${spec.value}</span>
+                            `;
+                            specsContainer.appendChild(li);
+                        });
+
+                        // Обработчик добавления в корзину из модального окна
+                        addToCartBtn.onclick = function() {
+                            if (buildId && buildPrice) {
+                                cart.addItem(buildId, buildName, buildPrice, image, 1);
+                                
+                                const originalText = addToCartBtn.textContent;
+                                addToCartBtn.textContent = 'Добавлено!';
+                                addToCartBtn.style.background = '#2ecc71';
+                                
+                                setTimeout(() => {
+                                    addToCartBtn.textContent = originalText;
+                                    addToCartBtn.style.background = '';
+                                    modal.style.display = 'none';
+                                }, 1500);
+                            }
+                        };
+
+                        // Показываем модальное окно
+                        modal.style.display = 'block';
+                        document.body.style.overflow = 'hidden';
+                    });
+                }
+            });
+
+            // Закрытие модального окна
+            function closeBuildModal() {
+                modal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            }
+
+            closeModal.addEventListener('click', closeBuildModal);
+            closeBtn.addEventListener('click', closeBuildModal);
+
+            // Закрытие при клике вне модального окна
+            window.addEventListener('click', function(event) {
+                if (event.target === modal) {
+                    closeBuildModal();
+                }
+            });
+
+            // Закрытие по Escape
+            document.addEventListener('keydown', function(event) {
+                if (event.key === 'Escape' && modal.style.display === 'block') {
+                    closeBuildModal();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
