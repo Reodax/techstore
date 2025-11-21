@@ -25,6 +25,15 @@ try {
     // Делаем db доступной глобально
     window.db = db;
     
+    // Устанавливаем persistence для сохранения сессии между перезагрузками
+    firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+        .then(() => {
+            console.log('✅ Firebase Auth persistence установлен');
+        })
+        .catch((error) => {
+            console.error('❌ Ошибка установки persistence:', error);
+        });
+    
     console.log('✅ Firebase инициализирован успешно!');
     console.log('📊 Firestore подключен');
     console.log('🔐 Firebase Auth подключен');

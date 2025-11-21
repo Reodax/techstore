@@ -782,68 +782,51 @@
     <script src="js/mobile-menu.js"></script>
     <script>
         // Инициализация страницы профиля
-        document.addEventListener('DOMContentLoaded', function() {
-            let authChecked = false;
-            let checkTimeout = null;
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Ждем инициализации cart и auth
+            while (!cart || !cart.isInitialized || !auth || !auth.isFirebaseReady) {
+                await new Promise(resolve => setTimeout(resolve, 100));
+            }
             
-            // Таймаут на случай если Firebase не ответит
-            checkTimeout = setTimeout(() => {
-                if (!authChecked) {
-                    console.warn('Firebase Auth timeout, redirecting to login');
-                    window.location.href = 'login.html';
-                }
-            }, 5000);
+            // Проверяем текущего пользователя
+            const firebaseUser = firebase.auth().currentUser;
             
-            // Используем onAuthStateChanged для правильной проверки авторизации
-            const unsubscribe = firebase.auth().onAuthStateChanged(async (firebaseUser) => {
-                // Защита от множественных вызовов
-                if (authChecked) return;
-                authChecked = true;
-                
-                // Очищаем таймаут
-                if (checkTimeout) {
-                    clearTimeout(checkTimeout);
-                }
-                
-                // Проверяем авторизацию
-                if (!firebaseUser) {
-                    window.location.href = 'login.html';
-                    return;
-                }
-                
-                // Отписываемся от дальнейших обновлений на этой странице
-                unsubscribe();
+            if (!firebaseUser) {
+                // Если не авторизован, перенаправляем
+                window.location.href = 'login.html';
+                return;
+            }
 
-                // Загружаем данные пользователя из Firestore
-                const userData = await getCurrentUserData();
-                if (userData) {
-                    auth.currentUser = userData;
+            // Загружаем данные пользователя из Firestore
+            const userData = await getCurrentUserData();
+            if (userData) {
+                auth.currentUser = userData;
+            }
+
+            // Заполняем информацию о пользователе
+            document.getElementById('user-name').textContent = auth.getUserName() || firebaseUser.displayName || 'Пользователь';
+            document.getElementById('user-email').textContent = auth.getUserEmail() || firebaseUser.email || '';
+            
+            // Дата регистрации
+            let regDate = 'Не указана';
+            if (auth.currentUser && auth.currentUser.registrationDate) {
+                if (auth.currentUser.registrationDate.toDate) {
+                    regDate = auth.currentUser.registrationDate.toDate().toLocaleDateString('ru-RU');
+                } else if (auth.currentUser.registrationDate) {
+                    regDate = new Date(auth.currentUser.registrationDate).toLocaleDateString('ru-RU');
                 }
+            }
+            document.getElementById('registration-date').textContent = regDate;
+            
+            // Обновляем счетчик корзины
+            const cartCount = cart.getTotalCount();
+            document.getElementById('cart-count-profile').textContent = cartCount;
 
-                // Заполняем информацию о пользователе
-                document.getElementById('user-name').textContent = auth.getUserName();
-                document.getElementById('user-email').textContent = auth.getUserEmail();
-                
-                // Дата регистрации
-                let regDate = 'Не указана';
-                if (auth.currentUser && auth.currentUser.registrationDate) {
-                    if (auth.currentUser.registrationDate.toDate) {
-                        regDate = auth.currentUser.registrationDate.toDate().toLocaleDateString('ru-RU');
-                    } else {
-                        regDate = new Date(auth.currentUser.registrationDate).toLocaleDateString('ru-RU');
-                    }
-                }
-                document.getElementById('registration-date').textContent = regDate;
-                
-                // Обновляем счетчик корзины
-                const cartCount = cart.getTotalCount();
-                document.getElementById('cart-count-profile').textContent = cartCount;
+            // Загружаем заказы пользователя
+            loadUserOrders();
 
-                // Загружаем заказы пользователя
-                loadUserOrders();
-
-                // Показываем контент после загрузки данных
-                document.querySelector('.profile-container').classList.add('loaded');
+            // Показываем контент после загрузки данных
+            document.querySelector('.profile-container').classList.add('loaded');
 
                 // Обработчик кнопки выхода
                 document.getElementById('logout-btn').addEventListener('click', async function() {
