@@ -382,6 +382,7 @@
             border-radius: 10px;
             box-shadow: 0 8px 25px rgba(0,0,0,0.1);
             text-align: center;
+            transition: all 0.3s ease;
         }
         
         .admin-login h2 {
@@ -390,12 +391,14 @@
             margin-bottom: 0.2rem;
             font-size: 1.1rem;
             font-weight: 600;
+            transition: color 0.3s ease;
         }
         
         .admin-login p {
             color: #7f8c8d;
             margin-bottom: 0.6rem;
             font-size: 0.8rem;
+            transition: color 0.3s ease;
         }
 
         .admin-login-form {
@@ -416,6 +419,7 @@
             font-weight: 600;
             color: var(--text-color);
             font-size: 0.8rem;
+            transition: color 0.3s ease;
         }
         
         .admin-login-form .form-group input {
@@ -425,6 +429,11 @@
             font-size: 0.85rem;
             transition: all 0.3s ease;
             background: white;
+        }
+        
+        .admin-login-form .form-group input::placeholder {
+            color: #999;
+            transition: color 0.3s ease;
         }
         
         .admin-login-form .form-group input:focus {
@@ -437,6 +446,10 @@
             background: #2d2d2d;
             border-color: #444;
             color: white;
+        }
+        
+        body.dark-theme .admin-login-form .form-group input::placeholder {
+            color: #777;
         }
         
         body.dark-theme .admin-login-form .form-group input:focus {
@@ -474,6 +487,7 @@
             color: var(--product-name-color);
             margin: 0;
             font-weight: 600;
+            transition: color 0.3s ease;
         }
 
         .modal {
@@ -641,13 +655,36 @@
             background: var(--background-color);
         }
         
+        body.dark-theme .auth-title {
+            color: #ffffff;
+        }
+        
         body.dark-theme .admin-login {
             background: #1a1a1a;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            border: 1px solid #333;
         }
         
         body.dark-theme .admin-login h2 {
-            color: white;
+            color: #ffffff;
+        }
+        
+        body.dark-theme .admin-login p {
+            color: #999;
+        }
+        
+        body.dark-theme .admin-login-form .form-group label {
+            color: #ffffff;
+        }
+        
+        body.dark-theme .admin-login-form .admin-btn {
+            background: #2980b9;
+            box-shadow: 0 4px 12px rgba(41, 128, 185, 0.3);
+        }
+        
+        body.dark-theme .admin-login-form .admin-btn:hover {
+            background: #3498db;
+            box-shadow: 0 6px 16px rgba(52, 152, 219, 0.4);
         }
 
         body.dark-theme .modal-content {
@@ -738,11 +775,12 @@
                 
                 <div class="admin-login">
                     <h2>Требуется авторизация</h2>
-                    <p>Для доступа к администрации необходимо войти как администратор.</p>
+                    <p style="color: #e74c3c; font-weight: 600;">⚠️ Доступ только для администратора сайта</p>
+                    <p style="font-size: 0.85rem; margin-top: 0.5rem;">Войдите с email администратора для доступа к панели управления.</p>
                     <div class="admin-login-form">
                         <div class="form-group">
-                            <label for="admin-email">Email:</label>
-                            <input type="email" id="admin-email" placeholder="Введите ваш email" required>
+                            <label for="admin-email">Email администратора:</label>
+                            <input type="email" id="admin-email" placeholder="admin@techstore.com" required>
                         </div>
                         <div class="form-group">
                             <label for="admin-password">Пароль:</label>
@@ -1320,8 +1358,23 @@
                 const adminContent = document.getElementById('admin-content');
                 
                 if (user) {
-                    // Пользователь авторизован - показываем админ панель
-                    console.log('✅ Admin: Пользователь авторизован:', user.email);
+                    // Проверка: только администратор может зайти
+                    const ADMIN_EMAIL = 'seriy22832@gmail.com';
+                    
+                    if (user.email !== ADMIN_EMAIL) {
+                        console.warn('❌ Admin: Нет доступа для:', user.email);
+                        alert('❌ Доступ запрещен!\n\nАдмин панель доступна только администратору сайта.');
+                        
+                        // Выходим из аккаунта
+                        firebase.auth().signOut().then(() => {
+                            adminLoginRequired.style.display = 'flex';
+                            adminContent.style.display = 'none';
+                        });
+                        return;
+                    }
+                    
+                    // Пользователь авторизован И является администратором
+                    console.log('✅ Admin: Администратор авторизован:', user.email);
                     adminLoginRequired.style.display = 'none';
                     adminContent.style.display = 'block';
                     
