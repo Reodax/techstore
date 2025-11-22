@@ -24,20 +24,30 @@ async function isCurrentUserAdmin() {
             return false;
         }
         
-        // Проверяем, есть ли email в списке администраторов
-        const isAdmin = ADMIN_EMAILS.includes(user.email.toLowerCase());
+        const userEmail = user.email.toLowerCase();
         
-        // Также проверяем в Firestore (если там хранится список админов)
+        // Сначала проверяем базовый список (для обратной совместимости)
+        if (ADMIN_EMAILS.includes(userEmail)) {
+            return true;
+        }
+        
+        // Проверяем в Firestore (основной источник данных)
         try {
-            const adminDoc = await db.collection('admins').doc(user.uid).get();
-            if (adminDoc.exists && adminDoc.data().isAdmin === true) {
+            // Проверяем по email в коллекции admins
+            const adminsSnapshot = await db.collection('admins')
+                .where('email', '==', userEmail)
+                .where('isAdmin', '==', true)
+                .limit(1)
+                .get();
+            
+            if (!adminsSnapshot.empty) {
                 return true;
             }
         } catch (error) {
             console.warn('⚠️ Не удалось проверить админские права в Firestore:', error);
         }
         
-        return isAdmin;
+        return false;
     } catch (error) {
         console.error('❌ Ошибка проверки прав администратора:', error);
         return false;
@@ -47,13 +57,33 @@ async function isCurrentUserAdmin() {
 /**
  * Проверяет, является ли указанный email администратором
  * @param {string} email - Email адрес для проверки
- * @returns {boolean} true если email является админом, false в противном случае
+ * @returns {Promise<boolean>} true если email является админом, false в противном случае
  */
-function isEmailAdmin(email) {
+async function isEmailAdmin(email) {
     if (!email) {
         return false;
     }
-    return ADMIN_EMAILS.includes(email.toLowerCase());
+    
+    const emailLower = email.toLowerCase();
+    
+    // Проверяем базовый список
+    if (ADMIN_EMAILS.includes(emailLower)) {
+        return true;
+    }
+    
+    // Проверяем в Firestore
+    try {
+        const adminsSnapshot = await db.collection('admins')
+            .where('email', '==', emailLower)
+            .where('isAdmin', '==', true)
+            .limit(1)
+            .get();
+        
+        return !adminsSnapshot.empty;
+    } catch (error) {
+        console.warn('⚠️ Ошибка проверки email администратора:', error);
+        return false;
+    }
 }
 
 /**
@@ -63,55 +93,169 @@ function isEmailAdmin(email) {
 async function getAllAdmins() {
     try {
         const admins = [];
+        const adminEmails = new Set();
         
         // Получаем админов из Firestore
         const adminsSnapshot = await db.collection('admins')
             .where('isAdmin', '==', true)
+            .orderBy('addedAt', 'desc')
             .get();
         
         adminsSnapshot.forEach(doc => {
-            admins.push({ uid: doc.id, ...doc.data() });
+            const data = doc.data();
+            admins.push({ 
+                id: doc.id,
+                email: data.email,
+                addedAt: data.addedAt,
+                addedBy: data.addedBy,
+                source: 'firestore'
+            });
+            adminEmails.add(data.email.toLowerCase());
         });
         
-        // Добавляем админов из списка ADMIN_EMAILS
+        // Добавляем админов из базового списка (если их нет в Firestore)
         for (const email of ADMIN_EMAILS) {
-            // Проверяем, нет ли уже этого админа в списке
-            const exists = admins.some(admin => admin.email === email);
-            if (!exists) {
-                admins.push({ email: email, source: 'config' });
+            const emailLower = email.toLowerCase();
+            if (!adminEmails.has(emailLower)) {
+                admins.push({ 
+                    email: emailLower, 
+                    source: 'config',
+                    isDefault: true
+                });
             }
         }
         
         return admins;
     } catch (error) {
         console.error('❌ Ошибка получения списка администраторов:', error);
-        return ADMIN_EMAILS.map(email => ({ email: email, source: 'config' }));
+        // В случае ошибки возвращаем хотя бы базовый список
+        return ADMIN_EMAILS.map(email => ({ 
+            email: email.toLowerCase(), 
+            source: 'config',
+            isDefault: true
+        }));
     }
 }
 
 /**
- * Добавляет администратора в Firestore (для расширенного управления)
+ * Добавляет администратора в Firestore
  * @param {string} email - Email адрес нового администратора
  * @returns {Promise<{success: boolean, message: string}>}
  */
 async function addAdminToFirestore(email) {
     try {
-        // Находим пользователя по email
-        // Примечание: В клиентском SDK нет прямого способа найти пользователя по email
-        // Это нужно делать через Admin SDK на сервере
-        // Здесь мы просто сохраняем email в коллекцию admins
+        if (!email || !email.includes('@')) {
+            return { success: false, message: 'Неверный формат email' };
+        }
         
-        await db.collection('admins').add({
-            email: email.toLowerCase(),
-            isAdmin: true,
-            addedAt: firebase.firestore.FieldValue.serverTimestamp(),
-            addedBy: firebase.auth().currentUser?.uid || 'system'
-        });
+        const emailLower = email.toLowerCase().trim();
+        const currentUser = firebase.auth().currentUser;
         
-        return { success: true, message: 'Администратор добавлен' };
+        // Проверяем, не является ли уже администратором
+        const isAdmin = await isEmailAdmin(emailLower);
+        if (isAdmin) {
+            return { success: false, message: 'Этот email уже является администратором' };
+        }
+        
+        // Проверяем, нет ли уже такого email в Firestore
+        const existingSnapshot = await db.collection('admins')
+            .where('email', '==', emailLower)
+            .limit(1)
+            .get();
+        
+        if (!existingSnapshot.empty) {
+            // Обновляем существующий документ
+            const doc = existingSnapshot.docs[0];
+            await doc.ref.update({
+                isAdmin: true,
+                addedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                addedBy: currentUser?.uid || 'system'
+            });
+        } else {
+            // Создаем новый документ
+            await db.collection('admins').add({
+                email: emailLower,
+                isAdmin: true,
+                addedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                addedBy: currentUser?.uid || 'system'
+            });
+        }
+        
+        // Обновляем видимость ссылок на админ-панель
+        await updateAdminLinkVisibility();
+        
+        return { success: true, message: 'Администратор успешно добавлен' };
     } catch (error) {
         console.error('❌ Ошибка добавления администратора:', error);
-        return { success: false, message: 'Ошибка добавления администратора' };
+        return { success: false, message: 'Ошибка добавления администратора: ' + error.message };
+    }
+}
+
+/**
+ * Удаляет администратора из Firestore
+ * @param {string} adminId - ID документа администратора в Firestore или email
+ * @returns {Promise<{success: boolean, message: string}>}
+ */
+async function removeAdminFromFirestore(adminId) {
+    try {
+        const currentUser = firebase.auth().currentUser;
+        if (!currentUser) {
+            return { success: false, message: 'Пользователь не авторизован' };
+        }
+        
+        // Если это email, ищем документ
+        if (adminId.includes('@')) {
+            const emailLower = adminId.toLowerCase();
+            
+            // Нельзя удалить себя
+            if (emailLower === currentUser.email.toLowerCase()) {
+                return { success: false, message: 'Нельзя удалить самого себя из администраторов' };
+            }
+            
+            // Нельзя удалить из базового списка
+            if (ADMIN_EMAILS.includes(emailLower)) {
+                return { success: false, message: 'Нельзя удалить администратора из базового списка' };
+            }
+            
+            const snapshot = await db.collection('admins')
+                .where('email', '==', emailLower)
+                .limit(1)
+                .get();
+            
+            if (snapshot.empty) {
+                return { success: false, message: 'Администратор не найден' };
+            }
+            
+            await snapshot.docs[0].ref.delete();
+        } else {
+            // Если это ID документа
+            const adminDoc = await db.collection('admins').doc(adminId).get();
+            if (!adminDoc.exists) {
+                return { success: false, message: 'Администратор не найден' };
+            }
+            
+            const adminData = adminDoc.data();
+            
+            // Нельзя удалить себя
+            if (adminData.email === currentUser.email.toLowerCase()) {
+                return { success: false, message: 'Нельзя удалить самого себя из администраторов' };
+            }
+            
+            // Нельзя удалить из базового списка
+            if (ADMIN_EMAILS.includes(adminData.email)) {
+                return { success: false, message: 'Нельзя удалить администратора из базового списка' };
+            }
+            
+            await adminDoc.ref.delete();
+        }
+        
+        // Обновляем видимость ссылок на админ-панель
+        await updateAdminLinkVisibility();
+        
+        return { success: true, message: 'Администратор успешно удален' };
+    } catch (error) {
+        console.error('❌ Ошибка удаления администратора:', error);
+        return { success: false, message: 'Ошибка удаления администратора: ' + error.message };
     }
 }
 

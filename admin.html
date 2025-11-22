@@ -1025,6 +1025,7 @@
                 <!-- Вкладки -->
                 <div class="admin-tabs">
                     <button class="admin-tab active" onclick="switchTab('users', event)">Пользователи</button>
+                    <button class="admin-tab" onclick="switchTab('admins', event)">Администраторы</button>
                     <button class="admin-tab" onclick="switchTab('products', event)">Товары</button>
                     <button class="admin-tab" onclick="switchTab('categories', event)">Категории</button>
                     <button class="admin-tab" onclick="switchTab('builds', event)">Сборки</button>
@@ -1045,6 +1046,29 @@
                         </div>
                         <button class="admin-btn" onclick="loadUsers()">Обновить список</button>
                         <button class="admin-btn danger" onclick="clearAllUsers()">Удалить всех пользователей</button>
+                    </div>
+                </div>
+
+                <!-- Вкладка: Администраторы -->
+                <div id="tab-admins" class="admin-tab-content">
+                    <div class="admin-section">
+                        <h2 class="section-title">Управление администраторами</h2>
+                        <div style="margin-bottom: 2rem;">
+                            <h3 style="margin-bottom: 1rem; color: var(--product-name-color);">Добавить администратора</h3>
+                            <div style="display: flex; gap: 1rem; align-items: flex-end; flex-wrap: wrap;">
+                                <div style="flex: 1; min-width: 250px;">
+                                    <label for="new-admin-email" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--product-desc-color);">Email администратора:</label>
+                                    <input type="email" id="new-admin-email" placeholder="admin@example.com" style="width: 100%; padding: 0.75rem; border: 2px solid #e9ecef; border-radius: 8px; font-size: 1rem; transition: all 0.3s ease;">
+                                </div>
+                                <button class="admin-btn" onclick="addAdmin()" style="padding: 0.75rem 2rem;">Добавить</button>
+                            </div>
+                        </div>
+                        <div style="margin-bottom: 1rem;">
+                            <button class="admin-btn" onclick="loadAdmins()">Обновить список</button>
+                        </div>
+                        <div id="admins-list" style="margin-top: 2rem;">
+                            <!-- Список администраторов будет здесь -->
+                        </div>
                     </div>
                 </div>
 
@@ -1588,6 +1612,8 @@
                             updateWithdrawalStats();
                         } else if (tabName === 'users') {
                             loadUsers();
+                        } else if (tabName === 'admins') {
+                            loadAdmins();
                         } else if (tabName === 'products') {
                             loadProducts();
                         } else if (tabName === 'builds') {
@@ -1779,6 +1805,108 @@
                 } else {
                     alert('Ошибка удаления пользователя');
                 }
+            }
+        }
+
+        // ===== УПРАВЛЕНИЕ АДМИНИСТРАТОРАМИ =====
+        async function loadAdmins() {
+            try {
+                const admins = await getAllAdmins();
+                const adminsList = document.getElementById('admins-list');
+                
+                if (admins.length === 0) {
+                    adminsList.innerHTML = '<p style="color: var(--product-desc-color); padding: 2rem; text-align: center;">Администраторов нет</p>';
+                    return;
+                }
+                
+                adminsList.innerHTML = admins.map(admin => {
+                    const addedDate = admin.addedAt && admin.addedAt.toDate 
+                        ? admin.addedAt.toDate().toLocaleDateString('ru-RU')
+                        : admin.isDefault ? 'Базовый список' : 'Неизвестно';
+                    
+                    const sourceBadge = admin.isDefault 
+                        ? '<span style="background: #f39c12; color: white; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.85rem; margin-left: 0.5rem;">Базовый</span>'
+                        : '<span style="background: #3498db; color: white; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.85rem; margin-left: 0.5rem;">Firestore</span>';
+                    
+                    const currentUser = firebase.auth().currentUser;
+                    const isCurrentUser = currentUser && admin.email === currentUser.email.toLowerCase();
+                    const canDelete = !admin.isDefault && !isCurrentUser;
+                    
+                    return `
+                        <div class="user-item" style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; margin-bottom: 0.5rem; background: var(--card-bg); border-radius: 8px; border: 1px solid #e9ecef;">
+                            <div style="flex: 1;">
+                                <div style="display: flex; align-items: center; margin-bottom: 0.5rem;">
+                                    <strong style="color: var(--product-name-color);">${admin.email}</strong>
+                                    ${sourceBadge}
+                                    ${isCurrentUser ? '<span style="background: #2ecc71; color: white; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.85rem; margin-left: 0.5rem;">Вы</span>' : ''}
+                                </div>
+                                <small style="color: var(--product-desc-color);">Добавлен: ${addedDate}</small>
+                            </div>
+                            <div>
+                                ${canDelete 
+                                    ? `<button class="admin-btn danger" onclick="removeAdmin('${admin.id || admin.email}')" style="padding: 0.5rem 1rem; font-size: 0.9rem;">Удалить</button>`
+                                    : `<span style="color: var(--product-desc-color); font-size: 0.9rem;">${admin.isDefault ? 'Нельзя удалить' : 'Это вы'}</span>`
+                                }
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (error) {
+                console.error('❌ Ошибка загрузки администраторов:', error);
+                document.getElementById('admins-list').innerHTML = 
+                    '<p style="color: #e74c3c; padding: 2rem; text-align: center;">Ошибка загрузки администраторов</p>';
+            }
+        }
+
+        async function addAdmin() {
+            const emailInput = document.getElementById('new-admin-email');
+            const email = emailInput.value.trim();
+            
+            if (!email) {
+                alert('Введите email администратора');
+                return;
+            }
+            
+            if (!email.includes('@')) {
+                alert('Неверный формат email');
+                return;
+            }
+            
+            try {
+                const result = await addAdminToFirestore(email);
+                
+                if (result.success) {
+                    alert(result.message);
+                    emailInput.value = '';
+                    await loadAdmins();
+                    await updateAdminLinkVisibility();
+                } else {
+                    alert(result.message);
+                }
+            } catch (error) {
+                console.error('❌ Ошибка добавления администратора:', error);
+                alert('Ошибка добавления администратора: ' + error.message);
+            }
+        }
+
+        async function removeAdmin(adminId) {
+            if (!confirm('Вы уверены, что хотите удалить этого администратора?')) {
+                return;
+            }
+            
+            try {
+                const result = await removeAdminFromFirestore(adminId);
+                
+                if (result.success) {
+                    alert(result.message);
+                    await loadAdmins();
+                    await updateAdminLinkVisibility();
+                } else {
+                    alert(result.message);
+                }
+            } catch (error) {
+                console.error('❌ Ошибка удаления администратора:', error);
+                alert('Ошибка удаления администратора: ' + error.message);
             }
         }
 
@@ -2322,6 +2450,8 @@
                 updateWithdrawalStats();
             } else if (tabName === 'users') {
                 loadUsers();
+            } else if (tabName === 'admins') {
+                loadAdmins();
             } else if (tabName === 'products') {
                 loadProducts();
             } else if (tabName === 'builds') {
