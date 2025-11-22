@@ -343,35 +343,21 @@ async function removeAdminFromFirestore(adminId) {
         let emailToRemove = null;
         
         // Определяем email для удаления
+        // Теперь всегда передается email, а не id
         if (adminId.includes('@')) {
-            // Если передан email напрямую
+            // Если передан email напрямую (обычный случай)
             emailToRemove = adminId.toLowerCase();
         } else {
-            // Если передан ID, нужно найти email
-            // Сначала проверяем в документе конфигурации
-            const configRef = db.collection('config').doc('admins');
-            const configDoc = await configRef.get();
-            
-            if (configDoc.exists && adminId === 'config') {
-                // Если id = 'config', значит это администратор из конфигурации
-                // Нужно получить email из списка администраторов
-                // Но мы не знаем какой именно, поэтому нужно передавать email
-                return { 
-                    success: false, 
-                    message: 'Ошибка: не удалось определить email администратора. Попробуйте обновить страницу.' 
-                };
-            }
-            
-            // Пытаемся найти в старой коллекции admins
+            // Если передан ID (старая коллекция admins), пытаемся найти email
             try {
                 const adminDoc = await db.collection('admins').doc(adminId).get();
                 if (adminDoc.exists) {
                     emailToRemove = adminDoc.data().email.toLowerCase();
                 } else {
-                    return { success: false, message: 'Администратор не найден' };
+                    return { success: false, message: 'Администратор не найден. Попробуйте обновить страницу.' };
                 }
             } catch (error) {
-                return { success: false, message: 'Ошибка поиска администратора' };
+                return { success: false, message: 'Ошибка поиска администратора. Попробуйте обновить страницу.' };
             }
         }
         
