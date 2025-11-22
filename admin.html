@@ -661,14 +661,17 @@
                     <p>Для доступа к администрации необходимо войти как администратор.</p>
                     <div class="admin-login-form">
                         <div class="form-group">
-                            <label for="admin-email">Email администратора:</label>
-                            <input type="email" id="admin-email" value="admin@techstore.ru" readonly>
+                            <label for="admin-email">Email:</label>
+                            <input type="email" id="admin-email" placeholder="Введите ваш email" required>
                         </div>
                         <div class="form-group">
                             <label for="admin-password">Пароль:</label>
-                            <input type="password" id="admin-password" placeholder="Введите пароль">
+                            <input type="password" id="admin-password" placeholder="Введите пароль" required>
                         </div>
-                        <button class="admin-btn" onclick="adminLogin()">Войти как администратор</button>
+                        <button class="admin-btn" onclick="adminLogin()">Войти</button>
+                        <p style="margin-top: 1rem; text-align: center; color: #7f8c8d; font-size: 0.9rem;">
+                            Войдите с помощью вашего аккаунта TechStore
+                        </p>
                     </div>
                 </div>
             </div>
@@ -678,6 +681,9 @@
                 <div class="admin-header">
                     <h1 class="admin-title">Административная панель</h1>
                     <p>Управление магазином и пользователями</p>
+                    <button onclick="adminLogout()" style="margin-top: 1rem; padding: 0.5rem 1.5rem; background: #e74c3c; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.9rem;">
+                        Выйти
+                    </button>
                 </div>
 
                 <div class="admin-stats">
@@ -1228,51 +1234,87 @@
         });
 
         function checkAdminAuth() {
-            const isAdmin = localStorage.getItem('techstore_admin') === 'true';
-            const adminLoginRequired = document.getElementById('admin-login-required');
-            const adminContent = document.getElementById('admin-content');
-            
-            if (isAdmin) {
-                adminLoginRequired.style.display = 'none';
-                adminContent.style.display = 'block';
+            // Используем Firebase Authentication
+            firebase.auth().onAuthStateChanged(function(user) {
+                const adminLoginRequired = document.getElementById('admin-login-required');
+                const adminContent = document.getElementById('admin-content');
                 
-                // Загружаем данные для активной вкладки
-                const activeTab = document.querySelector('.admin-tab.active');
-                if (activeTab) {
-                    const tabName = activeTab.getAttribute('onclick').match(/'(\w+)'/)[1];
-                    if (tabName === 'orders') {
-                        loadOrders();
-                    } else if (tabName === 'withdrawals') {
-                        loadWithdrawals();
-                        updateWithdrawalStats();
-                    } else if (tabName === 'users') {
+                if (user) {
+                    // Пользователь авторизован - показываем админ панель
+                    console.log('✅ Admin: Пользователь авторизован:', user.email);
+                    adminLoginRequired.style.display = 'none';
+                    adminContent.style.display = 'block';
+                    
+                    // Загружаем данные для активной вкладки
+                    const activeTab = document.querySelector('.admin-tab.active');
+                    if (activeTab) {
+                        const tabName = activeTab.getAttribute('onclick').match(/'(\w+)'/)[1];
+                        if (tabName === 'orders') {
+                            loadOrders();
+                        } else if (tabName === 'withdrawals') {
+                            loadWithdrawals();
+                            updateWithdrawalStats();
+                        } else if (tabName === 'users') {
+                            loadUsers();
+                        } else if (tabName === 'products') {
+                            loadProducts();
+                        } else if (tabName === 'builds') {
+                            loadBuilds();
+                        }
+                    } else {
+                        // По умолчанию загружаем пользователей
                         loadUsers();
-                    } else if (tabName === 'products') {
-                        loadProducts();
-                    } else if (tabName === 'builds') {
-                        loadBuilds();
                     }
                 } else {
-                    // По умолчанию загружаем пользователей
-                    loadUsers();
+                    // Пользователь НЕ авторизован - показываем форму входа
+                    console.warn('⚠️ Admin: Пользователь не авторизован');
+                    adminLoginRequired.style.display = 'flex';
+                    adminContent.style.display = 'none';
+                }
+            });
+        }
+
+        async function adminLogin() {
+            const email = document.getElementById('admin-email').value.trim();
+            const password = document.getElementById('admin-password').value;
+            
+            if (!email || !password) {
+                alert('Пожалуйста, заполните все поля');
+                return;
+            }
+            
+            try {
+                // Входим через Firebase Authentication
+                const userCredential = await firebase.auth().signInWithEmailAndPassword(email, password);
+                console.log('✅ Админ вошел:', userCredential.user.email);
+                
+                // checkAdminAuth() автоматически вызовется через onAuthStateChanged
+                alert('Добро пожаловать в админ панель!');
+            } catch (error) {
+                console.error('❌ Ошибка входа:', error);
+                
+                let message = 'Ошибка входа';
+                if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+                    message = 'Неверный email или пароль';
+                } else if (error.code === 'auth/invalid-email') {
+                    message = 'Неверный формат email';
+                } else if (error.code === 'auth/too-many-requests') {
+                    message = 'Слишком много попыток входа. Попробуйте позже';
                 }
                 
-                updateStats();
-            } else {
-                adminLoginRequired.style.display = 'block';
-                adminContent.style.display = 'none';
+                alert(message);
             }
         }
 
-        function adminLogin() {
-            const password = document.getElementById('admin-password').value;
-            
-            if (password === 'admin123') {
-                localStorage.setItem('techstore_admin', 'true');
-                checkAdminAuth();
-                alert('Добро пожаловать в админ панель!');
-            } else {
-                alert('Неверный пароль!');
+        async function adminLogout() {
+            try {
+                await firebase.auth().signOut();
+                console.log('✅ Админ вышел');
+                alert('Вы вышли из админ панели');
+                // checkAdminAuth() автоматически покажет форму входа через onAuthStateChanged
+            } catch (error) {
+                console.error('❌ Ошибка выхода:', error);
+                alert('Ошибка при выходе');
             }
         }
 
