@@ -740,6 +740,12 @@
                         <input type="email" id="edit-email" required>
                     </div>
                     
+                    <div class="form-group-edit" id="password-change-section">
+                        <label for="edit-current-password">Текущий пароль (для смены пароля):</label>
+                        <input type="password" id="edit-current-password" placeholder="Введите текущий пароль">
+                        <span class="password-note">Обязательно для смены пароля или email</span>
+                    </div>
+                    
                     <div class="form-group-edit">
                         <label for="edit-password">Новый пароль (оставьте пустым, чтобы не менять):</label>
                         <input type="password" id="edit-password" placeholder="Введите новый пароль">
@@ -923,10 +929,12 @@
                     // Заполняем форму текущими данными
                     const editNameInput = document.getElementById('edit-name');
                     const editEmailInput = document.getElementById('edit-email');
+                    const editCurrentPasswordInput = document.getElementById('edit-current-password');
                     const editPasswordInput = document.getElementById('edit-password');
                     
                     if (editNameInput) editNameInput.value = userName;
                     if (editEmailInput) editEmailInput.value = userEmail;
+                    if (editCurrentPasswordInput) editCurrentPasswordInput.value = '';
                     if (editPasswordInput) editPasswordInput.value = '';
                 });
             }
@@ -944,6 +952,7 @@
                 
                 const name = document.getElementById('edit-name').value.trim();
                 const email = document.getElementById('edit-email').value.trim();
+                const currentPassword = document.getElementById('edit-current-password').value.trim();
                 const newPassword = document.getElementById('edit-password').value.trim();
 
                 // Валидация
@@ -952,22 +961,62 @@
                     return;
                 }
 
-                if (newPassword && newPassword.length < 6) {
-                    alert('Пароль должен содержать минимум 6 символов');
+                // Проверяем, меняется ли email или пароль
+                const emailChanging = email !== userEmail;
+                const passwordChanging = newPassword !== '';
+
+                // Если меняется email или пароль, требуем текущий пароль
+                if ((emailChanging || passwordChanging) && !currentPassword) {
+                    alert('Для смены email или пароля необходимо ввести текущий пароль');
                     return;
+                }
+
+                if (newPassword && newPassword.length < 6) {
+                    alert('Новый пароль должен содержать минимум 6 символов');
+                    return;
+                }
+
+                // Реаутентификация пользователя перед изменением критичных данных
+                if (currentPassword && (emailChanging || passwordChanging)) {
+                    try {
+                        const firebaseUser = firebase.auth().currentUser;
+                        const credential = firebase.auth.EmailAuthProvider.credential(
+                            firebaseUser.email,
+                            currentPassword
+                        );
+                        await firebaseUser.reauthenticateWithCredential(credential);
+                        console.log('✅ Реаутентификация успешна');
+                    } catch (error) {
+                        console.error('❌ Ошибка реаутентификации:', error);
+                        alert('Неверный текущий пароль');
+                        return;
+                    }
                 }
 
                 // Обновляем данные пользователя
                 const result = await updateFirebaseUserData(name, email, newPassword);
 
                 if (result.success) {
-                    alert('Данные успешно обновлены!');
+                    alert(result.message);
                     
                     // Обновляем отображение данных
                     const userNameEl = document.getElementById('user-name');
                     const userEmailEl = document.getElementById('user-email');
                     if (userNameEl) userNameEl.textContent = name;
                     if (userEmailEl) userEmailEl.textContent = email;
+                    
+                    // Если email изменился, обновляем статус верификации
+                    if (result.emailChanged) {
+                        const emailVerifiedBadge = document.getElementById('email-verified-badge');
+                        const resendVerificationBtn = document.getElementById('resend-verification-btn');
+                        
+                        if (emailVerifiedBadge) {
+                            emailVerifiedBadge.innerHTML = '<span style="color: #e74c3c;">❌ Не подтвержден</span>';
+                        }
+                        if (resendVerificationBtn) {
+                            resendVerificationBtn.style.display = 'inline-block';
+                        }
+                    }
                     
                     // Обновляем имя пользователя в шапке
                     if (typeof cart !== 'undefined' && cart.updateUserInfo) {
