@@ -41,15 +41,19 @@ async function createFirebaseOrder(orderData) {
 /**
  * Получение всех заказов пользователя
  */
-async function getUserFirebaseOrders() {
+async function getUserFirebaseOrders(userId = null) {
     try {
-        const user = firebase.auth().currentUser;
-        if (!user) {
-            return [];
+        // Если userId не передан, берем из currentUser
+        if (!userId) {
+            const user = firebase.auth().currentUser;
+            if (!user) {
+                return [];
+            }
+            userId = user.uid;
         }
 
         const ordersSnapshot = await db.collection('orders')
-            .where('userId', '==', user.uid)
+            .where('userId', '==', userId)
             .orderBy('createdAt', 'desc')
             .get();
 

@@ -842,32 +842,27 @@
             
             console.log('✅ Пользователь авторизован:', user.email);
             
-            // Ждем cart и auth
-            console.log('⏳ Ожидание Cart и Auth...');
-            let attempts = 0;
-            while ((!cart || !cart.isInitialized || !auth || !auth.isFirebaseReady) && attempts < 100) {
-                await new Promise(resolve => setTimeout(resolve, 100));
-                attempts++;
-            }
-            
-            console.log('✅ Cart и Auth готовы! Загрузка профиля...');
+            // Загружаем данные напрямую из Firebase без ожидания cart/auth
+            console.log('📥 Загрузка данных пользователя из Firebase...');
             
             const firebaseUser = firebase.auth().currentUser;
             console.log('✅ Firebase User:', firebaseUser?.email);
 
-                // Загружаем данные пользователя из Firestore
             // Загружаем данные пользователя из Firestore
-            console.log('📥 Загрузка данных пользователя из Firestore...');
-            const userData = await getCurrentUserData();
-            console.log('📊 Данные из Firestore:', userData);
-            
-            if (userData) {
-                auth.currentUser = userData;
+            let userData = null;
+            try {
+                const userDoc = await db.collection('users').doc(user.uid).get();
+                if (userDoc.exists) {
+                    userData = { id: userDoc.id, ...userDoc.data() };
+                    console.log('📊 Данные из Firestore:', userData);
+                }
+            } catch (error) {
+                console.error('❌ Ошибка загрузки данных:', error);
             }
 
             // Заполняем информацию о пользователе
-            const userName = auth.getUserName() || firebaseUser?.displayName || 'Пользователь';
-            const userEmail = auth.getUserEmail() || firebaseUser?.email || '';
+            const userName = userData?.name || firebaseUser?.displayName || 'Пользователь';
+            const userEmail = userData?.email || firebaseUser?.email || '';
             
             console.log('📝 Заполнение UI - Имя:', userName, 'Email:', userEmail);
             
@@ -881,17 +876,20 @@
             
             // Дата регистрации
             let regDate = 'Не указана';
-            if (auth.currentUser && auth.currentUser.registrationDate) {
-                if (auth.currentUser.registrationDate.toDate) {
-                    regDate = auth.currentUser.registrationDate.toDate().toLocaleDateString('ru-RU');
-                } else if (auth.currentUser.registrationDate) {
-                    regDate = new Date(auth.currentUser.registrationDate).toLocaleDateString('ru-RU');
+            if (userData && userData.registrationDate) {
+                if (userData.registrationDate.toDate) {
+                    regDate = userData.registrationDate.toDate().toLocaleDateString('ru-RU');
+                } else if (userData.registrationDate) {
+                    regDate = new Date(userData.registrationDate).toLocaleDateString('ru-RU');
                 }
             }
             if (regDateElement) regDateElement.textContent = regDate;
             
-            // Обновляем счетчик корзины
-            const cartCount = cart.getTotalCount();
+            // Обновляем счетчик корзины из userData
+            let cartCount = 0;
+            if (userData && userData.cart && Array.isArray(userData.cart)) {
+                cartCount = userData.cart.reduce((total, item) => total + (item.quantity || 0), 0);
+            }
             if (cartCountElement) cartCountElement.textContent = cartCount;
 
             // Проверяем статус верификации email
@@ -918,7 +916,7 @@
 
             // Загружаем заказы пользователя
             console.log('📦 Загрузка заказов пользователя...');
-            loadUserOrders();
+            loadUserOrders(user.uid);
 
             // Показываем контент после загрузки данных
             console.log('🎨 Показываем профиль');
@@ -929,10 +927,10 @@
             console.log('✅ Профиль загружен полностью!');
 
             // Обработчик кнопки выхода
-            const logoutBtn = document.getElementById('logout-btn');
+            const logoutBtn = document.querySelector('.logout-btn');
             if (logoutBtn) {
                 logoutBtn.addEventListener('click', async function() {
-                    await auth.logout();
+                    await logoutFromFirebase();
                     window.location.href = 'index.html';
                 });
             }
@@ -944,22 +942,21 @@
             
             if (!editBtn || !editForm || !cancelBtn) {
                 console.warn('⚠️ Некоторые элементы формы редактирования не найдены');
-                return;
+            } else {
+                editBtn.addEventListener('click', function() {
+                    editForm.classList.add('active');
+                    editBtn.style.display = 'none';
+                    
+                    // Заполняем форму текущими данными
+                    const editNameInput = document.getElementById('edit-name');
+                    const editEmailInput = document.getElementById('edit-email');
+                    const editPasswordInput = document.getElementById('edit-password');
+                    
+                    if (editNameInput) editNameInput.value = userName;
+                    if (editEmailInput) editEmailInput.value = userEmail;
+                    if (editPasswordInput) editPasswordInput.value = '';
+                });
             }
-
-            editBtn.addEventListener('click', function() {
-                editForm.classList.add('active');
-                editBtn.style.display = 'none';
-                
-                // Заполняем форму текущими данными
-                const editNameInput = document.getElementById('edit-name');
-                const editEmailInput = document.getElementById('edit-email');
-                const editPasswordInput = document.getElementById('edit-password');
-                
-                if (editNameInput) editNameInput.value = auth.getUserName();
-                if (editEmailInput) editEmailInput.value = auth.getUserEmail();
-                if (editPasswordInput) editPasswordInput.value = '';
-            });
 
             cancelBtn.addEventListener('click', function() {
                 editForm.classList.remove('active');
@@ -988,7 +985,7 @@
                 }
 
                 // Обновляем данные пользователя
-                const result = await auth.updateUser(name, email, newPassword);
+                const result = await updateFirebaseUserData(name, email, newPassword);
 
                 if (result.success) {
                     alert('Данные успешно обновлены!');
@@ -996,11 +993,13 @@
                     // Обновляем отображение данных
                     const userNameEl = document.getElementById('user-name');
                     const userEmailEl = document.getElementById('user-email');
-                    if (userNameEl) userNameEl.textContent = auth.getUserName();
-                    if (userEmailEl) userEmailEl.textContent = auth.getUserEmail();
+                    if (userNameEl) userNameEl.textContent = name;
+                    if (userEmailEl) userEmailEl.textContent = email;
                     
                     // Обновляем имя пользователя в шапке
-                    cart.updateUserInfo();
+                    if (typeof cart !== 'undefined' && cart.updateUserInfo) {
+                        cart.updateUserInfo();
+                    }
                     
                     // Скрываем форму
                     editForm.classList.remove('active');
@@ -1015,12 +1014,13 @@
         });
 
         // Загрузка заказов пользователя
-        async function loadUserOrders() {
-            if (!auth.isLoggedIn()) {
+        async function loadUserOrders(userId) {
+            if (!userId) {
+                console.warn('⚠️ userId не передан в loadUserOrders');
                 return;
             }
 
-            const userOrders = await getUserFirebaseOrders();
+            const userOrders = await getUserFirebaseOrders(userId);
             const ordersList = document.getElementById('orders-list');
 
             if (userOrders.length === 0) {
