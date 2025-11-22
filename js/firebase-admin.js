@@ -265,7 +265,23 @@ async function removeAdminFromFirestore(adminId) {
  */
 async function updateAdminLinkVisibility() {
     try {
+        // Проверяем, что db доступна
+        if (typeof db === 'undefined' || !db) {
+            console.warn('⚠️ db еще не загружена, скрываем ссылку на админ-панель');
+            const adminLinks = document.querySelectorAll('.admin-link');
+            adminLinks.forEach(link => {
+                link.style.display = 'none';
+            });
+            return;
+        }
+        
         const adminLinks = document.querySelectorAll('.admin-link');
+        
+        // Если нет ссылок, ничего не делаем
+        if (adminLinks.length === 0) {
+            return;
+        }
+        
         const isAdmin = await isCurrentUserAdmin();
         
         adminLinks.forEach(link => {
@@ -287,25 +303,45 @@ async function updateAdminLinkVisibility() {
 
 // Автоматически обновляем видимость ссылки при изменении состояния авторизации
 // Ждем загрузки DOM и Firebase
-document.addEventListener('DOMContentLoaded', function() {
-    // Проверяем, загружен ли Firebase
-    if (typeof firebase !== 'undefined' && firebase.auth) {
-        firebase.auth().onAuthStateChanged(async (user) => {
-            await updateAdminLinkVisibility();
-        });
-        
-        // Также обновляем сразу при загрузке страницы
-        updateAdminLinkVisibility();
-    } else {
-        // Если Firebase еще не загружен, ждем немного и пробуем снова
-        setTimeout(() => {
-            if (typeof firebase !== 'undefined' && firebase.auth) {
-                firebase.auth().onAuthStateChanged(async (user) => {
-                    await updateAdminLinkVisibility();
-                });
-                updateAdminLinkVisibility();
-            }
-        }, 500);
+let adminLinkVisibilityInitialized = false;
+
+function initializeAdminLinkVisibility() {
+    if (adminLinkVisibilityInitialized) {
+        return; // Уже инициализировано
     }
-});
+    
+    // Проверяем, загружены ли Firebase и db
+    if (typeof firebase === 'undefined' || !firebase.auth || typeof db === 'undefined') {
+        // Если еще не загружено, пробуем позже
+        setTimeout(initializeAdminLinkVisibility, 200);
+        return;
+    }
+    
+    adminLinkVisibilityInitialized = true;
+    
+    // Подписываемся на изменения состояния авторизации
+    firebase.auth().onAuthStateChanged(async (user) => {
+        try {
+            await updateAdminLinkVisibility();
+        } catch (error) {
+            console.warn('⚠️ Ошибка обновления видимости ссылки на админ-панель:', error);
+        }
+    });
+    
+    // Также обновляем сразу при загрузке страницы
+    setTimeout(async () => {
+        try {
+            await updateAdminLinkVisibility();
+        } catch (error) {
+            console.warn('⚠️ Ошибка обновления видимости ссылки на админ-панель:', error);
+        }
+    }, 500);
+}
+
+// Инициализируем при загрузке DOM
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeAdminLinkVisibility);
+} else {
+    initializeAdminLinkVisibility();
+}
 

@@ -587,6 +587,88 @@
                     alert('Произошла ошибка при отправке письма. Попробуйте снова.');
                 }
             });
+
+            // Обработчик формы входа
+            loginForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const email = document.getElementById('login-email').value.trim();
+                const password = document.getElementById('login-password').value;
+                
+                if (!email || !password) {
+                    alert('Пожалуйста, заполните все поля');
+                    return;
+                }
+                
+                try {
+                    // Проверяем, загружена ли функция
+                    if (typeof loginWithFirebase !== 'function') {
+                        alert('Ошибка: функция входа не загружена. Обновите страницу.');
+                        console.error('❌ loginWithFirebase не найдена');
+                        return;
+                    }
+                    
+                    const result = await loginWithFirebase(email, password);
+                    
+                    if (result.success) {
+                        alert('Вход выполнен успешно!');
+                        // Перенаправляем на главную страницу
+                        window.location.href = 'index.html';
+                    } else {
+                        alert(result.message);
+                    }
+                } catch (error) {
+                    console.error('❌ Ошибка входа:', error);
+                    alert('Произошла ошибка при входе. Попробуйте снова.');
+                }
+            });
+
+            // Обработчик формы регистрации
+            registerForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const name = document.getElementById('register-name').value.trim();
+                const email = document.getElementById('register-email').value.trim();
+                const password = document.getElementById('register-password').value;
+                const confirmPassword = document.getElementById('register-confirm-password').value;
+                
+                if (!name || !email || !password || !confirmPassword) {
+                    alert('Пожалуйста, заполните все поля');
+                    return;
+                }
+                
+                if (password !== confirmPassword) {
+                    alert('Пароли не совпадают');
+                    return;
+                }
+                
+                if (password.length < 6) {
+                    alert('Пароль должен содержать минимум 6 символов');
+                    return;
+                }
+                
+                try {
+                    // Проверяем, загружена ли функция
+                    if (typeof registerWithFirebase !== 'function') {
+                        alert('Ошибка: функция регистрации не загружена. Обновите страницу.');
+                        console.error('❌ registerWithFirebase не найдена');
+                        return;
+                    }
+                    
+                    const result = await registerWithFirebase(email, password, name);
+                    
+                    if (result.success) {
+                        alert(result.message || 'Регистрация успешна! Проверьте почту для подтверждения email.');
+                        // Перенаправляем на главную страницу
+                        window.location.href = 'index.html';
+                    } else {
+                        alert(result.message);
+                    }
+                } catch (error) {
+                    console.error('❌ Ошибка регистрации:', error);
+                    alert('Произошла ошибка при регистрации. Попробуйте снова.');
+                }
+            });
         });
     </script>
 </body>
