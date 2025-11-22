@@ -1593,7 +1593,7 @@ function initializeLoginPage() {
         const result = await auth.register(email, password, name);
         
         if (result.success) {
-            alert('Регистрация успешна! Теперь вы можете войти.');
+            alert(result.message || 'Регистрация успешна! Проверьте почту для подтверждения email.');
             registerForm.style.display = 'none';
             loginForm.style.display = 'block';
             // Очищаем форму регистрации

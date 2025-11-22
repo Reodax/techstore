@@ -604,6 +604,17 @@
             margin: 0;
         }
 
+        /* Кнопка повторной отправки верификации */
+        .resend-verification-btn:hover {
+            background: #2980b9 !important;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .resend-verification-btn:active {
+            transform: translateY(0);
+        }
+
         /* Адаптивность для мобильных устройств */
         @media (max-width: 600px) {
             .profile-container {
@@ -691,6 +702,13 @@
                     <div class="info-item">
                         <span class="info-label">Email:</span>
                         <span class="info-value" id="user-email"></span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Статус email:</span>
+                        <span class="info-value" id="email-verification-status">
+                            <span id="email-verified-badge"></span>
+                            <button id="resend-verification-btn" class="resend-verification-btn" style="display: none; margin-left: 0.5rem; padding: 0.3rem 0.8rem; background: #3498db; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.85rem;">Отправить письмо</button>
+                        </span>
                     </div>
                     <div class="info-item">
                         <span class="info-label">Дата регистрации:</span>
@@ -845,6 +863,28 @@
             // Обновляем счетчик корзины
             const cartCount = cart.getTotalCount();
             if (cartCountElement) cartCountElement.textContent = cartCount;
+
+            // Проверяем статус верификации email
+            const emailVerifiedBadge = document.getElementById('email-verified-badge');
+            const resendVerificationBtn = document.getElementById('resend-verification-btn');
+            
+            if (firebaseUser) {
+                if (firebaseUser.emailVerified) {
+                    if (emailVerifiedBadge) emailVerifiedBadge.innerHTML = '<span style="color: #27ae60;">✅ Подтвержден</span>';
+                    if (resendVerificationBtn) resendVerificationBtn.style.display = 'none';
+                } else {
+                    if (emailVerifiedBadge) emailVerifiedBadge.innerHTML = '<span style="color: #e74c3c;">❌ Не подтвержден</span>';
+                    if (resendVerificationBtn) resendVerificationBtn.style.display = 'inline-block';
+                }
+            }
+
+            // Обработчик повторной отправки письма верификации
+            if (resendVerificationBtn) {
+                resendVerificationBtn.addEventListener('click', async function() {
+                    const result = await resendVerificationEmail();
+                    alert(result.message);
+                });
+            }
 
             // Загружаем заказы пользователя
             console.log('📦 Загрузка заказов пользователя...');

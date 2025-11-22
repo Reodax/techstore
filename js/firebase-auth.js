@@ -15,18 +15,22 @@ async function registerWithFirebase(email, password, name) {
             displayName: name
         });
 
+        // Отправляем письмо для верификации email
+        await user.sendEmailVerification();
+
         // Создаем документ пользователя в Firestore
         await db.collection('users').doc(user.uid).set({
             uid: user.uid,
             email: email,
             name: name,
             cart: [],
+            emailVerified: false,
             registrationDate: firebase.firestore.FieldValue.serverTimestamp(),
             createdAt: firebase.firestore.FieldValue.serverTimestamp(),
             updatedAt: firebase.firestore.FieldValue.serverTimestamp()
         });
 
-        return { success: true, user: user, message: 'Регистрация успешна' };
+        return { success: true, user: user, message: 'Регистрация успешна! Проверьте почту для подтверждения email' };
     } catch (error) {
         console.error('❌ Ошибка регистрации:', error);
         
@@ -307,6 +311,49 @@ async function deleteFirebaseUser(userId) {
     } catch (error) {
         console.error('❌ Ошибка удаления пользователя:', error);
         return { success: false, message: 'Ошибка удаления пользователя' };
+    }
+}
+
+/**
+ * Отправка письма для восстановления пароля
+ */
+async function sendPasswordResetEmailToUser(email) {
+    try {
+        await firebase.auth().sendPasswordResetEmail(email);
+        return { success: true, message: 'Письмо для восстановления пароля отправлено на вашу почту' };
+    } catch (error) {
+        console.error('❌ Ошибка отправки письма:', error);
+        
+        let message = 'Ошибка отправки письма';
+        if (error.code === 'auth/user-not-found') {
+            message = 'Пользователь с таким email не найден';
+        } else if (error.code === 'auth/invalid-email') {
+            message = 'Неверный формат email';
+        }
+        
+        return { success: false, message: message };
+    }
+}
+
+/**
+ * Повторная отправка письма для верификации email
+ */
+async function resendVerificationEmail() {
+    try {
+        const user = firebase.auth().currentUser;
+        if (!user) {
+            return { success: false, message: 'Пользователь не авторизован' };
+        }
+
+        if (user.emailVerified) {
+            return { success: false, message: 'Email уже подтвержден' };
+        }
+
+        await user.sendEmailVerification();
+        return { success: true, message: 'Письмо для подтверждения отправлено на вашу почту' };
+    } catch (error) {
+        console.error('❌ Ошибка отправки письма:', error);
+        return { success: false, message: 'Ошибка отправки письма' };
     }
 }
 
