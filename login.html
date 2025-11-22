@@ -355,14 +355,29 @@
                 e.preventDefault();
                 
                 const email = document.getElementById('reset-email').value;
-                const result = await sendPasswordResetEmailToUser(email);
+                console.log('📧 Отправка письма на:', email);
                 
-                if (result.success) {
-                    alert(result.message);
-                    resetPasswordModal.style.display = 'none';
-                    document.getElementById('reset-email').value = '';
-                } else {
-                    alert(result.message);
+                // Проверяем, загружена ли функция
+                if (typeof sendPasswordResetEmailToUser !== 'function') {
+                    alert('Ошибка: функция восстановления пароля не загружена. Обновите страницу.');
+                    console.error('❌ sendPasswordResetEmailToUser не найдена');
+                    return;
+                }
+                
+                try {
+                    const result = await sendPasswordResetEmailToUser(email);
+                    console.log('✅ Результат:', result);
+                    
+                    if (result.success) {
+                        alert(result.message);
+                        resetPasswordModal.style.display = 'none';
+                        document.getElementById('reset-email').value = '';
+                    } else {
+                        alert(result.message);
+                    }
+                } catch (error) {
+                    console.error('❌ Ошибка отправки:', error);
+                    alert('Произошла ошибка при отправке письма. Попробуйте снова.');
                 }
             });
         });
