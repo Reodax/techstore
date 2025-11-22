@@ -800,32 +800,17 @@
     <script src="js/mobile-menu.js"></script>
     <script>
         // Инициализация страницы профиля
-        let authCheckComplete = false;
-        
         // ИСПОЛЬЗУЕМ onAuthStateChanged напрямую - он срабатывает АВТОМАТИЧЕСКИ!
         firebase.auth().onAuthStateChanged(async function(user) {
             console.log('🔍 Profile: onAuthStateChanged вызван, user=', user ? user.email : 'NULL');
             
-            // Даем небольшую задержку для первой проверки
-            if (!authCheckComplete) {
-                authCheckComplete = true;
-                await new Promise(resolve => setTimeout(resolve, 500));
-                
-                // Проверяем еще раз после задержки
-                const currentUser = firebase.auth().currentUser;
-                if (!currentUser) {
-                    console.warn('❌ Пользователь не авторизован после задержки → редирект');
-                    window.location.href = 'login.html';
-                    return;
-                }
-                
-                user = currentUser;
-                console.log('✅ Пользователь авторизован после проверки:', user.email);
-            }
-            
             if (!user) {
-                console.warn('❌ Пользователь не авторизован → редирект');
-                window.location.href = 'login.html';
+                console.warn('⚠️ Пользователь не авторизован, показываем пустой профиль');
+                // НЕ делаем редирект, просто показываем что пользователь не авторизован
+                const profileContainer = document.querySelector('.profile-container');
+                if (profileContainer) {
+                    profileContainer.innerHTML = '<h2 style="text-align: center; color: #e74c3c;">Вы не авторизованы</h2><p style="text-align: center;"><a href="login.html" style="color: #3498db;">Войти в аккаунт</a></p>';
+                }
                 return;
             }
             
