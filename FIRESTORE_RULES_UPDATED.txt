@@ -1,0 +1,65 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // ⭐ КОЛЛЕКЦИЯ CONFIG (АДМИНИСТРАТОРЫ) - ДОБАВЬТЕ ЭТО
+    match /config/{document} {
+      // Разрешаем чтение всем авторизованным пользователям
+      allow read: if request.auth != null;
+      
+      // Разрешаем запись всем авторизованным пользователям (для тестирования)
+      // В продакшене можно ограничить только администраторам
+      allow write: if request.auth != null;
+    }
+    
+    // Категории - доступны всем для чтения
+    match /categories/{categoryId} {
+      allow read: if true;
+      allow write: if true; // Для админ панели
+    }
+    
+    // Пользователи
+    match /users/{userId} {
+      // Чтение своего профиля
+      allow read: if request.auth != null && request.auth.uid == userId;
+      
+      // Создание своего профиля при регистрации
+      allow create: if request.auth != null && request.auth.uid == userId;
+      
+      // Обновление своего профиля
+      allow update: if request.auth != null && request.auth.uid == userId;
+      
+      // Удаление - только для себя
+      allow delete: if request.auth != null && request.auth.uid == userId;
+      
+      // ⭐ АДМИН ПАНЕЛЬ - доступ ко всем пользователям
+      allow read, write: if request.auth != null;
+    }
+    
+    // Заказы
+    match /orders/{orderId} {
+      // Чтение своих заказов
+      allow read: if request.auth != null && 
+                     (request.auth.uid == resource.data.userId);
+      
+      // Создание заказа
+      allow create: if request.auth != null && 
+                       request.auth.uid == request.resource.data.userId;
+      
+      // Обновление - только свои заказы
+      allow update: if request.auth != null && 
+                       request.auth.uid == resource.data.userId;
+      
+      // ⭐ АДМИН ПАНЕЛЬ - доступ ко всем заказам
+      allow read, write: if request.auth != null;
+    }
+    
+    // Правила для всех остальных коллекций (products, builds, featured и т.д.)
+    match /{document=**} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null;
+    }
+  }
+}
+

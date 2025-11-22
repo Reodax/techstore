@@ -1832,6 +1832,9 @@
                     const isCurrentUser = currentUser && admin.email === currentUser.email.toLowerCase();
                     const canDelete = !admin.isDefault && !isCurrentUser;
                     
+                    // Передаем email для удаления, а не id
+                    const deleteParam = admin.email;
+                    
                     return `
                         <div class="user-item" style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; margin-bottom: 0.5rem; background: var(--card-bg); border-radius: 8px; border: 1px solid #e9ecef;">
                             <div style="flex: 1;">
@@ -1844,7 +1847,7 @@
                             </div>
                             <div>
                                 ${canDelete 
-                                    ? `<button class="admin-btn danger" onclick="removeAdmin('${admin.id || admin.email}')" style="padding: 0.5rem 1rem; font-size: 0.9rem;">Удалить</button>`
+                                    ? `<button class="admin-btn danger" onclick="removeAdmin('${deleteParam}')" style="padding: 0.5rem 1rem; font-size: 0.9rem;">Удалить</button>`
                                     : `<span style="color: var(--product-desc-color); font-size: 0.9rem;">${admin.isDefault ? 'Нельзя удалить' : 'Это вы'}</span>`
                                 }
                             </div>

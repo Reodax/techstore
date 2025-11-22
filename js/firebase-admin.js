@@ -344,12 +344,25 @@ async function removeAdminFromFirestore(adminId) {
         
         // Определяем email для удаления
         if (adminId.includes('@')) {
+            // Если передан email напрямую
             emailToRemove = adminId.toLowerCase();
-        } else if (adminId === 'config') {
-            // Нельзя удалить из конфигурации напрямую
-            return { success: false, message: 'Нельзя удалить администратора из конфигурации' };
         } else {
-            // Если это ID документа из старой коллекции
+            // Если передан ID, нужно найти email
+            // Сначала проверяем в документе конфигурации
+            const configRef = db.collection('config').doc('admins');
+            const configDoc = await configRef.get();
+            
+            if (configDoc.exists && adminId === 'config') {
+                // Если id = 'config', значит это администратор из конфигурации
+                // Нужно получить email из списка администраторов
+                // Но мы не знаем какой именно, поэтому нужно передавать email
+                return { 
+                    success: false, 
+                    message: 'Ошибка: не удалось определить email администратора. Попробуйте обновить страницу.' 
+                };
+            }
+            
+            // Пытаемся найти в старой коллекции admins
             try {
                 const adminDoc = await db.collection('admins').doc(adminId).get();
                 if (adminDoc.exists) {
@@ -385,14 +398,17 @@ async function removeAdminFromFirestore(adminId) {
             let adminEmails = data.emails || [];
             
             // Удаляем email из списка
+            const beforeLength = adminEmails.length;
             adminEmails = adminEmails.filter(email => email.toLowerCase() !== emailToRemove);
             
-            // Сохраняем обновленный список
-            await configRef.set({
-                emails: adminEmails,
-                updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-                updatedBy: currentUser.uid
-            }, { merge: true });
+            // Если список изменился, сохраняем
+            if (adminEmails.length < beforeLength) {
+                await configRef.set({
+                    emails: adminEmails,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    updatedBy: currentUser.uid
+                }, { merge: true });
+            }
         }
         
         // Также пытаемся удалить из старой коллекции (если есть)
