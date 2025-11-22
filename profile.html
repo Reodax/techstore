@@ -799,6 +799,32 @@
     <script src="js/dropdown.js"></script>
     <script src="js/mobile-menu.js"></script>
     <script>
+        // 🛑 БЛОКИРУЕМ ВСЕ РЕДИРЕКТЫ НА LOGIN.HTML
+        const originalLocationSetter = Object.getOwnPropertyDescriptor(window, 'location').set;
+        Object.defineProperty(window, 'location', {
+            set: function(value) {
+                if (typeof value === 'string' && value.includes('login.html')) {
+                    console.warn('🛑 РЕДИРЕКТ НА LOGIN.HTML ЗАБЛОКИРОВАН!');
+                    return;
+                }
+                originalLocationSetter.call(window, value);
+            }
+        });
+        
+        // Блокируем location.href
+        const originalHref = Object.getOwnPropertyDescriptor(window.location, 'href');
+        if (originalHref && originalHref.set) {
+            Object.defineProperty(window.location, 'href', {
+                set: function(value) {
+                    if (typeof value === 'string' && value.includes('login.html')) {
+                        console.warn('🛑 РЕДИРЕКТ location.href НА LOGIN.HTML ЗАБЛОКИРОВАН!');
+                        return;
+                    }
+                    originalHref.set.call(window.location, value);
+                }
+            });
+        }
+        
         // Инициализация страницы профиля
         // ИСПОЛЬЗУЕМ onAuthStateChanged напрямую - он срабатывает АВТОМАТИЧЕСКИ!
         firebase.auth().onAuthStateChanged(async function(user) {
