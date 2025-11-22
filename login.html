@@ -209,6 +209,138 @@
             background: #3498db;
             box-shadow: 0 6px 16px rgba(52, 152, 219, 0.4);
         }
+
+        /* Модальное окно восстановления пароля */
+        .reset-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .reset-modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .reset-modal-title {
+            margin-top: 0;
+            color: #2c3e50;
+            text-align: center;
+            transition: color 0.3s ease;
+        }
+
+        .reset-modal-text {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            transition: color 0.3s ease;
+        }
+
+        .reset-email-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .reset-modal-buttons {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .reset-btn {
+            flex: 1;
+            padding: 0.75rem;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .reset-btn-cancel {
+            background: #95a5a6;
+        }
+
+        .reset-btn-cancel:hover {
+            background: #7f8c8d;
+        }
+
+        .reset-btn-submit {
+            background: #3498db;
+        }
+
+        .reset-btn-submit:hover {
+            background: #2980b9;
+        }
+
+        /* Темная тема для модального окна восстановления пароля */
+        body.dark-theme .reset-modal {
+            background: rgba(0, 0, 0, 0.7);
+        }
+
+        body.dark-theme .reset-modal-content {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        body.dark-theme .reset-modal-title {
+            color: #ffffff;
+        }
+
+        body.dark-theme .reset-modal-text {
+            color: #999;
+        }
+
+        body.dark-theme .reset-email-input {
+            background: #2d2d2d;
+            border-color: #444;
+            color: white;
+        }
+
+        body.dark-theme .reset-email-input::placeholder {
+            color: #777;
+        }
+
+        body.dark-theme .reset-email-input:focus {
+            border-color: #3498db;
+            background: #333;
+        }
+
+        body.dark-theme .reset-btn-cancel {
+            background: #555;
+        }
+
+        body.dark-theme .reset-btn-cancel:hover {
+            background: #666;
+        }
+
+        body.dark-theme .reset-btn-submit {
+            background: #2980b9;
+            box-shadow: 0 4px 12px rgba(41, 128, 185, 0.3);
+        }
+
+        body.dark-theme .reset-btn-submit:hover {
+            background: #3498db;
+            box-shadow: 0 6px 16px rgba(52, 152, 219, 0.4);
+        }
     </style>
 </head>
 <body>
@@ -314,18 +446,18 @@
     </footer>
 
     <!-- Модальное окно восстановления пароля -->
-    <div id="reset-password-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 10000; justify-content: center; align-items: center;">
-        <div style="background: white; padding: 2rem; border-radius: 8px; max-width: 400px; width: 90%; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
-            <h3 style="margin-top: 0; color: #2c3e50; text-align: center;">Восстановление пароля</h3>
-            <p style="color: #7f8c8d; font-size: 0.9rem; text-align: center; margin-bottom: 1.5rem;">Введите ваш email для получения ссылки на восстановление пароля</p>
+    <div id="reset-password-modal" class="reset-modal" style="display: none;">
+        <div class="reset-modal-content">
+            <h3 class="reset-modal-title">Восстановление пароля</h3>
+            <p class="reset-modal-text">Введите ваш email для получения ссылки на восстановление пароля</p>
             <form id="reset-password-form">
                 <div class="form-group">
                     <label for="reset-email">Email:</label>
-                    <input type="email" id="reset-email" required style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 4px; font-size: 1rem;">
+                    <input type="email" id="reset-email" required class="reset-email-input">
                 </div>
-                <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
-                    <button type="button" id="cancel-reset-btn" style="flex: 1; padding: 0.75rem; background: #95a5a6; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 1rem;">Отмена</button>
-                    <button type="submit" id="send-reset-btn" style="flex: 1; padding: 0.75rem; background: #3498db; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 1rem;">Отправить</button>
+                <div class="reset-modal-buttons">
+                    <button type="button" id="cancel-reset-btn" class="reset-btn reset-btn-cancel">Отмена</button>
+                    <button type="submit" id="send-reset-btn" class="reset-btn reset-btn-submit">Отправить</button>
                 </div>
             </form>
         </div>
