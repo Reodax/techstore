@@ -781,13 +781,14 @@
     <script src="js/dropdown.js"></script>
     <script src="js/mobile-menu.js"></script>
     <script>
-        // Инициализация страницы профиля
-        document.addEventListener('DOMContentLoaded', async function() {
-            console.log('🔍 Profile: Начало загрузки страницы профиля');
+        // Инициализация страницы профиля - используем window.onload вместо DOMContentLoaded
+        // чтобы гарантировать что все скрипты (включая cart.js) УЖЕ начали работу
+        window.addEventListener('load', async function() {
+            console.log('🔍 Profile: Начало загрузки страницы профиля (window.onload)');
             
-            // Даем 500мс другим скриптам (cart.js, firebase-config.js) начать инициализацию
-            console.log('⏸️ Даем другим скриптам запуститься (500мс)...');
-            await new Promise(resolve => setTimeout(resolve, 500));
+            // window.onload срабатывает ПОСЛЕ всех скриптов, но подождем еще немного
+            console.log('⏸️ Даем Cart и Auth завершить инициализацию (1 секунда)...');
+            await new Promise(resolve => setTimeout(resolve, 1000));
             
             // ТЕПЕРЬ ждем инициализации cart и auth
             console.log('⏳ Ожидание инициализации Cart и Auth...');
