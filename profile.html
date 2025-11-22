@@ -826,8 +826,13 @@
             
             console.log('📝 Заполнение UI - Имя:', userName, 'Email:', userEmail);
             
-            document.getElementById('user-name').textContent = userName;
-            document.getElementById('user-email').textContent = userEmail;
+            const userNameElement = document.getElementById('user-name');
+            const userEmailElement = document.getElementById('user-email');
+            const regDateElement = document.getElementById('registration-date');
+            const cartCountElement = document.getElementById('cart-count-profile');
+            
+            if (userNameElement) userNameElement.textContent = userName;
+            if (userEmailElement) userEmailElement.textContent = userEmail;
             
             // Дата регистрации
             let regDate = 'Не указана';
@@ -838,11 +843,11 @@
                     regDate = new Date(auth.currentUser.registrationDate).toLocaleDateString('ru-RU');
                 }
             }
-            document.getElementById('registration-date').textContent = regDate;
+            if (regDateElement) regDateElement.textContent = regDate;
             
             // Обновляем счетчик корзины
             const cartCount = cart.getTotalCount();
-            document.getElementById('cart-count-profile').textContent = cartCount;
+            if (cartCountElement) cartCountElement.textContent = cartCount;
 
             // Загружаем заказы пользователя
             console.log('📦 Загрузка заказов пользователя...');
@@ -850,39 +855,54 @@
 
             // Показываем контент после загрузки данных
             console.log('🎨 Показываем профиль');
-            document.querySelector('.profile-container').classList.add('loaded');
+            const profileContainer = document.querySelector('.profile-container');
+            if (profileContainer) {
+                profileContainer.classList.add('loaded');
+            }
             console.log('✅ Профиль загружен полностью!');
 
-                // Обработчик кнопки выхода
-                document.getElementById('logout-btn').addEventListener('click', async function() {
+            // Обработчик кнопки выхода
+            const logoutBtn = document.getElementById('logout-btn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', async function() {
                     await auth.logout();
                     window.location.href = 'index.html';
                 });
+            }
 
-                // Обработчик кнопки редактирования профиля
-                const editBtn = document.getElementById('edit-profile-btn');
-                const editForm = document.getElementById('edit-profile-form');
-                const cancelBtn = document.getElementById('cancel-edit-btn');
+            // Обработчик кнопки редактирования профиля
+            const editBtn = document.getElementById('edit-profile-btn');
+            const editForm = document.getElementById('edit-profile-form');
+            const cancelBtn = document.getElementById('cancel-edit-btn');
+            
+            if (!editBtn || !editForm || !cancelBtn) {
+                console.warn('⚠️ Некоторые элементы формы редактирования не найдены');
+                return;
+            }
 
-                editBtn.addEventListener('click', function() {
-                    editForm.classList.add('active');
-                    editBtn.style.display = 'none';
-                    
-                    // Заполняем форму текущими данными
-                    document.getElementById('edit-name').value = auth.getUserName();
-                    document.getElementById('edit-email').value = auth.getUserEmail();
-                    document.getElementById('edit-password').value = '';
-                });
+            editBtn.addEventListener('click', function() {
+                editForm.classList.add('active');
+                editBtn.style.display = 'none';
+                
+                // Заполняем форму текущими данными
+                const editNameInput = document.getElementById('edit-name');
+                const editEmailInput = document.getElementById('edit-email');
+                const editPasswordInput = document.getElementById('edit-password');
+                
+                if (editNameInput) editNameInput.value = auth.getUserName();
+                if (editEmailInput) editEmailInput.value = auth.getUserEmail();
+                if (editPasswordInput) editPasswordInput.value = '';
+            });
 
-                cancelBtn.addEventListener('click', function() {
-                    editForm.classList.remove('active');
-                    editBtn.style.display = 'inline-block';
-                    // Очищаем форму
-                    document.getElementById('edit-profile-form').reset();
-                });
+            cancelBtn.addEventListener('click', function() {
+                editForm.classList.remove('active');
+                editBtn.style.display = 'inline-block';
+                // Очищаем форму
+                editForm.reset();
+            });
 
-                // Обработчик отправки формы редактирования
-                editForm.addEventListener('submit', async function(e) {
+            // Обработчик отправки формы редактирования
+            editForm.addEventListener('submit', async function(e) {
                     e.preventDefault();
                     
                     const name = document.getElementById('edit-name').value.trim();
