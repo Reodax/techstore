@@ -788,9 +788,27 @@
             // Ждем ПОЛНОЙ инициализации auth (когда onAuthStateChanged завершится)
             console.log('⏳ Ожидание Auth инициализации...');
             let attempts = 0;
-            while ((!auth || !auth.isFirebaseReady) && attempts < 200) {
+            while (attempts < 200) {
+                const authExists = !!auth;
+                const authReady = auth?.isFirebaseReady;
+                
+                if (attempts % 10 === 0) { // Лог каждые 1 секунду
+                    console.log(`⏱️ Попытка ${attempts}/200: auth=${authExists}, isFirebaseReady=${authReady}`);
+                }
+                
+                if (authExists && authReady) {
+                    console.log('✅ Auth готов на попытке', attempts);
+                    break;
+                }
+                
                 await new Promise(resolve => setTimeout(resolve, 100));
                 attempts++;
+            }
+            
+            if (attempts >= 200) {
+                console.error('❌ ТАЙМАУТ: Auth не инициализировался за 20 секунд!');
+                alert('Ошибка загрузки Auth. Пожалуйста, обновите страницу.');
+                return;
             }
             
             console.log('✅ Auth готов! Проверка авторизации...');
