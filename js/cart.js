@@ -1454,7 +1454,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     if (window.location.pathname.includes('profile.html')) {
-        initializeProfilePage();
+        // Инициализация профиля теперь происходит напрямую в profile.html через Firebase
+        console.log('✅ Profile page loaded - auth handled by Firebase');
     }
 });
 
