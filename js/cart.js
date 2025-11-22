@@ -1604,21 +1604,10 @@ function initializeLoginPage() {
     });
 }
 
-// Инициализация страницы профиля
+// Инициализация страницы профиля (устаревшая функция - логика перенесена в profile.html)
 function initializeProfilePage() {
-    if (!auth.isLoggedIn()) {
-        window.location.href = 'login.html';
-        return;
-    }
-
-    document.getElementById('user-name').textContent = auth.getUserName();
-    document.getElementById('user-email').textContent = auth.getUserEmail();
-    document.getElementById('registration-date').textContent = new Date(auth.currentUser.registrationDate).toLocaleDateString('ru-RU');
-
-    document.getElementById('logout-btn').addEventListener('click', function() {
-        auth.logout();
-        window.location.href = 'index.html';
-    });
+    // Редирект убран - теперь вся логика в profile.html через Firebase onAuthStateChanged
+    console.log('⚠️ initializeProfilePage() больше не используется');
 }
 
 // Глобальные функции для вызова из HTML
