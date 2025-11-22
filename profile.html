@@ -800,9 +800,28 @@
     <script src="js/mobile-menu.js"></script>
     <script>
         // Инициализация страницы профиля
+        let authCheckComplete = false;
+        
         // ИСПОЛЬЗУЕМ onAuthStateChanged напрямую - он срабатывает АВТОМАТИЧЕСКИ!
         firebase.auth().onAuthStateChanged(async function(user) {
             console.log('🔍 Profile: onAuthStateChanged вызван, user=', user ? user.email : 'NULL');
+            
+            // Даем небольшую задержку для первой проверки
+            if (!authCheckComplete) {
+                authCheckComplete = true;
+                await new Promise(resolve => setTimeout(resolve, 500));
+                
+                // Проверяем еще раз после задержки
+                const currentUser = firebase.auth().currentUser;
+                if (!currentUser) {
+                    console.warn('❌ Пользователь не авторизован после задержки → редирект');
+                    window.location.href = 'login.html';
+                    return;
+                }
+                
+                user = currentUser;
+                console.log('✅ Пользователь авторизован после проверки:', user.email);
+            }
             
             if (!user) {
                 console.warn('❌ Пользователь не авторизован → редирект');
