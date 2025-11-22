@@ -782,28 +782,36 @@
     <script src="js/mobile-menu.js"></script>
     <script>
         // Инициализация страницы профиля
-        // ВАЖНО: cart.js проверяет авторизацию АВТОМАТИЧЕСКИ через onAuthStateChanged!
-        // Мы просто ждем когда все загрузится
         document.addEventListener('DOMContentLoaded', async function() {
             console.log('🔍 Profile: Начало загрузки страницы профиля');
             
-            // Ждем cart и auth
-            console.log('⏳ Ожидание Cart и Auth...');
+            // Ждем ПОЛНОЙ инициализации auth (когда onAuthStateChanged завершится)
+            console.log('⏳ Ожидание Auth инициализации...');
             let attempts = 0;
-            while ((!cart || !cart.isInitialized || !auth || !auth.isFirebaseReady) && attempts < 150) {
+            while ((!auth || !auth.isFirebaseReady) && attempts < 200) {
                 await new Promise(resolve => setTimeout(resolve, 100));
                 attempts++;
             }
             
-            // Если cart.js уже сделал редирект - этот код не выполнится
-            console.log('✅ Cart и Auth готовы! Загрузка профиля...');
+            console.log('✅ Auth готов! Проверка авторизации...');
             
-            const firebaseUser = firebase.auth().currentUser;
-            if (!firebaseUser) {
-                console.warn('❌ Нет пользователя после инициализации');
+            // ТЕПЕРЬ проверяем авторизацию (после полной инициализации Auth)
+            if (!auth.isLoggedIn()) {
+                console.warn('❌ Пользователь не авторизован → редирект');
+                window.location.href = 'login.html';
                 return;
             }
-            console.log('✅ Пользователь:', firebaseUser.email);
+            
+            console.log('✅ Пользователь авторизован! Загрузка профиля...');
+            
+            // Ждем Cart
+            while ((!cart || !cart.isInitialized) && attempts < 250) {
+                await new Promise(resolve => setTimeout(resolve, 100));
+                attempts++;
+            }
+            
+            const firebaseUser = firebase.auth().currentUser;
+            console.log('✅ Пользователь:', firebaseUser?.email);
 
                 // Загружаем данные пользователя из Firestore
             // Загружаем данные пользователя из Firestore

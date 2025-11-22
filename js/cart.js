@@ -25,14 +25,6 @@ class Auth {
                 }
                 this.isFirebaseReady = true;
                 console.log('✅ Auth: Инициализация завершена');
-                
-                // ЗАЩИТА PROFILE.HTML: Если мы на странице профиля и пользователь не авторизован
-                if (window.location.pathname.includes('profile.html') && !user) {
-                    console.warn('🚨 Auth: На странице профиля без авторизации → редирект');
-                    window.location.href = 'login.html';
-                    return;
-                }
-                
                 resolve();
                 // Не отписываемся, чтобы отслеживать изменения в реальном времени
             });
