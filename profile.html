@@ -788,13 +788,32 @@
             // СНАЧАЛА ждем инициализации cart и auth (они уже ждут Firebase Auth!)
             console.log('⏳ Ожидание инициализации Cart и Auth...');
             let attempts = 0;
-            while ((!cart || !cart.isInitialized || !auth || !auth.isFirebaseReady) && attempts < 100) {
+            const maxAttempts = 200; // 20 секунд максимум
+            
+            while (attempts < maxAttempts) {
+                const cartReady = cart && cart.isInitialized;
+                const authReady = auth && auth.isFirebaseReady;
+                
+                console.log(`⏱️ Попытка ${attempts + 1}/${maxAttempts}: cart=${cartReady}, auth=${authReady}`);
+                
+                if (cartReady && authReady) {
+                    console.log('✅ Cart и Auth готовы!');
+                    break;
+                }
+                
                 await new Promise(resolve => setTimeout(resolve, 100));
                 attempts++;
             }
             
+            if (attempts >= maxAttempts) {
+                console.error('❌ ТАЙМАУТ: Cart и Auth не инициализировались за 20 секунд!');
+                alert('Ошибка загрузки. Попробуйте обновить страницу.');
+                return;
+            }
+            
             console.log('✅ Cart инициализирован:', cart?.isInitialized);
             console.log('✅ Auth готов:', auth?.isFirebaseReady);
+            console.log('🔐 Проверка авторизации: auth.isLoggedIn()=', auth.isLoggedIn());
             
             // ТЕПЕРЬ проверяем пользователя
             if (!auth.isLoggedIn()) {
