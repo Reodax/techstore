@@ -1,36 +1,64 @@
-/* css/styles.css */
+/* css/styles.css - Firebase Style Redesign */
 :root {
-    --background-color: #f8f9fa;
-    --text-color: #333;
-    --header-bg: #2c3e50;
+    /* Firebase Color Palette */
+    --background-color: #ffffff;
+    --text-color: #1f1f1f;
+    --header-bg: #ffffff;
     --card-bg: #ffffff;
-    --card-border: #f0f0f0;
-    --nav-link-color: #ffffff;
-    --footer-bg: #2c3e50;
-    --footer-text: #ffffff;
-    --product-name-color: #2c3e50;
-    --product-desc-color: #7f8c8d;
-    --price-color: #e74c3c;
+    --card-border: #e8eaed;
+    --nav-link-color: #5f6368;
+    --footer-bg: #f8f9fa;
+    --footer-text: #5f6368;
+    --product-name-color: #1f1f1f;
+    --product-desc-color: #5f6368;
+    
+    /* Firebase Orange Accent */
+    --primary-color: #ff6b35;
+    --primary-hover: #ff8c42;
+    --secondary-color: #ffa726;
+    --accent-color: #ffab40;
+    
+    /* Shadows & Effects */
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+    --shadow-xl: 0 12px 40px rgba(0, 0, 0, 0.15);
+    
+    /* Borders & Radius */
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-xl: 20px;
+    
+    --price-color: --primary-color;
     --input-bg: #ffffff;
-    --input-border: #e9ecef;
-    --input-text: #333;
+    --input-border: #e8eaed;
+    --input-text: #1f1f1f;
 }
 
 body.dark-theme {
-    --background-color: #000000;
-    --text-color: #ffffff;
-    --header-bg: #000000;
-    --card-bg: #1a1a1a;
-    --card-border: #333333;
-    --nav-link-color: #ffffff;
-    --footer-bg: #000000;
-    --footer-text: #ffffff;
-    --product-name-color: #ffffff;
-    --product-desc-color: #cccccc;
-    --price-color: #ffffff;
-    --input-bg: #1a1a1a;
-    --input-border: #333333;
-    --input-text: #ffffff;
+    /* Firebase Dark Theme */
+    --background-color: #1a1a1a;
+    --text-color: #e8eaed;
+    --header-bg: #1a1a1a;
+    --card-bg: #2d2d2d;
+    --card-border: #3c4043;
+    --nav-link-color: #e8eaed;
+    --footer-bg: #1a1a1a;
+    --footer-text: #9aa0a6;
+    --product-name-color: #e8eaed;
+    --product-desc-color: #9aa0a6;
+    
+    /* Shadows for dark theme */
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);
+    --shadow-xl: 0 12px 40px rgba(0, 0, 0, 0.6);
+    
+    --price-color: #ffab40;
+    --input-bg: #2d2d2d;
+    --input-border: #3c4043;
+    --input-text: #e8eaed;
 }
 
 * {
@@ -40,11 +68,14 @@ body.dark-theme {
 }
 
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Google Sans', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
     line-height: 1.6;
     color: var(--text-color);
     background: var(--background-color);
-    transition: background-color 0.3s ease, color 0.3s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 .container {
@@ -53,22 +84,24 @@ body {
     padding: 0 20px;
 }
 
-/* Шапка */
+/* Шапка - Firebase Style */
 .header {
     background: var(--header-bg);
     color: var(--nav-link-color);
     padding: 0;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    box-shadow: var(--shadow-sm);
     position: sticky;
     top: 0;
     z-index: 1000;
-    border-bottom: 2px solid rgba(52, 152, 219, 0.3);
-    transition: background 0.3s ease;
+    border-bottom: 1px solid var(--card-border);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
 }
 
 body.dark-theme .header {
-    background: #000000;
-    border-bottom-color: rgba(255, 255, 255, 0.1);
+    background: rgba(26, 26, 26, 0.95);
+    border-bottom-color: var(--card-border);
 }
 
 .header .container {
@@ -85,23 +118,24 @@ body.dark-theme .header {
 
 .logo h1 {
     color: white;
-    font-size: 1.5rem;
-    font-weight: 700;
+    font-size: 1.6rem;
+    font-weight: 600;
     padding: 0.8rem 0;
-    background: linear-gradient(135deg, #3498db 0%, #2ecc71 100%);
+    background: linear-gradient(135deg, #ff6b35 0%, #ffa726 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
     position: relative;
-    transition: all 0.3s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    letter-spacing: -0.5px;
 }
 
 .logo h1::before {
-    content: var(--logo-icon, '💻');
-    margin-right: 0.4rem;
-    font-size: 1.5rem;
+    content: var(--logo-icon, '🔥');
+    margin-right: 0.5rem;
+    font-size: 1.6rem;
     -webkit-text-fill-color: initial;
-    filter: drop-shadow(0 0 5px rgba(52, 152, 219, 0.5));
+    filter: drop-shadow(0 0 8px rgba(255, 107, 53, 0.4));
 }
 
 .logo:hover h1 {

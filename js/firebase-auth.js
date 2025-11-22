@@ -197,9 +197,16 @@ async function updateFirebaseUserData(name, email, newPassword = null) {
             displayName: name
         });
 
+        // Проверяем, изменился ли email
+        const emailChanged = email !== user.email;
+        
         // Обновляем email если изменился
-        if (email !== user.email) {
+        if (emailChanged) {
             await user.updateEmail(email);
+            
+            // Отправляем письмо для подтверждения нового email
+            await user.sendEmailVerification();
+            console.log('📧 Письмо верификации отправлено на новый email:', email);
         }
 
         // Обновляем пароль если указан
@@ -208,13 +215,26 @@ async function updateFirebaseUserData(name, email, newPassword = null) {
         }
 
         // Обновляем данные в Firestore
-        await db.collection('users').doc(user.uid).update({
+        const updateData = {
             name: name,
             email: email,
             updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
+        };
+        
+        // Если email изменился, сбрасываем статус верификации
+        if (emailChanged) {
+            updateData.emailVerified = false;
+        }
+        
+        await db.collection('users').doc(user.uid).update(updateData);
 
-        return { success: true, message: 'Данные успешно обновлены' };
+        // Возвращаем сообщение с информацией о верификации
+        let message = 'Данные успешно обновлены';
+        if (emailChanged) {
+            message = 'Данные обновлены! Письмо для подтверждения нового email отправлено на вашу почту.';
+        }
+        
+        return { success: true, message: message, emailChanged: emailChanged };
     } catch (error) {
         console.error('❌ Ошибка обновления данных:', error);
         

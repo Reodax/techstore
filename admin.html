@@ -17,6 +17,29 @@
             margin-bottom: 3rem;
         }
 
+        .admin-logout-btn {
+            margin-top: 0.5rem;
+            padding: 0.4rem 1rem;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .admin-logout-btn:hover {
+            background: #c0392b;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(231, 76, 60, 0.3);
+        }
+
+        .admin-logout-btn:active {
+            transform: translateY(0);
+        }
+
         .admin-title {
             font-size: 2.5rem;
             color: var(--product-name-color);
@@ -629,6 +652,15 @@
             color: #ffffff;
         }
 
+        body.dark-theme .admin-logout-btn {
+            background: #c0392b;
+        }
+
+        body.dark-theme .admin-logout-btn:hover {
+            background: #e74c3c;
+            box-shadow: 0 4px 8px rgba(231, 76, 60, 0.5);
+        }
+
         body.dark-theme .stat-card {
             background: #1a1a1a;
         }
@@ -685,6 +717,152 @@
         body.dark-theme .admin-login-form .admin-btn:hover {
             background: #3498db;
             box-shadow: 0 6px 16px rgba(52, 152, 219, 0.4);
+        }
+
+        /* Ссылка "Забыли пароль?" */
+        #admin-forgot-password-link:hover {
+            text-decoration: underline;
+            color: #2980b9;
+        }
+
+        body.dark-theme #admin-forgot-password-link {
+            color: #3498db;
+        }
+
+        body.dark-theme #admin-forgot-password-link:hover {
+            color: #5dade2;
+        }
+
+        /* Модальное окно восстановления пароля */
+        .reset-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .reset-modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .reset-modal-title {
+            margin-top: 0;
+            color: #2c3e50;
+            text-align: center;
+            transition: color 0.3s ease;
+        }
+
+        .reset-modal-text {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            transition: color 0.3s ease;
+        }
+
+        .reset-email-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .reset-modal-buttons {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .reset-btn {
+            flex: 1;
+            padding: 0.75rem;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .reset-btn-cancel {
+            background: #95a5a6;
+        }
+
+        .reset-btn-cancel:hover {
+            background: #7f8c8d;
+        }
+
+        .reset-btn-submit {
+            background: #3498db;
+        }
+
+        .reset-btn-submit:hover {
+            background: #2980b9;
+        }
+
+        /* Темная тема для модального окна восстановления пароля */
+        body.dark-theme .reset-modal {
+            background: rgba(0, 0, 0, 0.7);
+        }
+
+        body.dark-theme .reset-modal-content {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        body.dark-theme .reset-modal-title {
+            color: #ffffff;
+        }
+
+        body.dark-theme .reset-modal-text {
+            color: #999;
+        }
+
+        body.dark-theme .reset-email-input {
+            background: #2d2d2d;
+            border-color: #444;
+            color: white;
+        }
+
+        body.dark-theme .reset-email-input::placeholder {
+            color: #777;
+        }
+
+        body.dark-theme .reset-email-input:focus {
+            background: #333;
+            border-color: #3498db;
+        }
+
+        body.dark-theme .reset-btn-cancel {
+            background: #555;
+        }
+
+        body.dark-theme .reset-btn-cancel:hover {
+            background: #666;
+        }
+
+        body.dark-theme .reset-btn-submit {
+            background: #2980b9;
+            box-shadow: 0 4px 15px rgba(41, 128, 185, 0.3);
+        }
+
+        body.dark-theme .reset-btn-submit:hover {
+            background: #3498db;
+            box-shadow: 0 6px 20px rgba(41, 128, 185, 0.4);
         }
 
         body.dark-theme .modal-content {
@@ -790,7 +968,28 @@
                         <p style="margin-top: 0.3rem; margin-bottom: 0; text-align: center; color: #7f8c8d; font-size: 0.75rem;">
                             Войдите с помощью вашего аккаунта TechStore
                         </p>
+                        <p style="margin-top: 0.5rem; margin-bottom: 0; text-align: center;">
+                            <a href="#" id="admin-forgot-password-link" style="color: #3498db; font-size: 0.85rem; text-decoration: none; transition: all 0.3s ease;">Забыли пароль?</a>
+                        </p>
                     </div>
+                </div>
+            </div>
+
+            <!-- Модальное окно восстановления пароля администратора -->
+            <div id="admin-reset-password-modal" class="reset-modal" style="display: none;">
+                <div class="reset-modal-content">
+                    <h3 class="reset-modal-title">Восстановление пароля</h3>
+                    <p class="reset-modal-text">Введите ваш email администратора для получения ссылки на восстановление пароля</p>
+                    <form id="admin-reset-password-form">
+                        <div class="form-group">
+                            <label for="admin-reset-email">Email:</label>
+                            <input type="email" id="admin-reset-email" required class="reset-email-input" placeholder="admin@techstore.com">
+                        </div>
+                        <div class="reset-modal-buttons">
+                            <button type="button" id="admin-cancel-reset-btn" class="reset-btn reset-btn-cancel">Отмена</button>
+                            <button type="submit" id="admin-send-reset-btn" class="reset-btn reset-btn-submit">Отправить</button>
+                        </div>
+                    </form>
                 </div>
             </div>
 
@@ -799,8 +998,8 @@
                 <div class="admin-header">
                     <h1 class="admin-title">Административная панель</h1>
                     <p>Управление магазином и пользователями</p>
-                    <button onclick="adminLogout()" style="margin-top: 1rem; padding: 0.5rem 1.5rem; background: #e74c3c; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.9rem;">
-                        Выйти
+                    <button onclick="adminLogout()" class="admin-logout-btn">
+                        Выйти из админ панели
                     </button>
                 </div>
 
@@ -1351,17 +1550,17 @@
             checkAdminAuth();
         });
 
-        function checkAdminAuth() {
+        async function checkAdminAuth() {
             // Используем Firebase Authentication
-            firebase.auth().onAuthStateChanged(function(user) {
+            firebase.auth().onAuthStateChanged(async function(user) {
                 const adminLoginRequired = document.getElementById('admin-login-required');
                 const adminContent = document.getElementById('admin-content');
                 
                 if (user) {
                     // Проверка: только администратор может зайти
-                    const ADMIN_EMAIL = 'seriy22832@gmail.com';
+                    const isAdmin = await isCurrentUserAdmin();
                     
-                    if (user.email !== ADMIN_EMAIL) {
+                    if (!isAdmin) {
                         console.warn('❌ Admin: Нет доступа для:', user.email);
                         alert('❌ Доступ запрещен!\n\nАдмин панель доступна только администратору сайта.');
                         
@@ -1450,6 +1649,89 @@
                 alert('Ошибка при выходе');
             }
         }
+
+        // ===== ВОССТАНОВЛЕНИЕ ПАРОЛЯ АДМИНА =====
+        // Инициализация обработчиков для восстановления пароля
+        document.addEventListener('DOMContentLoaded', function() {
+            const forgotPasswordLink = document.getElementById('admin-forgot-password-link');
+            const resetPasswordModal = document.getElementById('admin-reset-password-modal');
+            const cancelResetBtn = document.getElementById('admin-cancel-reset-btn');
+            const resetPasswordForm = document.getElementById('admin-reset-password-form');
+            const resetEmailInput = document.getElementById('admin-reset-email');
+
+            // Показать модальное окно
+            if (forgotPasswordLink) {
+                forgotPasswordLink.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    resetPasswordModal.style.display = 'flex';
+                });
+            }
+
+            // Закрыть модальное окно
+            if (cancelResetBtn) {
+                cancelResetBtn.addEventListener('click', function() {
+                    resetPasswordModal.style.display = 'none';
+                    resetEmailInput.value = '';
+                });
+            }
+
+            // Закрыть при клике вне модального окна
+            if (resetPasswordModal) {
+                resetPasswordModal.addEventListener('click', function(e) {
+                    if (e.target === resetPasswordModal) {
+                        resetPasswordModal.style.display = 'none';
+                        resetEmailInput.value = '';
+                    }
+                });
+            }
+
+            // Обработка отправки формы восстановления пароля
+            if (resetPasswordForm) {
+                resetPasswordForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    
+                    const email = resetEmailInput.value.trim();
+                    
+                    if (!email) {
+                        alert('Пожалуйста, введите email');
+                        return;
+                    }
+
+                    const sendBtn = document.getElementById('admin-send-reset-btn');
+                    const originalText = sendBtn.textContent;
+                    
+                    try {
+                        sendBtn.textContent = 'Отправка...';
+                        sendBtn.disabled = true;
+                        
+                        // Отправляем письмо для восстановления пароля
+                        await firebase.auth().sendPasswordResetEmail(email);
+                        
+                        alert('✅ Письмо для восстановления пароля отправлено на ' + email + '\n\nПроверьте почту и следуйте инструкциям в письме.');
+                        
+                        // Закрываем модальное окно
+                        resetPasswordModal.style.display = 'none';
+                        resetEmailInput.value = '';
+                    } catch (error) {
+                        console.error('❌ Ошибка восстановления пароля:', error);
+                        
+                        let message = 'Ошибка при отправке письма';
+                        if (error.code === 'auth/user-not-found') {
+                            message = 'Пользователь с таким email не найден';
+                        } else if (error.code === 'auth/invalid-email') {
+                            message = 'Неверный формат email';
+                        } else if (error.code === 'auth/too-many-requests') {
+                            message = 'Слишком много запросов. Попробуйте позже';
+                        }
+                        
+                        alert('❌ ' + message);
+                    } finally {
+                        sendBtn.textContent = originalText;
+                        sendBtn.disabled = false;
+                    }
+                });
+            }
+        });
 
         // ===== УПРАВЛЕНИЕ ПОЛЬЗОВАТЕЛЯМИ =====
         async function loadUsers() {
@@ -3161,6 +3443,7 @@
     <script src="js/firebase-config.js"></script>
     <script src="js/firebase-categories.js"></script>
     <script src="js/firebase-auth.js"></script>
+    <script src="js/firebase-admin.js"></script>
     <script src="js/firebase-orders.js"></script>
     
     <!-- Existing Scripts -->
