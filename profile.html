@@ -785,7 +785,11 @@
         document.addEventListener('DOMContentLoaded', async function() {
             console.log('🔍 Profile: Начало загрузки страницы профиля');
             
-            // СНАЧАЛА ждем инициализации cart и auth (они уже ждут Firebase Auth!)
+            // Даем 500мс другим скриптам (cart.js, firebase-config.js) начать инициализацию
+            console.log('⏸️ Даем другим скриптам запуститься (500мс)...');
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            // ТЕПЕРЬ ждем инициализации cart и auth
             console.log('⏳ Ожидание инициализации Cart и Auth...');
             let attempts = 0;
             const maxAttempts = 200; // 20 секунд максимум
