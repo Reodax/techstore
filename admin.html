@@ -2224,21 +2224,52 @@
         }
 
         async function uploadImageToFirebase(file) {
-            if (!window.storage) {
-                alert('Firebase Storage не инициализирован');
+            // Проверяем доступность Firebase Storage
+            if (typeof firebase === 'undefined' || !firebase.storage) {
+                console.error('Firebase Storage SDK не загружен');
+                alert('Firebase Storage не доступен. Проверьте подключение к интернету и обновите страницу.');
                 return;
+            }
+
+            // Проверяем авторизацию пользователя
+            const user = firebase.auth().currentUser;
+            if (!user) {
+                console.warn('Пользователь не авторизован');
+                // Продолжаем загрузку, так как правила Storage могут разрешать анонимную загрузку
+            }
+
+            // Проверяем инициализацию Storage
+            let storageInstance;
+            if (window.storage) {
+                storageInstance = window.storage;
+                console.log('✅ Используем существующий экземпляр Storage');
+            } else {
+                try {
+                    storageInstance = firebase.storage();
+                    window.storage = storageInstance;
+                    console.log('✅ Создан новый экземпляр Storage');
+                } catch (error) {
+                    console.error('Ошибка инициализации Storage:', error);
+                    alert('Ошибка инициализации Firebase Storage: ' + error.message);
+                    return;
+                }
             }
 
             try {
                 // Показываем прогресс загрузки
                 document.getElementById('imageUploadProgress').style.display = 'block';
                 document.getElementById('imageUploadProgressBar').style.width = '0%';
+                document.getElementById('imageUploadProgressBar').style.background = '#3498db';
                 document.getElementById('imageUploadProgressText').textContent = 'Загрузка...';
 
                 // Создаем уникальное имя файла
                 const timestamp = Date.now();
-                const fileName = `products/${timestamp}_${file.name}`;
-                const storageRef = firebase.storage().ref(fileName);
+                const randomId = Math.random().toString(36).substring(2, 15);
+                const sanitizedFileName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+                const fileName = `products/${timestamp}_${randomId}_${sanitizedFileName}`;
+                
+                console.log('Загрузка файла:', fileName);
+                const storageRef = storageInstance.ref(fileName);
 
                 // Загружаем файл
                 const uploadTask = storageRef.put(file);
@@ -2253,7 +2284,21 @@
                     },
                     (error) => {
                         console.error('Ошибка загрузки файла:', error);
-                        alert('Ошибка загрузки изображения: ' + error.message);
+                        console.error('Код ошибки:', error.code);
+                        console.error('Сообщение:', error.message);
+                        
+                        let errorMessage = 'Ошибка загрузки изображения: ';
+                        if (error.code === 'storage/unauthorized') {
+                            errorMessage += 'Нет прав доступа к Firebase Storage. Проверьте настройки безопасности.';
+                        } else if (error.code === 'storage/canceled') {
+                            errorMessage += 'Загрузка отменена.';
+                        } else if (error.code === 'storage/unknown') {
+                            errorMessage += 'Неизвестная ошибка. Проверьте консоль браузера.';
+                        } else {
+                            errorMessage += error.message;
+                        }
+                        
+                        alert(errorMessage);
                         document.getElementById('imageUploadProgress').style.display = 'none';
                         document.getElementById('productImageFile').value = '';
                         if (document.getElementById('fileUploadText')) {
@@ -2263,18 +2308,27 @@
                     async () => {
                         // Загрузка завершена, получаем URL
                         try {
+                            console.log('Загрузка завершена, получение URL...');
                             const downloadURL = await uploadTask.snapshot.ref.getDownloadURL();
+                            console.log('URL получен:', downloadURL);
+                            
                             uploadedImageUrl = downloadURL;
                             document.getElementById('productImage').value = downloadURL;
                             document.getElementById('imageUploadProgressText').textContent = '✅ Загрузка завершена!';
                             document.getElementById('imageUploadProgressBar').style.background = '#2ecc71';
+                            document.getElementById('imageUploadProgressBar').style.width = '100%';
+                            
+                            // Обновляем превью с загруженным изображением
+                            if (document.getElementById('imagePreviewImg')) {
+                                document.getElementById('imagePreviewImg').src = downloadURL;
+                            }
                             
                             setTimeout(() => {
                                 document.getElementById('imageUploadProgress').style.display = 'none';
                             }, 2000);
                         } catch (error) {
                             console.error('Ошибка получения URL:', error);
-                            alert('Ошибка получения URL изображения');
+                            alert('Ошибка получения URL изображения: ' + error.message);
                             document.getElementById('imageUploadProgress').style.display = 'none';
                         }
                     }
