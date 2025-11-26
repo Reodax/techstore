@@ -2319,19 +2319,29 @@
                             `Загрузка: ${Math.round(progress)}%`;
                     },
                     (error) => {
-                        console.error('Ошибка загрузки файла:', error);
+                        console.error('❌ Ошибка загрузки файла:', error);
                         console.error('Код ошибки:', error.code);
                         console.error('Сообщение:', error.message);
+                        console.error('Полная ошибка:', JSON.stringify(error, null, 2));
                         
                         let errorMessage = 'Ошибка загрузки изображения: ';
                         if (error.code === 'storage/unauthorized') {
-                            errorMessage += 'Нет прав доступа к Firebase Storage. Проверьте настройки безопасности.';
+                            errorMessage += 'Нет прав доступа к Firebase Storage. Проверьте настройки безопасности в Firebase Console.';
                         } else if (error.code === 'storage/canceled') {
                             errorMessage += 'Загрузка отменена.';
                         } else if (error.code === 'storage/unknown') {
-                            errorMessage += 'Неизвестная ошибка. Проверьте консоль браузера.';
+                            // Проверяем, не CORS ли это
+                            if (error.message && (error.message.includes('CORS') || error.message.includes('cors') || error.message.includes('preflight'))) {
+                                errorMessage = '⚠️ ОШИБКА CORS!\n\nВаш сайт на GitHub Pages не может загружать файлы в Firebase Storage из-за политики CORS.\n\nРешение:\n1. Откройте файл FIREBASE_STORAGE_CORS_FIX.md\n2. Следуйте инструкциям для настройки CORS\n3. Или используйте URL изображения вместо загрузки файла';
+                            } else {
+                                errorMessage += 'Неизвестная ошибка. Проверьте консоль браузера (F12) для деталей.';
+                            }
+                        } else if (error.code === 'storage/quota-exceeded') {
+                            errorMessage += 'Превышена квота хранилища. Проверьте лимиты в Firebase Console.';
+                        } else if (error.code === 'storage/unauthenticated') {
+                            errorMessage += 'Требуется авторизация. Войдите в админ-панель.';
                         } else {
-                            errorMessage += error.message;
+                            errorMessage += error.message || 'Неизвестная ошибка';
                         }
                         
                         alert(errorMessage);
