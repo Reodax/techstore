@@ -1473,6 +1473,21 @@
                 <div class="form-group">
                     <label for="productImage">URL изображения:</label>
                     <input type="url" id="productImage" placeholder="https://example.com/image.jpg">
+                    <small style="color: var(--product-desc-color); display: block; margin-top: 0.5rem;">Или загрузите файл ниже</small>
+                </div>
+                <div class="form-group">
+                    <label for="productImageFile">Загрузить изображение файлом:</label>
+                    <input type="file" id="productImageFile" accept="image/*" onchange="handleImageFileSelect(event)">
+                    <div id="imagePreview" style="margin-top: 1rem; display: none;">
+                        <img id="imagePreviewImg" src="" alt="Preview" style="max-width: 200px; max-height: 200px; border-radius: 8px; border: 2px solid var(--card-border);">
+                        <button type="button" class="admin-btn danger" onclick="clearImagePreview()" style="margin-top: 0.5rem; padding: 0.5rem 1rem; font-size: 0.9rem;">Удалить превью</button>
+                    </div>
+                    <div id="imageUploadProgress" style="display: none; margin-top: 0.5rem;">
+                        <div style="background: var(--card-bg); border-radius: 8px; padding: 0.5rem;">
+                            <div id="imageUploadProgressBar" style="background: #3498db; height: 20px; border-radius: 4px; width: 0%; transition: width 0.3s ease;"></div>
+                            <small id="imageUploadProgressText" style="display: block; margin-top: 0.5rem; color: var(--product-desc-color);">Загрузка...</small>
+                        </div>
+                    </div>
                 </div>
                 <button type="submit" class="admin-btn">Сохранить товар</button>
             </form>
@@ -1955,8 +1970,14 @@
             document.getElementById('productModal').style.display = 'none';
         }
 
-        function saveProduct(event) {
+        async function saveProduct(event) {
             event.preventDefault();
+            
+            // Если есть загруженный файл, используем его URL
+            let imageUrl = document.getElementById('productImage').value;
+            if (uploadedImageUrl) {
+                imageUrl = uploadedImageUrl;
+            }
             
             const products = JSON.parse(localStorage.getItem('techstore_products') || '[]');
             const productId = document.getElementById('productId').value;
@@ -1966,7 +1987,7 @@
                 category: document.getElementById('productCategory').value,
                 stock: parseInt(document.getElementById('productStock').value),
                 description: document.getElementById('productDescription').value,
-                image: document.getElementById('productImage').value
+                image: imageUrl
             };
             
             let updatedProducts;
@@ -2015,6 +2036,18 @@
                 document.getElementById('productStock').value = product.stock;
                 document.getElementById('productDescription').value = product.description || '';
                 document.getElementById('productImage').value = product.image || '';
+                document.getElementById('productImageFile').value = '';
+                document.getElementById('imageUploadProgress').style.display = 'none';
+                uploadedImageUrl = null;
+                
+                // Показываем превью существующего изображения, если есть
+                if (product.image) {
+                    document.getElementById('imagePreviewImg').src = product.image;
+                    document.getElementById('imagePreview').style.display = 'block';
+                } else {
+                    document.getElementById('imagePreview').style.display = 'none';
+                }
+                
                 document.getElementById('productModal').style.display = 'block';
             }
         }
@@ -3626,6 +3659,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
     
     <!-- Firebase Configuration -->
     <script src="js/firebase-config.js"></script>

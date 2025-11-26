@@ -14,6 +14,7 @@ const firebaseConfig = {
 // Инициализация Firebase
 let app;
 let db;
+let storage;
 
 try {
     console.log('🚀 Начало инициализации Firebase...');
@@ -26,8 +27,13 @@ try {
     db = firebase.firestore();
     console.log('✅ Firestore подключен');
     
-    // Делаем db доступной глобально
+    // Получаем ссылку на Storage
+    storage = firebase.storage();
+    console.log('✅ Firebase Storage подключен');
+    
+    // Делаем db и storage доступными глобально
     window.db = db;
+    window.storage = storage;
     
     // Устанавливаем persistence для сохранения сессии между перезагрузками
     firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL)
@@ -50,6 +56,7 @@ try {
     console.log('✅ Firebase инициализирован успешно!');
     console.log('📊 Firestore подключен');
     console.log('🔐 Firebase Auth подключен');
+    console.log('📦 Firebase Storage подключен');
 } catch (error) {
     console.error('❌ Ошибка инициализации Firebase:', error);
 }
