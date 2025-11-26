@@ -1364,21 +1364,40 @@ function getStoredProducts() {
     return JSON.parse(localStorage.getItem('techstore_products') || '[]');
 }
 
-function saveProducts(products) {
+async function saveProducts(products) {
+    // Сохраняем в localStorage для быстрого доступа
     localStorage.setItem('techstore_products', JSON.stringify(products));
+    
+    // Также сохраняем в Firebase Firestore, если доступно
+    if (typeof window.saveProductsToFirestore === 'function') {
+        try {
+            await window.saveProductsToFirestore(products);
+        } catch (error) {
+            console.error('Ошибка сохранения товаров в Firebase:', error);
+        }
+    }
 }
 
-function ensureProductsInitialized() {
+async function ensureProductsInitialized() {
+    // Сначала пытаемся загрузить из Firebase
+    if (typeof window.loadProductsFromFirestore === 'function') {
+        try {
+            await window.loadProductsFromFirestore();
+        } catch (error) {
+            console.error('Ошибка загрузки товаров из Firebase:', error);
+        }
+    }
+    
     const products = getStoredProducts();
     if (products.length === 0) {
-        saveProducts(DEFAULT_PRODUCTS);
+        await saveProducts(DEFAULT_PRODUCTS);
     } else {
         // Добавляем новые товары из DEFAULT_PRODUCTS, которых еще нет
         const existingIds = new Set(products.map(p => p.id));
         const newProducts = DEFAULT_PRODUCTS.filter(p => !existingIds.has(p.id));
         if (newProducts.length > 0) {
             const updatedProducts = [...products, ...newProducts];
-            saveProducts(updatedProducts);
+            await saveProducts(updatedProducts);
         }
     }
 }
@@ -1438,9 +1457,21 @@ function formatProductPrice(price) {
 const auth = new Auth();
 const cart = new Cart(auth);
 
+// Функция для перерисовки товаров после загрузки из Firebase
+function refreshProductsDisplay() {
+    renderDynamicProductSections();
+    initializeCartButtons();
+}
+
+// Слушаем событие загрузки товаров из Firebase
+window.addEventListener('productsLoadedFromFirestore', function(e) {
+    console.log('✅ Товары загружены из Firebase, обновляем отображение');
+    refreshProductsDisplay();
+});
+
 // Инициализация при загрузке страницы
-document.addEventListener('DOMContentLoaded', function() {
-    ensureProductsInitialized();
+document.addEventListener('DOMContentLoaded', async function() {
+    await ensureProductsInitialized();
     renderDynamicProductSections();
     initializeCartButtons();
     initializeAuthButtons();

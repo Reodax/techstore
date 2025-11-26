@@ -1081,6 +1081,7 @@
                         </div>
                         <button class="admin-btn" onclick="showAddProductModal()">Добавить товар</button>
                         <button class="admin-btn" onclick="loadProducts()">Обновить список товаров</button>
+                        <button class="admin-btn" onclick="syncProductsToFirebase()" style="background: #2ecc71;">🔄 Синхронизировать с Firebase</button>
                         <button class="admin-btn" onclick="updateDefaultProducts()">Добавить дефолтные товары</button>
                         <button class="admin-btn danger" onclick="clearAllProducts()">Удалить все товары</button>
                     </div>
@@ -1987,6 +1988,13 @@
             
             localStorage.setItem('techstore_products', JSON.stringify(updatedProducts));
             
+            // Сохраняем в Firebase, если доступно
+            if (typeof window.saveProductsToFirestore === 'function') {
+                window.saveProductsToFirestore(updatedProducts).catch(err => {
+                    console.error('Ошибка сохранения товаров в Firebase:', err);
+                });
+            }
+            
             closeProductModal();
             loadProducts();
             updateStats();
@@ -2016,6 +2024,19 @@
                 let products = JSON.parse(localStorage.getItem('techstore_products') || '[]');
                 products = products.filter(p => p.id !== id);
                 localStorage.setItem('techstore_products', JSON.stringify(products));
+                
+                // Удаляем из Firebase, если доступно
+                if (typeof window.deleteProductFromFirestore === 'function') {
+                    window.deleteProductFromFirestore(id).catch(err => {
+                        console.error('Ошибка удаления товара из Firebase:', err);
+                    });
+                } else if (typeof window.saveProductsToFirestore === 'function') {
+                    // Если нет функции удаления, просто обновляем весь список
+                    window.saveProductsToFirestore(products).catch(err => {
+                        console.error('Ошибка обновления товаров в Firebase:', err);
+                    });
+                }
+                
                 loadProducts();
                 alert('Товар удален!');
             }
@@ -2024,8 +2045,42 @@
         function clearAllProducts() {
             if (confirm('Вы уверены, что хотите удалить все товары? Это действие нельзя отменить!')) {
                 localStorage.removeItem('techstore_products');
+                
+                // Очищаем Firebase, если доступно
+                if (typeof window.saveProductsToFirestore === 'function') {
+                    window.saveProductsToFirestore([]).catch(err => {
+                        console.error('Ошибка очистки товаров в Firebase:', err);
+                    });
+                }
+                
                 loadProducts();
                 alert('Все товары удалены!');
+            }
+        }
+
+        async function syncProductsToFirebase() {
+            if (!confirm('Синхронизировать все товары из localStorage в Firebase? Это обновит все товары в облаке.')) {
+                return;
+            }
+
+            const products = JSON.parse(localStorage.getItem('techstore_products') || '[]');
+            
+            if (products.length === 0) {
+                alert('Нет товаров для синхронизации!');
+                return;
+            }
+
+            try {
+                if (typeof window.saveProductsToFirestore === 'function') {
+                    await window.saveProductsToFirestore(products);
+                    alert(`✅ Успешно синхронизировано ${products.length} товаров с Firebase!`);
+                    console.log('✅ Товары синхронизированы:', products);
+                } else {
+                    alert('⚠️ Firebase не инициализирован. Проверьте подключение к Firebase.');
+                }
+            } catch (error) {
+                console.error('❌ Ошибка синхронизации товаров:', error);
+                alert('❌ Ошибка синхронизации: ' + error.message);
             }
         }
 
@@ -3575,6 +3630,7 @@
     <!-- Firebase Configuration -->
     <script src="js/firebase-config.js"></script>
     <script src="js/firebase-categories.js"></script>
+    <script src="js/firebase-products.js"></script>
     <script src="js/firebase-auth.js"></script>
     <script src="js/firebase-admin.js"></script>
     <script src="js/firebase-orders.js"></script>
