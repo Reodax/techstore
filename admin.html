@@ -2245,14 +2245,33 @@
                 console.log('✅ Используем существующий экземпляр Storage');
             } else {
                 try {
-                    storageInstance = firebase.storage();
-                    window.storage = storageInstance;
-                    console.log('✅ Создан новый экземпляр Storage');
+                    // Получаем app для доступа к storageBucket
+                    const app = firebase.app();
+                    const storageBucket = app.options.storageBucket;
+                    console.log('📦 Storage Bucket:', storageBucket);
+                    
+                    if (storageBucket) {
+                        storageInstance = firebase.storage();
+                        window.storage = storageInstance;
+                        console.log('✅ Создан новый экземпляр Storage');
+                    } else {
+                        throw new Error('Storage bucket не настроен в конфигурации Firebase');
+                    }
                 } catch (error) {
                     console.error('Ошибка инициализации Storage:', error);
-                    alert('Ошибка инициализации Firebase Storage: ' + error.message);
+                    alert('Ошибка инициализации Firebase Storage: ' + error.message + '\n\nПроверьте консоль браузера для деталей.');
                     return;
                 }
+            }
+            
+            // Проверяем, что Storage действительно работает
+            try {
+                const testRef = storageInstance.ref('test');
+                console.log('✅ Storage ref работает');
+            } catch (error) {
+                console.error('❌ Storage ref не работает:', error);
+                alert('Ошибка доступа к Firebase Storage: ' + error.message);
+                return;
             }
 
             try {
@@ -2260,7 +2279,7 @@
                 document.getElementById('imageUploadProgress').style.display = 'block';
                 document.getElementById('imageUploadProgressBar').style.width = '0%';
                 document.getElementById('imageUploadProgressBar').style.background = '#3498db';
-                document.getElementById('imageUploadProgressText').textContent = 'Загрузка...';
+                document.getElementById('imageUploadProgressText').textContent = 'Подготовка к загрузке...';
 
                 // Создаем уникальное имя файла
                 const timestamp = Date.now();
@@ -2268,16 +2287,33 @@
                 const sanitizedFileName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
                 const fileName = `products/${timestamp}_${randomId}_${sanitizedFileName}`;
                 
-                console.log('Загрузка файла:', fileName);
+                console.log('📤 Начало загрузки файла:', fileName);
+                console.log('📦 Размер файла:', (file.size / 1024 / 1024).toFixed(2), 'MB');
+                console.log('🔧 Storage instance:', storageInstance);
+                console.log('👤 Текущий пользователь:', user ? user.email : 'не авторизован');
+                
                 const storageRef = storageInstance.ref(fileName);
+                console.log('📍 Storage ref создан:', storageRef);
+                console.log('📍 Полный путь:', storageRef.fullPath);
 
                 // Загружаем файл
+                console.log('🚀 Начинаем загрузку...');
+                document.getElementById('imageUploadProgressText').textContent = 'Начало загрузки...';
+                
                 const uploadTask = storageRef.put(file);
+                console.log('✅ UploadTask создан:', uploadTask);
+                
+                // Проверяем состояние сразу после создания
+                if (uploadTask.snapshot) {
+                    console.log('📊 Начальное состояние:', uploadTask.snapshot.state);
+                }
 
                 // Отслеживаем прогресс
                 uploadTask.on('state_changed',
                     (snapshot) => {
                         const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                        console.log('📊 Прогресс загрузки:', Math.round(progress) + '%', 
+                            `(${snapshot.bytesTransferred}/${snapshot.totalBytes} байт)`);
                         document.getElementById('imageUploadProgressBar').style.width = progress + '%';
                         document.getElementById('imageUploadProgressText').textContent = 
                             `Загрузка: ${Math.round(progress)}%`;
