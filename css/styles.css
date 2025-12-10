@@ -114,6 +114,8 @@ body.dark-theme .header {
 .logo {
     display: flex;
     align-items: center;
+    margin-right: 10px; /* Автоматический отступ справа толкает навигацию вправо */
+    flex-shrink: 0;
 }
 
 .logo h1 {
