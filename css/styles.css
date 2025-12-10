@@ -86,17 +86,11 @@ body {
 
 /* Шапка - Firebase Style */
 .header {
-    background: var(--header-bg);
-    color: var(--nav-link-color);
-    padding: 0;
-    box-shadow: var(--shadow-sm);
-    position: sticky;
-    top: 0;
-    z-index: 1000;
-    border-bottom: 1px solid var(--card-border);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+    display: flex;
+    justify-content: space-between; /* лого слева, навигация справа */
+    align-items: center;
+    width: 100%;
+    padding: 0 20px; /* Отступы по бокам */
 }
 
 body.dark-theme .header {
@@ -112,10 +106,15 @@ body.dark-theme .header {
 }
 
 .logo {
+    position: absolute; /* Это привяжет лого к углу */
+    top: 10; /* В самый верх */
+    left: 0; /* В самый левый край */
     display: flex;
     align-items: center;
-    margin-right: 10px; /* Автоматический отступ справа толкает навигацию вправо */
+    margin: 0; /* Убираем все отступы */
+    padding: 15px 20px; /* Добавим внутренние отступы для красоты */
     flex-shrink: 0;
+    z-index: 1000; /* Чтобы было поверх других элементов */
 }
 
 .logo h1 {
