@@ -7,8 +7,8 @@
     <link rel="stylesheet" href="css/styles.css">
     <style>
         .admin-container {
-            max-width: 1200px;
             margin: 2rem auto;
+            max-width: 1200px;
             padding: 0 20px;
         }
 
@@ -1061,6 +1061,7 @@
         body.dark-theme .user-item p {
             color: #ffffff;
         }
+        
     </style>
 </head>
 <body>
@@ -1100,7 +1101,7 @@
                 <a href="cart.html">Корзина <span id="cart-count">0</span></a>
                 
                 <a href="profile.html" class="user-info" style="display: none;"></a>
-                <a href="login.html" class="login-btn">Вход</a>
+                <a href="login.html" class="login-btn" style="display: none;">Вход</a>
                 <a href="#" class="logout-btn" style="display: none;">Выйти</a>
                 
                 <a href="admin.html" class="admin-link nav-active">Админ панель</a>
@@ -4104,7 +4105,7 @@
             setTimeout(function() {
                 console.log('Проверка loadNavigationMenu:', typeof window.loadNavigationMenu);
                 
-                if (typeof window.loadNavigationMenu === 'function') {
+                 if (typeof window.loadNavigationMenu === 'function') {
                     console.log('Вызываем loadNavigationMenu...');
                     window.loadNavigationMenu();
                 } else {
@@ -4122,6 +4123,57 @@
                 }, 1000);
             }, 500);
         });
+        // Скрыть кнопку выхода в шапке при входе в админ-панель
+function hideHeaderLogoutButton() {
+    const logoutBtn = document.querySelector('header .logout-btn');
+    if (logoutBtn) {
+        logoutBtn.style.display = 'none';
+    }
+}
+
+// Показать кнопку выхода в шапке при выходе из админ-панели
+function showHeaderLogoutButton() {
+    const logoutBtn = document.querySelector('header .logout-btn');
+    if (logoutBtn) {
+        logoutBtn.style.display = 'block';
+    }
+}
+
+// Модифицируем функцию выхода из админ-панели
+async function adminLogout() {
+    try {
+        // Сначала показываем кнопку в шапке
+        showHeaderLogoutButton();
+        
+        // Выходим из Firebase
+        await firebase.auth().signOut();
+        console.log('✅ Админ вышел');
+        
+        // Обновляем отображение
+        checkAdminAuth();
+    } catch (error) {
+        console.error('❌ Ошибка выхода:', error);
+        alert('Ошибка при выходе');
+    }
+}
+
+// Вызываем при загрузке админ-панели
+document.addEventListener('DOMContentLoaded', function() {
+    // После проверки авторизации скрываем кнопку в шапке
+    setTimeout(() => {
+        // Проверяем, находимся ли мы в админ-панели
+        if (window.location.pathname.includes('admin.html')) {
+            hideHeaderLogoutButton();
+        }
+    }, 500);
+});
+
+// Также скрываем при переключении вкладок/обновлениях
+setInterval(() => {
+    if (window.location.pathname.includes('admin.html')) {
+        hideHeaderLogoutButton();
+    }
+}, 1000);
     </script>
 </body>
 </html>

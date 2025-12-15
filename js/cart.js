@@ -1650,22 +1650,3 @@ window.updateCartQuantity = async function(productId, quantity) {
 window.removeCartItem = async function(productId) {
     await cart.removeItem(productId);
 };
-
-// Проверка админ авторизации для страницы админ панели
-if (window.location.pathname.includes('admin.html')) {
-    document.addEventListener('DOMContentLoaded', function() {
-        // Добавляем кнопку выхода в админ панель
-        const adminHeader = document.querySelector('.admin-header');
-        if (adminHeader) {
-            const logoutBtn = document.createElement('button');
-            logoutBtn.className = 'admin-btn danger';
-            logoutBtn.style.marginTop = '1rem';
-            logoutBtn.textContent = 'Выйти из админ панели';
-            logoutBtn.onclick = function() {
-                localStorage.removeItem('techstore_admin');
-                window.location.reload();
-            };
-            adminHeader.appendChild(logoutBtn);
-        }
-    });
-}
