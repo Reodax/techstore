@@ -132,7 +132,7 @@ body.dark-theme .header {
 }
 
 .logo h1::before {
-    content: var(--logo-icon, '🔥');
+    content: var(--logo-icon, '💻');
     margin-right: 0.5rem;
     font-size: 1.6rem;
     -webkit-text-fill-color: initial;
