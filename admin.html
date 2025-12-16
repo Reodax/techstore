@@ -500,318 +500,6 @@
             border-color: #3498db;
         }
 
-        /* Стили для загрузки файла */
-        .file-upload-wrapper {
-            margin-top: 0.5rem;
-        }
-
-        .file-upload-label {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.75rem;
-            padding: 1.2rem;
-            border: 2px dashed var(--card-border);
-            border-radius: 10px;
-            background: var(--card-bg);
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-align: center;
-        }
-
-        .file-upload-label:hover {
-            border-color: #3498db;
-            background: rgba(52, 152, 219, 0.05);
-            transform: translateY(-2px);
-        }
-
-        .file-upload-icon {
-            font-size: 1.5rem;
-        }
-
-        .file-upload-text {
-            color: var(--product-name-color);
-            font-weight: 500;
-            font-size: 0.95rem;
-        }
-
-        .file-upload-label:hover .file-upload-text {
-            color: #3498db;
-        }
-
-        /* Превью изображения */
-        .image-preview-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .image-preview-wrapper {
-            position: relative;
-            display: inline-block;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            border: 2px solid var(--card-border);
-        }
-
-        .image-preview-img {
-            display: block;
-            max-width: 300px;
-            max-height: 300px;
-            width: auto;
-            height: auto;
-            object-fit: contain;
-        }
-
-        .image-preview-remove {
-            position: absolute;
-            top: 8px;
-            right: 8px;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background: rgba(231, 76, 60, 0.9);
-            color: white;
-            border: none;
-            font-size: 20px;
-            line-height: 1;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-        }
-
-        .image-preview-remove:hover {
-            background: #e74c3c;
-            transform: scale(1.1);
-        }
-
-        /* Прогресс загрузки */
-        .upload-progress-container {
-            margin-top: 1rem;
-        }
-
-        .upload-progress-wrapper {
-            background: var(--card-bg);
-            border-radius: 10px;
-            padding: 1rem;
-            border: 2px solid var(--card-border);
-        }
-
-        .upload-progress-bar {
-            width: 100%;
-            height: 24px;
-            background: rgba(52, 152, 219, 0.1);
-            border-radius: 12px;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .upload-progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #3498db 0%, #2980b9 100%);
-            border-radius: 12px;
-            width: 0%;
-            transition: width 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .upload-progress-fill::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            bottom: 0;
-            right: 0;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-            animation: shimmer 1.5s infinite;
-        }
-
-        @keyframes shimmer {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(100%); }
-        }
-
-        .upload-progress-text {
-            display: block;
-            margin-top: 0.75rem;
-            color: var(--product-desc-color);
-            text-align: center;
-            font-size: 0.9rem;
-            font-weight: 500;
-        }
-
-        /* Темная тема для загрузки файла */
-        body.dark-theme .file-upload-label {
-            border-color: #3c4043;
-            background: #2d2d2d;
-        }
-
-        body.dark-theme .file-upload-label:hover {
-            border-color: #3498db;
-            background: rgba(52, 152, 219, 0.1);
-        }
-
-        body.dark-theme .image-preview-wrapper {
-            border-color: #3c4043;
-        }
-
-        body.dark-theme .upload-progress-wrapper {
-            border-color: #3c4043;
-            background: #2d2d2d;
-        }
-
-        .auth-header {
-            text-align: center;
-            margin-bottom: 0.3rem;
-        }
-
-        .auth-title {
-            font-size: 1.1rem;
-            color: var(--product-name-color);
-            margin: 0;
-            font-weight: 600;
-            transition: color 0.3s ease;
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.5);
-        }
-
-        .modal-content {
-            background-color: var(--card-bg);
-            margin: 2% auto;
-            padding: 2rem;
-            border-radius: 10px;
-            width: 90%;
-            max-width: 600px;
-            max-height: 90vh;
-            overflow-y: auto;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-            position: relative;
-        }
-
-        .modal-content::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        .modal-content::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 10px;
-        }
-
-        .modal-content::-webkit-scrollbar-thumb {
-            background: #3498db;
-            border-radius: 10px;
-        }
-
-        .modal-content::-webkit-scrollbar-thumb:hover {
-            background: #2980b9;
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-        }
-
-        .close {
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: var(--product-desc-color);
-        }
-
-        .close:hover {
-            color: #e74c3c;
-        }
-
-        .product-form {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-
-        .form-row {
-            display: flex;
-            gap: 1rem;
-        }
-
-        .form-row .form-group {
-            flex: 1;
-        }
-
-        .products-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 1rem;
-            margin-bottom: 1rem;
-            max-height: 500px;
-            overflow-y: auto;
-            overflow-x: hidden;
-            padding-right: 0.5rem;
-        }
-
-        .products-grid::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        .products-grid::-webkit-scrollbar-track {
-            background: var(--background-color);
-            border-radius: 10px;
-        }
-
-        .products-grid::-webkit-scrollbar-thumb {
-            background: #3498db;
-            border-radius: 10px;
-        }
-
-        .products-grid::-webkit-scrollbar-thumb:hover {
-            background: #2980b9;
-        }
-
-        .product-card {
-            background: var(--background-color);
-            padding: 1rem;
-            border-radius: 8px;
-            border: 1px solid var(--card-border);
-        }
-
-        .product-actions {
-            display: flex;
-            gap: 0.5rem;
-            margin-top: 0.5rem;
-            flex-wrap: wrap;
-        }
-
-        .product-actions button {
-            padding: 0.3rem 0.6rem;
-            font-size: 0.8rem;
-            flex: 1 1 auto;
-            min-width: 0;
-        }
-
-        .category-badge {
-            display: inline-block;
-            background: #3498db;
-            color: white;
-            padding: 0.2rem 0.5rem;
-            border-radius: 12px;
-            font-size: 0.7rem;
-            margin-top: 0.5rem;
-        }
-
         /* Темная тема для админ панели */
         body.dark-theme .admin-title {
             color: #ffffff;
@@ -1062,6 +750,152 @@
             color: #ffffff;
         }
         
+        .auth-header {
+            text-align: center;
+            margin-bottom: 0.3rem;
+        }
+
+        .auth-title {
+            font-size: 1.1rem;
+            color: var(--product-name-color);
+            margin: 0;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .modal-content {
+            background-color: var(--card-bg);
+            margin: 2% auto;
+            padding: 2rem;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            position: relative;
+        }
+
+        .modal-content::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .modal-content::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .modal-content::-webkit-scrollbar-thumb {
+            background: #3498db;
+            border-radius: 10px;
+        }
+
+        .modal-content::-webkit-scrollbar-thumb:hover {
+            background: #2980b9;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .close {
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--product-desc-color);
+        }
+
+        .close:hover {
+            color: #e74c3c;
+        }
+
+        .product-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+            max-height: 500px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding-right: 0.5rem;
+        }
+
+        .products-grid::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .products-grid::-webkit-scrollbar-track {
+            background: var(--background-color);
+            border-radius: 10px;
+        }
+
+        .products-grid::-webkit-scrollbar-thumb {
+            background: #3498db;
+            border-radius: 10px;
+        }
+
+        .products-grid::-webkit-scrollbar-thumb:hover {
+            background: #2980b9;
+        }
+
+        .product-card {
+            background: var(--background-color);
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid var(--card-border);
+        }
+
+        .product-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .product-actions button {
+            padding: 0.3rem 0.6rem;
+            font-size: 0.8rem;
+            flex: 1 1 auto;
+            min-width: 0;
+        }
+
+        .category-badge {
+            display: inline-block;
+            background: #3498db;
+            color: white;
+            padding: 0.2rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            margin-top: 0.5rem;
+        }
     </style>
 </head>
 <body>
@@ -1638,36 +1472,7 @@
                 </div>
                 <div class="form-group">
                     <label for="productImage">URL изображения:</label>
-                    <input type="url" id="productImage" placeholder="https://example.com/image.jpg">
-                    <div style="text-align: center; margin: 1rem 0; color: var(--product-desc-color);">
-                        <span style="display: inline-block; padding: 0 1rem; background: var(--card-bg); position: relative; z-index: 1;">или</span>
-                        <hr style="margin: -0.5rem 0 0 0; border: none; border-top: 1px solid var(--card-border); position: relative; top: -10px; z-index: 0;">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="productImageFile">Загрузить изображение файлом:</label>
-                    <div class="file-upload-wrapper">
-                        <label for="productImageFile" class="file-upload-label">
-                            <span class="file-upload-icon">📁</span>
-                            <span class="file-upload-text" id="fileUploadText">Выберите файл изображения</span>
-                            <input type="file" id="productImageFile" accept="image/*" onchange="handleImageFileSelect(event)" style="display: none;">
-                        </label>
-                        <small style="color: var(--product-desc-color); display: block; margin-top: 0.5rem; text-align: center;">Максимальный размер: 5MB</small>
-                    </div>
-                    <div id="imagePreview" class="image-preview-container" style="display: none; margin-top: 1.5rem;">
-                        <div class="image-preview-wrapper">
-                            <img id="imagePreviewImg" src="" alt="Preview" class="image-preview-img">
-                            <button type="button" class="image-preview-remove" onclick="clearImagePreview()" title="Удалить">×</button>
-                        </div>
-                    </div>
-                    <div id="imageUploadProgress" class="upload-progress-container" style="display: none; margin-top: 1rem;">
-                        <div class="upload-progress-wrapper">
-                            <div class="upload-progress-bar">
-                                <div id="imageUploadProgressBar" class="upload-progress-fill"></div>
-                            </div>
-                            <small id="imageUploadProgressText" class="upload-progress-text">Загрузка...</small>
-                        </div>
-                    </div>
+                    <input type="url" id="productImage" placeholder="https://example.com/image.jpg" required>
                 </div>
                 <button type="submit" class="admin-btn">Сохранить товар</button>
             </form>
@@ -2143,258 +1948,16 @@
             document.getElementById('modalTitle').textContent = 'Добавить товар';
             document.getElementById('productForm').reset();
             document.getElementById('productId').value = '';
-            document.getElementById('imagePreview').style.display = 'none';
-            document.getElementById('imageUploadProgress').style.display = 'none';
-            document.getElementById('productImageFile').value = '';
-            if (document.getElementById('fileUploadText')) {
-                document.getElementById('fileUploadText').textContent = 'Выберите файл изображения';
-            }
-            uploadedImageUrl = null;
             document.getElementById('productModal').style.display = 'block';
         }
 
         function closeProductModal() {
             document.getElementById('productModal').style.display = 'none';
-            document.getElementById('imagePreview').style.display = 'none';
-            document.getElementById('imageUploadProgress').style.display = 'none';
-            document.getElementById('productImageFile').value = '';
-            if (document.getElementById('fileUploadText')) {
-                document.getElementById('fileUploadText').textContent = 'Выберите файл изображения';
-            }
-            uploadedImageUrl = null;
-        }
-
-        // Переменная для хранения загруженного URL изображения
-        let uploadedImageUrl = null;
-
-        function clearImagePreview() {
-            document.getElementById('imagePreview').style.display = 'none';
-            document.getElementById('productImageFile').value = '';
-            if (document.getElementById('fileUploadText')) {
-                document.getElementById('fileUploadText').textContent = 'Выберите файл изображения';
-            }
-            document.getElementById('productImage').value = '';
-            uploadedImageUrl = null;
-        }
-
-        async function handleImageFileSelect(event) {
-            const file = event.target.files[0];
-            if (!file) {
-                if (document.getElementById('fileUploadText')) {
-                    document.getElementById('fileUploadText').textContent = 'Выберите файл изображения';
-                }
-                return;
-            }
-
-            // Проверяем тип файла
-            if (!file.type.startsWith('image/')) {
-                alert('Пожалуйста, выберите файл изображения');
-                event.target.value = '';
-                if (document.getElementById('fileUploadText')) {
-                    document.getElementById('fileUploadText').textContent = 'Выберите файл изображения';
-                }
-                return;
-            }
-
-            // Проверяем размер файла (максимум 5MB)
-            if (file.size > 5 * 1024 * 1024) {
-                alert('Размер файла не должен превышать 5MB');
-                event.target.value = '';
-                if (document.getElementById('fileUploadText')) {
-                    document.getElementById('fileUploadText').textContent = 'Выберите файл изображения';
-                }
-                return;
-            }
-
-            // Обновляем текст
-            const fileSize = (file.size / 1024 / 1024).toFixed(2);
-            if (document.getElementById('fileUploadText')) {
-                document.getElementById('fileUploadText').textContent = `Выбран: ${file.name} (${fileSize} MB)`;
-            }
-
-            // Показываем превью
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                document.getElementById('imagePreviewImg').src = e.target.result;
-                document.getElementById('imagePreview').style.display = 'block';
-            };
-            reader.readAsDataURL(file);
-
-            // Загружаем файл в Firebase Storage
-            await uploadImageToFirebase(file);
-        }
-
-        async function uploadImageToFirebase(file) {
-            // Проверяем доступность Firebase Storage
-            if (typeof firebase === 'undefined' || !firebase.storage) {
-                console.error('Firebase Storage SDK не загружен');
-                alert('Firebase Storage не доступен. Проверьте подключение к интернету и обновите страницу.');
-                return;
-            }
-
-            // Проверяем авторизацию пользователя
-            const user = firebase.auth().currentUser;
-            if (!user) {
-                console.warn('Пользователь не авторизован');
-                // Продолжаем загрузку, так как правила Storage могут разрешать анонимную загрузку
-            }
-
-            // Проверяем инициализацию Storage
-            let storageInstance;
-            if (window.storage) {
-                storageInstance = window.storage;
-                console.log('✅ Используем существующий экземпляр Storage');
-            } else {
-                try {
-                    // Получаем app для доступа к storageBucket
-                    const app = firebase.app();
-                    const storageBucket = app.options.storageBucket;
-                    console.log('📦 Storage Bucket:', storageBucket);
-                    
-                    if (storageBucket) {
-                        storageInstance = firebase.storage();
-                        window.storage = storageInstance;
-                        console.log('✅ Создан новый экземпляр Storage');
-                    } else {
-                        throw new Error('Storage bucket не настроен в конфигурации Firebase');
-                    }
-                } catch (error) {
-                    console.error('Ошибка инициализации Storage:', error);
-                    alert('Ошибка инициализации Firebase Storage: ' + error.message + '\n\nПроверьте консоль браузера для деталей.');
-                    return;
-                }
-            }
-            
-            // Проверяем, что Storage действительно работает
-            try {
-                const testRef = storageInstance.ref('test');
-                console.log('✅ Storage ref работает');
-            } catch (error) {
-                console.error('❌ Storage ref не работает:', error);
-                alert('Ошибка доступа к Firebase Storage: ' + error.message);
-                return;
-            }
-
-            try {
-                // Показываем прогресс загрузки
-                document.getElementById('imageUploadProgress').style.display = 'block';
-                document.getElementById('imageUploadProgressBar').style.width = '0%';
-                document.getElementById('imageUploadProgressBar').style.background = '#3498db';
-                document.getElementById('imageUploadProgressText').textContent = 'Подготовка к загрузке...';
-
-                // Создаем уникальное имя файла
-                const timestamp = Date.now();
-                const randomId = Math.random().toString(36).substring(2, 15);
-                const sanitizedFileName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
-                const fileName = `products/${timestamp}_${randomId}_${sanitizedFileName}`;
-                
-                console.log('📤 Начало загрузки файла:', fileName);
-                console.log('📦 Размер файла:', (file.size / 1024 / 1024).toFixed(2), 'MB');
-                console.log('🔧 Storage instance:', storageInstance);
-                console.log('👤 Текущий пользователь:', user ? user.email : 'не авторизован');
-                
-                const storageRef = storageInstance.ref(fileName);
-                console.log('📍 Storage ref создан:', storageRef);
-                console.log('📍 Полный путь:', storageRef.fullPath);
-
-                // Загружаем файл
-                console.log('🚀 Начинаем загрузку...');
-                document.getElementById('imageUploadProgressText').textContent = 'Начало загрузки...';
-                
-                const uploadTask = storageRef.put(file);
-                console.log('✅ UploadTask создан:', uploadTask);
-                
-                // Проверяем состояние сразу после создания
-                if (uploadTask.snapshot) {
-                    console.log('📊 Начальное состояние:', uploadTask.snapshot.state);
-                }
-
-                // Отслеживаем прогресс
-                uploadTask.on('state_changed',
-                    (snapshot) => {
-                        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                        console.log('📊 Прогресс загрузки:', Math.round(progress) + '%', 
-                            `(${snapshot.bytesTransferred}/${snapshot.totalBytes} байт)`);
-                        document.getElementById('imageUploadProgressBar').style.width = progress + '%';
-                        document.getElementById('imageUploadProgressText').textContent = 
-                            `Загрузка: ${Math.round(progress)}%`;
-                    },
-                    (error) => {
-                        console.error('❌ Ошибка загрузки файла:', error);
-                        console.error('Код ошибки:', error.code);
-                        console.error('Сообщение:', error.message);
-                        console.error('Полная ошибка:', JSON.stringify(error, null, 2));
-                        
-                        let errorMessage = 'Ошибка загрузки изображения: ';
-                        if (error.code === 'storage/unauthorized') {
-                            errorMessage += 'Нет прав доступа к Firebase Storage. Проверьте настройки безопасности в Firebase Console.';
-                        } else if (error.code === 'storage/canceled') {
-                            errorMessage += 'Загрузка отменена.';
-                        } else if (error.code === 'storage/unknown') {
-                            // Проверяем, не CORS ли это
-                            if (error.message && (error.message.includes('CORS') || error.message.includes('cors') || error.message.includes('preflight'))) {
-                                errorMessage = '⚠️ ОШИБКА CORS!\n\nВаш сайт на GitHub Pages не может загружать файлы в Firebase Storage из-за политики CORS.\n\nРешение:\n1. Откройте файл FIREBASE_STORAGE_CORS_FIX.md\n2. Следуйте инструкциям для настройки CORS\n3. Или используйте URL изображения вместо загрузки файла';
-                            } else {
-                                errorMessage += 'Неизвестная ошибка. Проверьте консоль браузера (F12) для деталей.';
-                            }
-                        } else if (error.code === 'storage/quota-exceeded') {
-                            errorMessage += 'Превышена квота хранилища. Проверьте лимиты в Firebase Console.';
-                        } else if (error.code === 'storage/unauthenticated') {
-                            errorMessage += 'Требуется авторизация. Войдите в админ-панель.';
-                        } else {
-                            errorMessage += error.message || 'Неизвестная ошибка';
-                        }
-                        
-                        alert(errorMessage);
-                        document.getElementById('imageUploadProgress').style.display = 'none';
-                        document.getElementById('productImageFile').value = '';
-                        if (document.getElementById('fileUploadText')) {
-                            document.getElementById('fileUploadText').textContent = 'Выберите файл изображения';
-                        }
-                    },
-                    async () => {
-                        // Загрузка завершена, получаем URL
-                        try {
-                            console.log('Загрузка завершена, получение URL...');
-                            const downloadURL = await uploadTask.snapshot.ref.getDownloadURL();
-                            console.log('URL получен:', downloadURL);
-                            
-                            uploadedImageUrl = downloadURL;
-                            document.getElementById('productImage').value = downloadURL;
-                            document.getElementById('imageUploadProgressText').textContent = '✅ Загрузка завершена!';
-                            document.getElementById('imageUploadProgressBar').style.background = '#2ecc71';
-                            document.getElementById('imageUploadProgressBar').style.width = '100%';
-                            
-                            // Обновляем превью с загруженным изображением
-                            if (document.getElementById('imagePreviewImg')) {
-                                document.getElementById('imagePreviewImg').src = downloadURL;
-                            }
-                            
-                            setTimeout(() => {
-                                document.getElementById('imageUploadProgress').style.display = 'none';
-                            }, 2000);
-                        } catch (error) {
-                            console.error('Ошибка получения URL:', error);
-                            alert('Ошибка получения URL изображения: ' + error.message);
-                            document.getElementById('imageUploadProgress').style.display = 'none';
-                        }
-                    }
-                );
-            } catch (error) {
-                console.error('Ошибка загрузки в Firebase Storage:', error);
-                alert('Ошибка загрузки изображения: ' + error.message);
-                document.getElementById('imageUploadProgress').style.display = 'none';
-            }
+            document.getElementById('productForm').reset();
         }
 
         async function saveProduct(event) {
             event.preventDefault();
-            
-            // Если есть загруженный файл, используем его URL
-            let imageUrl = document.getElementById('productImage').value;
-            if (uploadedImageUrl) {
-                imageUrl = uploadedImageUrl;
-            }
             
             const products = JSON.parse(localStorage.getItem('techstore_products') || '[]');
             const productId = document.getElementById('productId').value;
@@ -2404,7 +1967,7 @@
                 category: document.getElementById('productCategory').value,
                 stock: parseInt(document.getElementById('productStock').value),
                 description: document.getElementById('productDescription').value,
-                image: imageUrl
+                image: document.getElementById('productImage').value
             };
             
             let updatedProducts;
@@ -2453,21 +2016,6 @@
                 document.getElementById('productStock').value = product.stock;
                 document.getElementById('productDescription').value = product.description || '';
                 document.getElementById('productImage').value = product.image || '';
-                document.getElementById('productImageFile').value = '';
-                if (document.getElementById('fileUploadText')) {
-                    document.getElementById('fileUploadText').textContent = 'Выберите файл изображения';
-                }
-                document.getElementById('imageUploadProgress').style.display = 'none';
-                uploadedImageUrl = null;
-                
-                // Показываем превью существующего изображения, если есть
-                if (product.image) {
-                    document.getElementById('imagePreviewImg').src = product.image;
-                    document.getElementById('imagePreview').style.display = 'block';
-                } else {
-                    document.getElementById('imagePreview').style.display = 'none';
-                }
-                
                 document.getElementById('productModal').style.display = 'block';
             }
         }
@@ -4075,7 +3623,6 @@
     </div>
 
     <!-- Firebase SDK -->
-    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
@@ -4124,56 +3671,56 @@
             }, 500);
         });
         // Скрыть кнопку выхода в шапке при входе в админ-панель
-function hideHeaderLogoutButton() {
-    const logoutBtn = document.querySelector('header .logout-btn');
-    if (logoutBtn) {
-        logoutBtn.style.display = 'none';
-    }
-}
-
-// Показать кнопку выхода в шапке при выходе из админ-панели
-function showHeaderLogoutButton() {
-    const logoutBtn = document.querySelector('header .logout-btn');
-    if (logoutBtn) {
-        logoutBtn.style.display = 'block';
-    }
-}
-
-// Модифицируем функцию выхода из админ-панели
-async function adminLogout() {
-    try {
-        // Сначала показываем кнопку в шапке
-        showHeaderLogoutButton();
-        
-        // Выходим из Firebase
-        await firebase.auth().signOut();
-        console.log('✅ Админ вышел');
-        
-        // Обновляем отображение
-        checkAdminAuth();
-    } catch (error) {
-        console.error('❌ Ошибка выхода:', error);
-        alert('Ошибка при выходе');
-    }
-}
-
-// Вызываем при загрузке админ-панели
-document.addEventListener('DOMContentLoaded', function() {
-    // После проверки авторизации скрываем кнопку в шапке
-    setTimeout(() => {
-        // Проверяем, находимся ли мы в админ-панели
-        if (window.location.pathname.includes('admin.html')) {
-            hideHeaderLogoutButton();
+        function hideHeaderLogoutButton() {
+            const logoutBtn = document.querySelector('header .logout-btn');
+            if (logoutBtn) {
+                logoutBtn.style.display = 'none';
+            }
         }
-    }, 500);
-});
 
-// Также скрываем при переключении вкладок/обновлениях
-setInterval(() => {
-    if (window.location.pathname.includes('admin.html')) {
-        hideHeaderLogoutButton();
-    }
-}, 1000);
+        // Показать кнопку выхода в шапке при выходе из админ-панели
+        function showHeaderLogoutButton() {
+            const logoutBtn = document.querySelector('header .logout-btn');
+            if (logoutBtn) {
+                logoutBtn.style.display = 'block';
+            }
+        }
+
+        // Модифицируем функцию выхода из админ-панели
+        async function adminLogout() {
+            try {
+                // Сначала показываем кнопку в шапке
+                showHeaderLogoutButton();
+                
+                // Выходим из Firebase
+                await firebase.auth().signOut();
+                console.log('✅ Админ вышел');
+                
+                // Обновляем отображение
+                checkAdminAuth();
+            } catch (error) {
+                console.error('❌ Ошибка выхода:', error);
+                alert('Ошибка при выходе');
+            }
+        }
+
+        // Вызываем при загрузке админ-панели
+        document.addEventListener('DOMContentLoaded', function() {
+            // После проверки авторизации скрываем кнопку в шапке
+            setTimeout(() => {
+                // Проверяем, находимся ли мы в админ-панели
+                if (window.location.pathname.includes('admin.html')) {
+                    hideHeaderLogoutButton();
+                }
+            }, 500);
+        });
+
+        // Также скрываем при переключении вкладок/обновлениях
+        setInterval(() => {
+            if (window.location.pathname.includes('admin.html')) {
+                hideHeaderLogoutButton();
+            }
+        }, 1000);
     </script>
 </body>
 </html>
